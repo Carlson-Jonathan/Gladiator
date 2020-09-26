@@ -20,17 +20,19 @@ public:
 
    // Set weapon damage
    BasicWeapon(string weaponType) {
-      this->name =        weaponType;
-      this->minDamage =   weapons[weaponType].first[0];
-      this->rangeDamage = weapons[weaponType].first[1];
-      this->stab =        weapons[weaponType].second[0];
-      this->crush =       weapons[weaponType].second[1];
-      this->slash =       weapons[weaponType].second[2];
-      this->chop =        weapons[weaponType].second[3];
+      this->name =              weaponType;
+      this->actionDescription = weapons[weaponType].first;
+      this->minDamage =         weapons[weaponType].second.first[0];
+      this->rangeDamage =       weapons[weaponType].second.first[1];
+      this->stab =              weapons[weaponType].second.second[0];
+      this->crush =             weapons[weaponType].second.second[1];
+      this->slash =             weapons[weaponType].second.second[2];
+      this->chop =              weapons[weaponType].second.second[3];
    }
 
    // Getters
    string getName()       {return name;}
+   string getAction()     {return actionDescription;}
    short getMinDamage()   {return minDamage;}
    short getRangeDamage() {return rangeDamage;}
    float getStab()        {return stab;}
@@ -59,31 +61,33 @@ public:
    }
 
 protected:	
-   string name;
+   string name,
+          actionDescription = " attacks ";
 
    // Damage amount
    short minDamage,
          rangeDamage;
 
+   // Damage Distributers
+   short dStab,
+         dCrush,
+         dSlash,
+         dChop,
+         slow;
+   
    // Damage Type
    float stab,
          crush,
          slash,
          chop;
 
-   // Damage Distributers
-   int dStab,
-       dCrush,
-       dSlash,
-       dChop;
 
-   int slow;
-
-   map<string, pair<vector<int>, vector<float>>> weapons = {
-   // {"name", {min damage, damage range}, {stab, crush, slash, chop}}
-      {"Broad Sword", {  {40, 20},  {0.3, 0.0, 0.5, 0.2}  }},
-      {"Battle Axe",  {  {45, 10},  {0.0, 0.2, 0.1, 0.7}  }},
-      {"Spear",       {  {20, 60},  {0.9, 0.0, 0.1, 0.0}  }}
+   map<string, pair<string, pair<vector<short>, vector<float>>>> weapons = {
+   // {"name", "combat text", {min damage, damage range}, {stab, crush, slash, chop}}
+      {"Broad Sword", {" slashes at ", {  {40, 20},  {0.3, 0.0, 0.5, 0.2}  }}},
+      {"Battle Axe",  {" chops at ",   {  {45, 10},  {0.0, 0.2, 0.1, 0.7}  }}},
+      {"Spear",       {" lunges at ",  {  {20, 60},  {0.9, 0.0, 0.1, 0.0}  }}},
+      {"Mace",        {" swings at ",  {  {1, 100},  {0.0, 1.0, 0.0, 0.0}  }}}
    };
 };
 

@@ -25,7 +25,7 @@ void combat(Character & player);
 * Tells whether or not a character is dead.
 ******************************************************************************/
 bool isDefeated(short HP, short BP, short EP) {
-   return HP && BP && EP;
+   return !(HP && BP && EP);
 }
 
 /******************************************************************************
@@ -85,23 +85,37 @@ void calculateDamage(Character & character, int damage[]) {
 
 /******************************************************************************
 * void attackMonster(Character, Character)
-* Calls the calculateDamage function and other functions that will inflict an
-* ailment on a monster and adjusts monter's health and status conditions.
+* Gets the calculated damage and applies it against a character. This function
+* is used for both monster and hero attacks.
 ******************************************************************************/
-void attackMonster(Character & monster, Character & player) {
+void attackCharacter(Character & victim, Character & aggressor) {
 
    int damage[3];
-   calculateDamage(player, damage);
+   calculateDamage(aggressor, damage);
 
-   cout << "You attack the " << monster.getName() << "\n"
-        << "The " << monster.getName() << " takes damage:\n" 
+   if(victim.isDefending()) {
+      damage[0] /= 2; damage[1] /= 2; damage[2] /= 2;
+      victim.setDefending(false);
+   }
+
+   if(!aggressor.isHero())
+      cout << "The ";
+   cout << aggressor.getName() << aggressor.getWeapon()->getAction();
+   if(aggressor.isHero())
+      cout << "the ";
+   cout << victim.getName();
+   if(aggressor.isHero())
+      cout << " with the " << aggressor.getWeapon()->getName();
+   cout << "!\n";
+
+   cout << "The " << victim.getName() << " takes damage:\n" 
         << "\tHP: " << damage[0] << "\n"
         << "\tBP: " << damage[1] << "\n"
         << "\tEP: " << damage[2] << "\n\n";
 
-   monster.setHitPoints(-damage[0]);
-   monster.setBloodPoints(-damage[1]);
-   monster.setEssencePoints(-damage[2]);
+   victim.setHitPoints(-damage[0]);
+   victim.setBloodPoints(-damage[1]);
+   victim.setEssencePoints(-damage[2]);
 }
 
 /******************************************************************************
@@ -123,31 +137,6 @@ void flee() {
 }
 
 /******************************************************************************
-* void monsterAttack()
-* Sets the monster's attack action.
-******************************************************************************/
-void monsterAttack(Character & monster, Character & player) {
-   
-   int damage[3];
-   calculateDamage(player, damage);
-   
-   if(player.isDefending()) {
-      damage[0] /= 2; damage[1] /= 2; damage[2] /= 2;
-      player.setDefending(false);
-   }
-
-   cout << "The " << monster.getName() << monster.getWeapon()->getName() << "\n"
-        << player.getName() << " takes damage:\n" 
-        << "\tHP: " << damage[0] << "\n"
-        << "\tBP: " << damage[1] << "\n"
-        << "\tEP: " << damage[2] << "\n\n";
-
-   player.setHitPoints(-damage[0]);
-   player.setBloodPoints(-damage[1]);
-   player.setEssencePoints(-damage[2]);   
-}
-
-/******************************************************************************
 * void combat()
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
@@ -156,15 +145,23 @@ void combat(Character & player) {
 
    bool battle = true;
    Character monster;
+   #define pHP {player.getHitPoints()}
+   #define pBP {player.getBloodPoints()}
+   #define pEP {player.getEssencePoints()}
+   #define mHP {monster.getHitPoints()}
+   #define mBP {monster.getBloodPoints()}
+   #define mEP {monster.getEssencePoints()}
    
-   monster.setWeapon(" slashes at you!", 20, 50, 0.2, .06, .01, .01, 100);
-   player.setWeapon("Battle Axe");
+   monster.setWeapon(" slashes at ", 20, 50, 0.2, .06, .01, .01, 100);
+   player.setWeapon("Spear");
    
    cout << "A " << monster.getName() << " draws near!\n" << endl;
    cout << "Player Weapon:" << endl; 
    player.getWeapon()->displayStats();
    cout << "Monster Weapon:" << endl; 
    monster.getWeapon()->displayStats();
+
+   //player.getBloodPoints(), player.getEssencePoints()(!(HP && BP && EP))
 
    while(battle) {
       monster.displayStats();
@@ -173,47 +170,50 @@ void combat(Character & player) {
       short option = getUserInput({"Attack", "Defend", "Flee"});
 
       // Set player action
-      switch (option) {
-         case 1: {
-            attackMonster(monster, player);
-            // Check for defeat
-            // Set affliction
-            // Check for defeat
-            // Set retaliation
-            // Check for defeat
-            // Set retaliation afliction
-            // Check for defeat
-            break; 
+      if (option == 1) {
+         attackCharacter(monster, player);
+         if(isDefeated(mHP, mBP, mEP)) {
+            cout << "The monster died!";
+            break;
          }
-         case 2:
-            defend(monster, player);
+         // Set monster affliction by your weapon
+         if(isDefeated(mHP, mBP, mEP)) {
+            cout << "The monster died!";
             break;
-         case 3:
-            flee();
+         }
+         // Set monster's retaliation to your attack
+         if(isDefeated(pHP, pBP, pEP)) {
+            cout << "You died!";
             break;
-         default:;
+         }
+         // Set monster's retaliation afliction
+         if(isDefeated(pHP, pBP, pEP)) {
+            cout << "You died!";
+            break;
+         }
       }
-
-      if(monster.getHitPoints() <= 0) {
-         cout << "You killed the monster!" << endl;
-         delete player.getWeapon();
-         break;
+      else if (option == 2) {
+         defend(monster, player);
+      }
+      else if(option == 3) {
+         flee();
       }
 
       // Monster's action
-      monsterAttack(monster, player);
-      if(isDefeated(player.getHitPoints(), 
-                 player.getBloodPoints(), 
-                 player.getEssencePoints())) {
+      attackCharacter(player, monster);
+      if(isDefeated(pHP, pBP, pEP)) {
          cout << "You died!" << endl;
          break;
       }
-      // Set affliction
-      // Check for defeat
-      // Set retaliation
-      // Check for defeat
-      // Set retaliation afliction
-      // Check for defeat
+      // Set affliction from monster attack
+      if(isDefeated(pHP, pBP, pEP))
+         cout << "You died!";
+      // Set retaliation against monster attack
+      if(isDefeated(mHP, mBP, mEP))
+         cout << "The monster died!";
+      // Set retaliation afliction against monster
+      if(isDefeated(mHP, mBP, mEP))
+         cout << "The monster died!";
 
       if(player.getBloodPoints() <= 0 || monster.getBloodPoints() <= 0 ||
          player.getHitPoints() <= 0 || monster.getHitPoints() <= 0 ||
@@ -221,6 +221,14 @@ void combat(Character & player) {
          battle = false;
          delete player.getWeapon();
       }
+
+      // Additional affliction damage actions against player {
+
+      // }
+
+      // Additional affliction damage actions against monster {
+
+      // }
    }
 }
 #endif // COMBAT_H

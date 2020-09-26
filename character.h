@@ -31,7 +31,10 @@ public:
    }
 
    // Setup initial hero character.
-   Character(string name) {this->name = name;}
+   Character(string name) {
+      this->name = name;
+      this->ishero = true;
+   }
 	
    // Getters
    string getName();             
@@ -39,7 +42,8 @@ public:
    short getBloodPoints();         
    short getEssencePoints();       
    short getInitiative();
-   bool isDefending();  
+   bool isDefending(); 
+   bool isHero(); 
 
    AdvancedWeapon* getWeapon();
    AdvancedWeapon* getOffhand(); 
@@ -68,12 +72,13 @@ private:
 
    short  
       hitPoints = 1000,
-      bloodPoints = 100,
-      essencePoints = 100,
+      bloodPoints = 1000,
+      essencePoints = 1000,
       initiative = 100,
       strength = 100;
 
-   bool defending = false;
+   bool defending = false,
+        ishero = false;
 
    AdvancedWeapon* weapon;
    AdvancedWeapon* offhand;

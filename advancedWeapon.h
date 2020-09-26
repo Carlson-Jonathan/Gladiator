@@ -17,18 +17,19 @@ public:
    AdvancedWeapon() {}
    AdvancedWeapon(string weaponType) {
       this->name =      weaponType;
-      this->minDamage = weapons[weaponType].first[0];
-      this->rangeDamage = weapons[weaponType].first[1];
-      this->stab =      weapons[weaponType].second[0];
-      this->crush =     weapons[weaponType].second[1];
-      this->slash =     weapons[weaponType].second[2];
-      this->chop =      weapons[weaponType].second[3];
+      this->actionDescription = weapons[weaponType].first;
+      this->minDamage = weapons[weaponType].second.first[0];
+      this->rangeDamage = weapons[weaponType].second.first[1];
+      this->stab =      weapons[weaponType].second.second[0];
+      this->crush =     weapons[weaponType].second.second[1];
+      this->slash =     weapons[weaponType].second.second[2];
+      this->chop =      weapons[weaponType].second.second[3];
    }
 
    // Custom monster damage
    AdvancedWeapon(string attack, short min, short range, float stab, 
    	float crush, float slash, float chop, short slow) {
-       this->name = attack;
+       this->actionDescription = attack;
        this->minDamage = min;
        this->rangeDamage = range;
        this->stab = stab;

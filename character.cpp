@@ -9,6 +9,7 @@ short Character::getBloodPoints()       {return bloodPoints;}
 short Character::getEssencePoints()     {return essencePoints;}
 short Character::getInitiative()        {return initiative;}
 bool Character::isDefending()           {return defending;}
+bool Character::isHero()                {return ishero;}
 AdvancedWeapon* Character::getWeapon()  {return weapon;}
 AdvancedWeapon* Character::getOffhand() {return weapon;}
 

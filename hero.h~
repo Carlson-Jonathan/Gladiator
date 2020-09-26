@@ -1,0 +1,59 @@
+/******************************************************************************
+* hero.h
+* Author: Jonathan Carlson
+* Last Updated: September 2020
+* Description:
+*    Generates the hero object. Accepts a weapon object from the weapons class.
+******************************************************************************/
+#ifndef HERO_H
+#define HERO_H
+#include <iostream>
+#include "advancedWeapon.h"
+using namespace std;
+
+class Hero {
+public:
+   Hero(string name) {this->name = name;}
+	
+   // Getters
+   string getName();             
+   short getHitPoints();          
+   short getBloodPoints();         
+   short getEssencePoints();       
+   short getInitiative();
+   bool isDefending();  
+
+   AdvancedWeapon* getWeapon();
+   AdvancedWeapon* getOffhand(); 
+
+   // Setters
+   void setHitPoints(short change);
+   void setBloodPoints(short change);
+   void setEssencePoints(short change);
+   void setInitiative(short initiative);
+   void setDefending(bool defending);
+   void setWeapon(string weaponType);
+   void setOffhand(string weaponType);
+
+   // Functions
+   void displayStats();
+
+   // Place holders
+   int minDamage = 0, rangeDamage = 0;
+
+private:
+   string name;
+
+   short  
+      hitPoints = 1000,
+      bloodPoints = 100,
+      essencePoints = 100,
+      initiative = 100;
+
+   bool defending = false;
+
+   AdvancedWeapon* weapon;
+   AdvancedWeapon* offhand;    
+};
+
+#endif // HERO_H

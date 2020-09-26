@@ -1,0 +1,3 @@
+#!/bin/bash
+g++ -o gladiator.out main.cpp character.cpp
+exit

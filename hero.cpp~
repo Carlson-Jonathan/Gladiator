@@ -1,0 +1,59 @@
+#include "hero.h"
+
+/******************************************************************************
+* Hero Class Getters:
+******************************************************************************/
+string Hero::getName()             {return name;}   
+short Hero::getHitPoints()         {return hitPoints;}
+short Hero::getBloodPoints()       {return bloodPoints;}
+short Hero::getEssencePoints()     {return essencePoints;}
+short Hero::getInitiative()        {return initiative;}
+bool Hero::isDefending()           {return defending;}
+AdvancedWeapon* Hero::getWeapon()  {return weapon;}
+AdvancedWeapon* Hero::getOffhand() {return weapon;}
+
+/******************************************************************************
+* Hero Class Setters:
+******************************************************************************/
+void Hero::setHitPoints(short change)     {
+   hitPoints += change;
+   if(hitPoints < 0) 
+   hitPoints = 0;
+}
+
+void Hero::setBloodPoints(short change)   {
+   bloodPoints += change;
+   if(bloodPoints < 0) bloodPoints = 0;  
+}
+
+void Hero::setEssencePoints(short change) {
+   essencePoints += change;
+   if(essencePoints < 0) essencePoints = 0;
+}
+
+void Hero::setInitiative(short change) {
+	initiative += change;
+}
+
+void Hero::setDefending(bool defending) {
+   this->defending = defending;
+}
+
+void Hero::setWeapon(string weaponType) {
+   weapon = new AdvancedWeapon(weaponType);
+}
+
+void Hero::setOffhand(string weaponType) {
+   weapon = new AdvancedWeapon(weaponType);
+}
+
+/******************************************************************************
+* void displayStats()
+* Used mostly for testing purposes. Shows hero object's stats.
+******************************************************************************/
+void Hero::displayStats() {
+  cout << name << " stats:\n"
+       << "Hit Points:\t"     << getHitPoints()     << "\n"
+       << "Blood Points\t"    << getBloodPoints()   << "\n"
+       << "Essence Points:\t" << getEssencePoints() << "\n\n";
+}

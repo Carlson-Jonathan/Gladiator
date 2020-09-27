@@ -22,10 +22,10 @@ public:
    float getChop()        {return chop;}
 
    // Setters
-   void setStab(float stab)               {this->stab = stab;}
-   void setCrush(float crush)             {this->crush = crush;}
-   void setSlash(float slash)             {this->slash = slash;}
-   void setChop(float chop)               {this->chop = chop;}
+   void setStab(float stab)   {this->stab = stab;}
+   void setCrush(float crush) {this->crush = crush;}
+   void setSlash(float slash) {this->slash = slash;}
+   void setChop(float chop)   {this->chop = chop;}
 
 
 protected:

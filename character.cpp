@@ -8,6 +8,7 @@ short Character::getHitPoints()         {return hitPoints;}
 short Character::getBloodPoints()       {return bloodPoints;}
 short Character::getEssencePoints()     {return essencePoints;}
 short Character::getInitiative()        {return initiative;}
+short Character::isBleeding()           {return bleeding;}
 bool Character::isDefending()           {return defending;}
 bool Character::isHero()                {return ishero;}
 AdvancedWeapon* Character::getWeapon()  {return weapon;}
@@ -46,6 +47,10 @@ void Character::setWeapon(string weaponType) {
 
 void Character::setOffhand(string weaponType) {
    weapon = new AdvancedWeapon(weaponType);
+}
+
+void Character::setBleeding(short bleeding) {
+  this->bleeding = bleeding;
 }
 
 void Character::setWeapon(string name, short min, short range, float st, float cr, 

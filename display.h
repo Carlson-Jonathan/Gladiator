@@ -12,10 +12,20 @@
 #include <cstdlib>  // sleep
 #include <unistd.h> // sleep
 #include <stdlib.h> // Clear screen
+#include <sstream>
+#include <bits/stdc++.h>
 #include "character.h"
 #include "general.h"
 using namespace std;
 
+short getUserInput(vector<string> options);
+void anyKeyToContinue();
+string writeMessage(string message);
+void combatVictory(Character player, Character monster);
+void combatDefeat();
+void displayAttackMessage(Character & victim, Character & aggressor, short damage[]);
+void displayCharacterStats(Character player, Character monster, short round);
+void selectWeapon(Character & player);
 
 /******************************************************************************
 * void getUserInput(vector<string>)
@@ -69,8 +79,32 @@ string writeMessage(string message) {
 }
 
 /******************************************************************************
+* void writeMessageScroll(string)
+* Prints the message to the screen one line at a time at a specified pace.
+******************************************************************************/
+void writeMessageScroll(string message) {
+    
+   int n = message.length(); 
+   char char_array[n + 1]; 
+   strcpy(char_array, message.c_str());
+
+   stringstream ss(char_array);
+   string to;
+
+   if (char_array != NULL) 
+      while(getline(ss,to,'\n')) {
+         cout << to << endl;
+         cout.flush();
+         usleep(50000);
+      }
+   
+   usleep(700000);
+}
+
+
+/******************************************************************************
 * combatVictory
-* Prints the message to the screen one letter at a time at a specified pace.
+* Displays victory message at the end of combat. 
 ******************************************************************************/
 void combatVictory(Character player, Character monster) {
 	string message = "\t";
@@ -83,14 +117,23 @@ void combatVictory(Character player, Character monster) {
 
 	cout << "======================================="
 	     << "=======================================\n"
-	     << setw(59) << "Y O U   A R E   V I C T O R I O U S !\n"
-	     << "======================================="
+	     << setw(17); 
+	writeMessage("Y O U   A R E   V I C T O R I O U S !\n");
+	cout << "======================================="
 	     << "=======================================\n";	
 	usleep(1000000);
 
 	cout << "\n\t***************\n" << "\tRewards:\n" << "\tCash + $0.23\n" 
-	     << "\tPopularity + 10\n" << "\tLoose women + 0\n" 
+	     << "\tPopularity + 10\n" << "\tChocolate + 1\n" 
 	     << "\t***************\n"; 
+}
+
+/******************************************************************************
+* void combatDefeat()
+* Displays defeat message at the end of combat. 
+******************************************************************************/
+void combatDefeat() {
+	writeMessage("Y O U   H A V E   B E E N   D E F E A T E D !");
 }
 
 /******************************************************************************
@@ -134,19 +177,33 @@ void displayAttackMessage(Character & victim, Character & aggressor, short damag
 * Prints both character's stats side by side.
 ******************************************************************************/
 void displayCharacterStats(Character player, Character monster, short round) { 
-   cout << "******************************* Combat Round " << round 
-        << " ********************************\n"
-        << setw(20) << player.getName() << setw(46) 
-        << monster.getName() << "\n"
-        << setw(17) << "HP: " << player.getHitPoints() << setw(43) 
-        << "HP: " << monster.getHitPoints() << "\n"
-        << setw(17) << "BP: " << player.getBloodPoints() << setw(43)
-        << "BP: " << monster.getBloodPoints() << "\n"
-        << setw(17) << "EP: " << player.getEssencePoints() << setw(43)
-        << "EP: " << monster.getEssencePoints() << "\n"
-        << "***************************************"
-        << "****************************************" 
-        << endl;
+   
+   string text = 
+      "******************************* Combat Round " + to_string(round) +
+      " ********************************\n" + 
+      "                 " + player.getName() +
+      "                                        " + monster.getName() + "\n" + 
+      "                 HP: " + to_string(player.getHitPoints()) +
+      "                                      HP: " + 
+      to_string(monster.getHitPoints()) + "\n" + "                 BP: " +
+      to_string(player.getBloodPoints()) + 
+      "                                      " + 
+      "BP: " + to_string(monster.getBloodPoints()) + "\n" + 
+      "                 EP: " + 
+      to_string(player.getEssencePoints()) + 
+      "                                      " + 
+      "EP: " + to_string(monster.getEssencePoints()) + "\n" + 
+      "***************************************" +
+      "****************************************\n"; 
+
+      writeMessageScroll(text);
+}
+
+void selectWeapon(Character & player) {
+
+	vector<string> wep = {"Broad Sword", "Battle Axe", "Spear", "Mace"};
+	short selection = getUserInput(wep);
+    player.setWeapon(wep[selection - 1]);
 }
 
 

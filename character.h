@@ -46,8 +46,10 @@ public:
    short getBloodPoints();         
    short getEssencePoints();       
    short getInitiative();
+   short isBleeding();
    bool isDefending(); 
    bool isHero(); 
+
 
    AdvancedWeapon* getWeapon();
    AdvancedWeapon* getOffhand(); 
@@ -59,6 +61,7 @@ public:
    void setInitiative(short initiative);
    void setDefending(bool defending);
    void setWeapon(string weaponType);
+   void setBleeding(short bleed);
    void setWeapon(string name, short min, short range, float st, float cr, 
       float sl, float ch, short slow);
    void setOffhand(string weaponType);
@@ -79,7 +82,8 @@ private:
       bloodPoints = 800,
       essencePoints = 800,
       initiative = 100, // Higher is slower
-      strength = 100;
+      strength = 100,
+      bleeding = 0;
 
    bool defending = false,
         ishero = false;
@@ -92,22 +96,22 @@ private:
    /***************************************************************************
    * Monster character list w/stats. 
    *    Stats Description: 
-   *       Monster Name, Weapon Type, Attack Description   
-   *       HP, BP, EP, Slow, Min Damage, Damage Range
+   *       Descriptives: Monster Name, Weapon Type, Attack Description   
+   *       Stats: HP, BP, EP, Slow, Min Damage, Damage Range
    ***************************************************************************/
    pair<vector<string>, vector<short>>
-   skeleton =  { {"Skeleton", "Broad Sword", " scratches at "},  
-                 {200, 500, 150, 140, 20, 10} },
-   slime =     { {"Slime", "Mace", " spits at "},
-                  {800, 275, 350, 140, 20, 10} },
-   snake =     { {"Cobra", "Spear", " strikes at "},
-                 {300, 200, 250, 140, 20, 10} },
-   wolf =      { {"Timber Wolf", "Battle Axe", " bites at "},
-                 {400, 300, 600, 140, 20, 10} },
-   giantWasp = { {"Giant Wasp", "Spear", " swoops at "}, 
-                 {350,  750, 650, 140, 20, 10} },
-   zombie =    { {"Zombie", "Battle Axe", " swings at "},      
-                 {800, 400, 500, 140, 20, 10} };
+   skeleton =  { {"Skeleton", "Pure Slash", " claws at "},  
+                 {300, 1, 150, 170, 20, 10} },
+   slime =     { {"Slime", "Pure Crush", " spits at "},
+                  {800, 1, 350, 170, 20, 10} },
+   snake =     { {"Cobra", "Pure Stab", " strikes at "},
+                 {300, 1, 250, 174, 20, 10} },
+   wolf =      { {"Spider Wolf", "Pure Chop", " bites at "},
+                 {400, 1, 600, 170, 20, 10} },
+   giantWasp = { {"Giant Wasp", "Pure Stab", " swoops at "}, 
+                 {350, 1, 650, 170, 20, 10} },
+   zombie =    { {"Zombie", "Pure Crush", " hurls itself at "},      
+                 {800, 1, 500, 170, 20, 10} };
 
    /***************************************************************************
    * Monster custom weapons

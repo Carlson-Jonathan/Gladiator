@@ -46,7 +46,7 @@ public:
    bool isHeavy()       {return stun;}
    bool isBright()      {return blind;}
    bool isParalyzing()  {return slow;}
-   bool isPoisonous()   {return poison;}
+   bool isVenomous()    {return venom;}
    bool isCold()        {return freeze;}
    bool isSafe()        {return parry;}
 
@@ -54,7 +54,7 @@ public:
    void setMaxMulti(short maxMulti)   {this->maxMulti = maxMulti;}
    void setBurn(bool burn)            {this->burn = burn;}
    void setBleed(bool bleed)          {this->bleed = bleed;}
-   void setPoison(bool poison)        {this->poison = poison;}
+   void setVenom(bool poison)         {this->venom = venom;}
    void setStun(bool stun)            {this->stun = stun;}
    void setBlind(bool blind)          {this->blind = blind;}
    void setSlow(bool slow)            {this->slow = slow;}
@@ -68,7 +68,7 @@ private:
    // Special Damage Modifiers
    bool burn = false,
         bleed = false,
-        poison = false,
+        venom = false,
         stun = false,
         blind = false,
         slow = false,

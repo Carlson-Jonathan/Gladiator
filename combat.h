@@ -32,9 +32,6 @@ bool isDefeated(short HP, short BP, short EP) {
 ******************************************************************************/
 string nextAction(short pSlow, short mSlow, short &rpSlow, short &rmSlow) {
 
-   // For testing
-   // cout << "rpSlow = " << rpSlow << " | " << "rmSlow = " << rmSlow << endl;
-
     if(rpSlow < rmSlow) {
         rpSlow += pSlow;
         return "Player's";
@@ -50,17 +47,15 @@ string nextAction(short pSlow, short mSlow, short &rpSlow, short &rmSlow) {
 * set in that type to determine the amount of damage that will be inflicted
 * per combat round.
 ******************************************************************************/
-void calculateDamage(Character & character, short damage[]) {
+void calculateDamage(Character & aggressor, Character & victim, short damage[]) {
    AdvancedWeapon wep;
-   wep = *character.getWeapon();
+   wep = *aggressor.getWeapon();
 	
    int baseDamage = random(
-      character.minDamage + wep.getMinDamage(), 
-      character.rangeDamage + wep.getRangeDamage()
+      aggressor.minDamage + wep.getMinDamage(), 
+      aggressor.rangeDamage + wep.getRangeDamage()
    );
 
-   // Will add vulnerabilities later:
-   // mstab * monster.getVstab()
    float mStab =  baseDamage * wep.getStab(),
    mCrush =       baseDamage * wep.getCrush(),
    mSlash =       baseDamage * wep.getSlash(),
@@ -69,29 +64,38 @@ void calculateDamage(Character & character, short damage[]) {
    damage[0] = mCrush + (mSlash * 0.34) + (mChop * 0.66),
    damage[1] = mStab + (mSlash * 0.66) + (mChop * 0.34),
    damage[2] = 0;
-}
 
-/******************************************************************************
-* void attackMonster(Character, Character)
-* Gets the calculated damage and applies it against a character. This function
-* is used for both monster and hero attacks.
-******************************************************************************/
-void attackCharacter(Character & victim, Character & aggressor) {
+   /*
+   Damage afflictions:
+   4.) burn
+   5.) bleed
+   6.) venom
+   7.) stun
+   8.) blind
+   9.) slow
+   10.) freeze
+   11.) parry
+   */
 
-   short damage[3];
-   calculateDamage(aggressor, damage);
+
 
    if(victim.isDefending()) {
       damage[0] /= 2; damage[1] /= 2; damage[2] /= 2;
       victim.setDefending(false);
    }
+}
 
+/******************************************************************************
+* void attackMonster(Character, Character)
+* Governs the 'attack' action. Calls all functions that determine the pattern
+* of an attack:
+******************************************************************************/
+void attackCharacter(Character & victim, Character & aggressor) {
+
+   short damage[11];
+
+   calculateDamage(aggressor, victim, damage);
    displayAttackMessage(victim, aggressor, damage);
-
-   // cout << "The " << victim.getName() << " takes damage:\n" 
-   //      << "\tHP: " << damage[0] << "\n"
-   //      << "\tBP: " << damage[1] << "\n"
-   //      << "\tEP: " << damage[2] << "\n\n";
 
    victim.setHitPoints(-damage[0]);
    victim.setBloodPoints(-damage[1]);
@@ -116,6 +120,26 @@ void flee() {
    cout << "You run away screaming like a little girl!" << endl;
 }
 
+void determineAffliction(Character aggressor, Character & victim, short damage[]) {
+   // if aggressor's weapon is(affliction)
+   //    Determine if damage qualifies for affliction
+   //    calculate affliction damage
+   //    apply affliction to victim
+
+
+
+
+}
+
+void setBleeding(short damage) {
+
+
+}
+
+void applyBleedingDamage(Character & victim) {
+
+}
+
 /******************************************************************************
 * void combat()
 * Houses the primary combat loop. Brings all other functions together to form
@@ -125,6 +149,12 @@ void combat(Character & player) {
 
    bool battle = true;
    Character monster;
+   #define pHP {player.getHitPoints()}
+   #define pBP {player.getBloodPoints()}
+   #define pEP {player.getEssencePoints()}
+   #define mHP {monster.getHitPoints()}
+   #define mBP {monster.getBloodPoints()}
+   #define mEP {monster.getEssencePoints()}
    short round = 1;
    short pSlow = player.getInitiative(),
          mSlow = monster.getInitiative(),
@@ -132,15 +162,11 @@ void combat(Character & player) {
          rmSlow = mSlow,
          option;
 
-   #define pHP {player.getHitPoints()}
-   #define pBP {player.getBloodPoints()}
-   #define pEP {player.getEssencePoints()}
-   #define mHP {monster.getHitPoints()}
-   #define mBP {monster.getBloodPoints()}
-   #define mEP {monster.getEssencePoints()}
    
    // Placeholders
-   player.setWeapon("Spear");
+   // player.setWeapon("Spear");
+   selectWeapon(player);
+
    
    cout << "A " << monster.getName() << " draws near!\n" << endl;
    cout << "Player Weapon:" << endl; 
@@ -160,25 +186,13 @@ void combat(Character & player) {
          // Set player action
          if (option == 1) {
             attackCharacter(monster, player);
-            if(isDefeated(mHP, mBP, mEP)) {
+            if(isDefeated(mHP, mBP, mEP)){
                combatVictory(player, monster);
                break;
             }
             // Set monster affliction by your weapon
-            if(isDefeated(mHP, mBP, mEP)) {
-               combatVictory(player, monster);
-               break;
-            }
             // Set monster's retaliation to your attack
-            if(isDefeated(pHP, pBP, pEP)) {
-               combatVictory(player, monster);
-               break;
-            }
             // Set monster's retaliation afliction
-            if(isDefeated(pHP, pBP, pEP)) {
-               cout << "You died!";
-               break;
-            }
          }
          else if (option == 2) {
             rpSlow = rmSlow;
@@ -193,25 +207,9 @@ void combat(Character & player) {
          * Monster's Action Block
          *********************************************************************/
          attackCharacter(player, monster);
-         if(isDefeated(pHP, pBP, pEP)) {
-            cout << "You died!" << endl;
-            break;
-         }
          // Set affliction from monster attack
-         if(isDefeated(pHP, pBP, pEP)) {
-            cout << "You died!";
-            break;
-         }
          // Set retaliation against monster attack
-         if(isDefeated(mHP, mBP, mEP)) {
-            combatVictory(player, monster);
-            break;
-         }
          // Set retaliation afliction against monster
-         if(isDefeated(mHP, mBP, mEP)) {
-            combatVictory(player, monster);
-            break;
-         }
       }
 
       /*********************************************************************

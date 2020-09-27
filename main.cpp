@@ -10,14 +10,14 @@
 
 int main() {
 
-   cout << "Name your hero: ";
+   cout << "\tName your hero: ";
    string name;
    getline(cin, name);
    Character player(name);
 
    combat(player);
 
-   cout << "End of line." << endl;
+   cout << "\n\n>> End of Program. <<" << endl;
 
    return 0;
 }

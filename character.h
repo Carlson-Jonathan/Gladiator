@@ -19,15 +19,19 @@ using namespace std;
 class Character {
 public:
 
-   // Generates a random monster character
    Character() {
       srand(time(0));
       int x = rand() % monsters.size();
-      pair<string, vector<int>> newMonster = monsters[x];
-      this->name =          newMonster.first;
+      pair<vector<string>, vector<short>> newMonster = monsters[x];
+      this->name =          newMonster.first[0];
       this->hitPoints =     newMonster.second[0];
       this->bloodPoints =   newMonster.second[1];
       this->essencePoints = newMonster.second[2];
+      this->initiative =    newMonster.second[3];
+      setWeapon(newMonster.first[1]);
+      getWeapon()->setAction(newMonster.first[2]);
+      getWeapon()->setMinDamage(newMonster.second[4]);
+      getWeapon()->setRangeDamage(newMonster.second[5]);
    }
 
    // Setup initial hero character.
@@ -65,16 +69,16 @@ public:
    void displayStats();
 
    // Make bare fists a weapon
-   int minDamage = 0, rangeDamage = 0;
+   short minDamage = 0, rangeDamage = 0;
 
 private:
    string name;
 
    short  
-      hitPoints = 1000,
-      bloodPoints = 1000,
-      essencePoints = 1000,
-      initiative = 100,
+      hitPoints = 800,
+      bloodPoints = 800,
+      essencePoints = 800,
+      initiative = 100, // Higher is slower
       strength = 100;
 
    bool defending = false,
@@ -86,19 +90,31 @@ private:
 
 
    /***************************************************************************
-   * Monster character list w/stats
+   * Monster character list w/stats. 
+   *    Stats Description: 
+   *       Monster Name, Weapon Type, Attack Description   
+   *       HP, BP, EP, Slow, Min Damage, Damage Range
    ***************************************************************************/
-   pair<string, vector<int>> 
-   //           Monster Name    HP    BP    EP 
-   skeleton =  {"Skeleton",    {200, 1000, 150} },
-   slime =     {"Slime",       {800,  275, 350} },
-   snake =     {"Cobra",       {300,  200, 250} },
-   wolf =      {"Timber Wolf", {400,  300, 600} },
-   giantWasp = {"Giant Wasp",  {350,  750, 650} },
-   zombie =    {"Zombie",      {800, 1400, 500} };
+   pair<vector<string>, vector<short>>
+   skeleton =  { {"Skeleton", "Broad Sword", " scratches at "},  
+                 {200, 500, 150, 140, 20, 10} },
+   slime =     { {"Slime", "Mace", " spits at "},
+                  {800, 275, 350, 140, 20, 10} },
+   snake =     { {"Cobra", "Spear", " strikes at "},
+                 {300, 200, 250, 140, 20, 10} },
+   wolf =      { {"Timber Wolf", "Battle Axe", " bites at "},
+                 {400, 300, 600, 140, 20, 10} },
+   giantWasp = { {"Giant Wasp", "Spear", " swoops at "}, 
+                 {350,  750, 650, 140, 20, 10} },
+   zombie =    { {"Zombie", "Battle Axe", " swings at "},      
+                 {800, 400, 500, 140, 20, 10} };
 
-   vector<pair<string, vector<int>>> monsters = {
-   skeleton, slime, snake, wolf, giantWasp, zombie 
+   /***************************************************************************
+   * Monster custom weapons
+   ***************************************************************************/
+
+   vector<pair <vector<string>, vector<short> >> monsters = {
+   skeleton, slime, snake, wolf, giantWasp, zombie
    };
 };
 

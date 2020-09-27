@@ -41,6 +41,7 @@ public:
    float getChop()        {return chop;}
 
    // Setters
+   void setAction(string action)          {this->actionDescription = action;}
    void setMinDamage(short minDamage)     {this->minDamage = minDamage;}
    void setRangeDamage(short rangeDamage) {this->rangeDamage = rangeDamage;}
    void setStab(float stab)               {this->stab = stab;}
@@ -84,9 +85,9 @@ protected:
 
    map<string, pair<string, pair<vector<short>, vector<float>>>> weapons = {
    // {"name", "combat text", {min damage, damage range}, {stab, crush, slash, chop}}
-      {"Broad Sword", {" slashes at ", {  {40, 20},  {0.3, 0.0, 0.5, 0.2}  }}},
-      {"Battle Axe",  {" chops at ",   {  {45, 10},  {0.0, 0.2, 0.1, 0.7}  }}},
-      {"Spear",       {" lunges at ",  {  {20, 60},  {0.9, 0.0, 0.1, 0.0}  }}},
+      {"Broad Sword", {" slashes at ", {  {40, 120},  {0.3, 0.0, 0.5, 0.2}  }}},
+      {"Battle Axe",  {" chops at ",   {  {45, 110},  {0.0, 0.2, 0.1, 0.7}  }}},
+      {"Spear",       {" lunges at ",  {  {20, 160},  {0.9, 0.0, 0.1, 0.0}  }}},
       {"Mace",        {" swings at ",  {  {1, 100},  {0.0, 1.0, 0.0, 0.0}  }}}
    };
 };

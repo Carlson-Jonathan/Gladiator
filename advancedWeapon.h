@@ -24,6 +24,7 @@ public:
       this->crush =     weapons[weaponType].second.second[1];
       this->slash =     weapons[weaponType].second.second[2];
       this->chop =      weapons[weaponType].second.second[3];
+      this->sharp = ((stab >= 0.4) || (slash >= 0.5));
    }
 
    // Custom monster damage
@@ -42,7 +43,7 @@ public:
    // Getters
    short getMaxMulti()  {return maxMulti;}
    bool isFlaming()     {return burn;}
-   bool isSharp()       {return bleed;}
+   bool isSharp()       {return sharp;}
    bool isHeavy()       {return stun;}
    bool isBright()      {return blind;}
    bool isParalyzing()  {return slow;}
@@ -53,8 +54,8 @@ public:
    // Setters
    void setMaxMulti(short maxMulti)   {this->maxMulti = maxMulti;}
    void setBurn(bool burn)            {this->burn = burn;}
-   void setBleed(bool bleed)          {this->bleed = bleed;}
-   void setVenom(bool poison)         {this->venom = venom;}
+   void setBleed(bool sharp)          {this->sharp = sharp;}
+   void setVenom(bool venom)          {this->venom = venom;}
    void setStun(bool stun)            {this->stun = stun;}
    void setBlind(bool blind)          {this->blind = blind;}
    void setSlow(bool slow)            {this->slow = slow;}
@@ -67,7 +68,7 @@ private:
 
    // Special Damage Modifiers
    bool burn = false,
-        bleed = false,
+        sharp = false,
         venom = false,
         stun = false,
         blind = false,

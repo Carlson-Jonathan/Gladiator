@@ -50,7 +50,7 @@ void Character::setOffhand(string weaponType) {
 }
 
 void Character::setBleeding(short bleeding) {
-  this->bleeding = bleeding;
+  this->bleeding += bleeding;
 }
 
 void Character::setWeapon(string name, short min, short range, float st, float cr, 

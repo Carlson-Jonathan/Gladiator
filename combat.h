@@ -10,10 +10,14 @@
 #include <iostream>
 #include "display.h"
 
-void calculateDamage(Character & player, int damage[]);
-void attackMonster(Character & monster, Character & player);
+bool isDefeated(short HP, short BP, short EP);
+string nextAction(short pSlow, short mSlow, short& rpSlow, short & rmSlow);
+void calculateDamageTypes(Character & aggressor, short damage[]);
+void calculateRawDamage(Character & player, int damage[]);
+bool attackCharacter(Character & victim, Character & aggressor);
 void defend(Character & monster, Character & player);
 void flee();
+void determineAffliction(Character & aggressor, Character & victim, short damage[]);
 void monsterAttack(Character & monster, Character & player);
 void combat(Character & player);
 
@@ -42,64 +46,70 @@ string nextAction(short pSlow, short mSlow, short &rpSlow, short &rmSlow) {
 }
 
 /******************************************************************************
-* void calculateDamage(Character, int)
+* void calculateDamageTypes(Character, short[]) 
+* Calculates stab, crush, slash, and chop damage values and returns in an array
+******************************************************************************/
+void calculateDamageTypes(Character & aggressor, short damage[]) {
+   AdvancedWeapon wep;
+   wep = *aggressor.getWeapon();
+	
+   short baseDamage = random(
+         aggressor.minDamage + wep.getMinDamage(), 
+         aggressor.rangeDamage + wep.getRangeDamage()
+   );
+
+   short mStab = baseDamage * wep.getStab(),
+        mCrush = baseDamage * wep.getCrush(),
+        mSlash = baseDamage * wep.getSlash(),
+         mChop = baseDamage * wep.getChop();
+
+   damage[0] = mStab;
+   damage[1] = mCrush;
+   damage[2] = mSlash;
+   damage[3] = mChop;
+}
+
+/******************************************************************************
+* void calculateRawDamage(Character, int, short[])
 * Accepts either the Hero or Monster type objects and uses the weapon object
 * set in that type to determine the amount of damage that will be inflicted
 * per combat round.
 ******************************************************************************/
-void calculateDamage(Character & aggressor, Character & victim, short damage[]) {
-   AdvancedWeapon wep;
-   wep = *aggressor.getWeapon();
-	
-   int baseDamage = random(
-      aggressor.minDamage + wep.getMinDamage(), 
-      aggressor.rangeDamage + wep.getRangeDamage()
-   );
+void calculateRawDamage(Character & victim, short rawDamage[], short dT[]) {
 
-   float mStab =  baseDamage * wep.getStab(),
-   mCrush =       baseDamage * wep.getCrush(),
-   mSlash =       baseDamage * wep.getSlash(),
-   mChop =        baseDamage * wep.getChop();
+   rawDamage[0] = dT[1] + (dT[2] * 0.34) + (dT[3] * 0.66),
+   rawDamage[1] = dT[0] + (dT[2] * 0.66) + (dT[3] * 0.34),
+   rawDamage[2] = 0;
 
-   damage[0] = mCrush + (mSlash * 0.34) + (mChop * 0.66),
-   damage[1] = mStab + (mSlash * 0.66) + (mChop * 0.34),
-   damage[2] = 0;
-
-   /*
-   Damage afflictions:
-   4.) burn
-   5.) bleed
-   6.) venom
-   7.) stun
-   8.) blind
-   9.) slow
-   10.) freeze
-   11.) parry
-   */
-
-
-
-   if(victim.isDefending()) {
-      damage[0] /= 2; damage[1] /= 2; damage[2] /= 2;
-      victim.setDefending(false);
-   }
+   if(victim.isDefending())
+      rawDamage[0] /= 2; rawDamage[1] /= 2; rawDamage[2] /= 2;
 }
 
 /******************************************************************************
 * void attackMonster(Character, Character)
 * Governs the 'attack' action. Calls all functions that determine the pattern
-* of an attack:
+* of an attack.
 ******************************************************************************/
-void attackCharacter(Character & victim, Character & aggressor) {
+bool attackCharacter(Character & victim, Character & aggressor) {
 
-   short damage[11];
+   short damageTypes[4], rawDamage[3];
+   calculateDamageTypes(aggressor, damageTypes);
+   calculateRawDamage(victim, rawDamage, damageTypes);
+   displayAttackMessage(victim, aggressor, rawDamage);
 
-   calculateDamage(aggressor, victim, damage);
-   displayAttackMessage(victim, aggressor, damage);
+   victim.setHitPoints(-rawDamage[0]);
+   victim.setBloodPoints(-rawDamage[1]);
+   victim.setEssencePoints(-rawDamage[2]);
 
-   victim.setHitPoints(-damage[0]);
-   victim.setBloodPoints(-damage[1]);
-   victim.setEssencePoints(-damage[2]);
+   if(isDefeated(victim.getHitPoints(), 
+                 victim.getBloodPoints(), 
+                 victim.getEssencePoints()))
+      return true;
+
+   determineAffliction(aggressor, victim, damageTypes);
+
+   if(victim.isDefending())
+      victim.setDefending(false);
 }
 
 /******************************************************************************
@@ -108,7 +118,7 @@ void attackCharacter(Character & victim, Character & aggressor) {
 ******************************************************************************/
 void defend(Character & monster, Character & player) {
    player.setDefending(true);
-   cout << player.getName() << " stands guard.\n" << endl;
+   cout << "\t" << player.getName() << " stands guard.\n" << endl;
 }
 
 /******************************************************************************
@@ -117,27 +127,29 @@ void defend(Character & monster, Character & player) {
 ******************************************************************************/
 void flee() {
    // Based on yours and the monster's health
-   cout << "You run away screaming like a little girl!" << endl;
+   cout << "\tYou run away screaming like a little girl!" << endl;
 }
 
-void determineAffliction(Character aggressor, Character & victim, short damage[]) {
-   // if aggressor's weapon is(affliction)
-   //    Determine if damage qualifies for affliction
-   //    calculate affliction damage
-   //    apply affliction to victim
-
-
-
-
+void determineAffliction(Character & aggressor, Character & victim, short damage[]) {
+   AdvancedWeapon *wep = aggressor.getWeapon();
+   if(wep->isSharp()) {
+      victim.setBleeding((damage[0] * 0.2 + damage[2] * 0.1) * 10);
+   }
 }
 
-void setBleeding(short damage) {
-
-
-}
-
-void applyBleedingDamage(Character & victim) {
-
+bool applyBleeding(Character & victim) {
+   short bleedAmt = victim.isBleeding() / 10;
+   victim.setBloodPoints(-bleedAmt);
+   if(victim.getBloodPoints() < 0)
+      victim.setBloodPoints(0); 
+   bleedingMessage(victim);
+   victim.setBleeding(-bleedAmt - 2);
+   if(victim.isBleeding() < 0)
+      victim.setBleeding(0);
+   if(isDefeated(victim.getHitPoints(), 
+                 victim.getBloodPoints(), 
+                 victim.getEssencePoints()))
+      return true;
 }
 
 /******************************************************************************
@@ -177,6 +189,15 @@ void combat(Character & player) {
    while(battle) {
 
       if(nextAction(pSlow, mSlow, rpSlow, rmSlow) == "Player's") {
+         if(player.isBleeding())
+            if(applyBleeding(player)) 
+               break;
+
+         if(monster.isBleeding())
+            if(applyBleeding(monster)) {
+               combatVictory(player, monster);
+               break;
+         }
          displayCharacterStats(player, monster, round++);
          /*********************************************************************
          * Player's Action Block 
@@ -185,8 +206,7 @@ void combat(Character & player) {
 
          // Set player action
          if (option == 1) {
-            attackCharacter(monster, player);
-            if(isDefeated(mHP, mBP, mEP)){
+            if(attackCharacter(monster, player)) {
                combatVictory(player, monster);
                break;
             }
@@ -216,7 +236,6 @@ void combat(Character & player) {
       * Residual Action Block
       *********************************************************************/
 
-      // Additional affliction damage actions against player {
 
       // }
 

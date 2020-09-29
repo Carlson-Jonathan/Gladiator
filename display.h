@@ -107,25 +107,32 @@ void writeMessageScroll(string message) {
 * Displays victory message at the end of combat. 
 ******************************************************************************/
 void combatVictory(Character player, Character monster) {
-	string message = "\t";
-	message += "The "; message += monster.getName(); 
-	message += " drops to the ground writhing in agony.";
+   
+   string message = "\t";
+   message += "The "; message += monster.getName(); 
+   message += " drops to the ground writhing in agony.";
 	
-	message = writeMessage(message);
-	usleep(1000000);
-	cout << endl;
+   message = writeMessage(message);
+   usleep(1000000);
+   cout << endl;
 
-	cout << "======================================="
-	     << "=======================================\n"
-	     << setw(17); 
-	writeMessage("Y O U   A R E   V I C T O R I O U S !\n");
-	cout << "======================================="
-	     << "=======================================\n";	
-	usleep(1000000);
+   cout << "========================================"
+	    << "=======================================\n";
 
-	cout << "\n\t***************\n" << "\tRewards:\n" << "\tCash + $0.23\n" 
-	     << "\tPopularity + 10\n" << "\tChocolate + 1\n" 
-	     << "\t***************\n"; 
+   message = player.getName() + " is victorious!";
+   short length = message.length();
+   
+   for(int i = 0; i < 36 - message.length() / 2; i++)
+      cout << " ";
+
+   writeMessage(message);
+   cout << "\n======================================="
+	    << "========================================\n";	
+   usleep(1000000);
+
+   cout << "\n\t***************\n" << "\tRewards:\n" << "\tCash + $0.23\n" 
+	    << "\tPopularity + 10\n" << "\tChocolate + 1\n" 
+	    << "\t***************\n"; 
 }
 
 /******************************************************************************
@@ -206,5 +213,11 @@ void selectWeapon(Character & player) {
     player.setWeapon(wep[selection - 1]);
 }
 
+void bleedingMessage(Character & victim) {
+	string message = victim.getName() + 
+	" is bleeding from thier wounds\n\tand takes " + 
+	to_string(victim.isBleeding() / 10) + " blood point damage!\n\n";
+	writeMessage(message); 
+}
 
 #endif // DISPLAY_H

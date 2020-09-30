@@ -1,7 +1,6 @@
 /******************************************************************************
 * advancedWeapon.h
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *    Contains advancedWeapon class with a list of advancedWeapon and their 
 * statistics.
@@ -61,8 +60,6 @@ public:
    void setSlow(bool slow)            {this->slow = slow;}
    void setFreeze(bool freeze)        {this-> freeze = freeze;}
    void setParry(bool parry)          {this-> parry = parry;}
-
-   // ~AdvancedWeapon() {cout << "Deleting weapon object...";}
 
 private:
 

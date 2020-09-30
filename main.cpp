@@ -1,7 +1,6 @@
 /******************************************************************************
 * main.cpp
 * Author Jonathan Carlson
-* Created: September 2020
 * Description:
 *    Main driver.
 ******************************************************************************/
@@ -13,7 +12,7 @@ int main() {
    cout << "\tName your hero: ";
    string name;
    getline(cin, name);
-   Character player(name);
+   Character player(name, true);
 
    combat(player);
 

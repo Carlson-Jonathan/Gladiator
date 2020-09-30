@@ -1,7 +1,6 @@
 /******************************************************************************
 * basicArmor.h
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *    Contains basicArmor class with a list of basicWeapon and their statistics.
 ******************************************************************************/

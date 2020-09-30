@@ -1,7 +1,6 @@
 /******************************************************************************
 * combat.cpp
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *  Governs the combat sequence applying stats from the Character class objects. 
 ******************************************************************************/
@@ -166,7 +165,7 @@ void displayAttackMessage(Character & victim, Character & aggressor, short damag
    message = writeMessage(message);
    usleep(300000);
 
-   if(!aggressor.isHero())
+   if(aggressor.isHero())
       message += "The ";
    message += victim.getName() += " takes damage:";
    writeMessage(message);
@@ -206,6 +205,10 @@ void displayCharacterStats(Character player, Character monster, short round) {
       writeMessageScroll(text);
 }
 
+/******************************************************************************
+* void selectWeapon(Character)
+* Temporary function that sets the players weapon for testing purposes.
+******************************************************************************/
 void selectWeapon(Character & player) {
 
 	vector<string> wep = {"Broad Sword", "Battle Axe", "Spear", "Mace"};
@@ -213,11 +216,37 @@ void selectWeapon(Character & player) {
     player.setWeapon(wep[selection - 1]);
 }
 
+/******************************************************************************
+* void bleedingMessage(Character)
+* Displays the damage amount if beeding is in affect.
+******************************************************************************/
 void bleedingMessage(Character & victim) {
-	string message = victim.getName() + 
-	" is bleeding from thier wounds\n\tand takes " + 
-	to_string(victim.isBleeding() / 10) + " blood point damage!\n\n";
-	writeMessage(message); 
+   string message = "";
+   if(!victim.isHero())
+      message += "The ";
+   message += victim.getName() + " is bleeding from ";
+   if(!victim.isHero())
+      message += "its ";
+   else
+   	  message += "their "; 
+   message += "wounds\n\tand takes " + 
+   to_string(victim.isBleeding() / 10) + " blood point damage!\n\n";
+   writeMessage(message); 
 }
+
+void displayStats(Character character) {
+   short min = character.getWeapon()->getMinDamage();
+   short range = character.getWeapon()->getRangeDamage();
+   cout << "Weapon: " << character.getWeapon()->getName() << "\n"
+        << "Damage: " << min << " - " 
+        << (min + range) << "\n"
+        << "Stab: "  << character.getWeapon()->getStab()  << "\n"
+        << "Crush: " << character.getWeapon()->getCrush() << "\n"
+        << "Slash: " << character.getWeapon()->getSlash() << "\n"
+        << "Chop: "  << character.getWeapon()->getChop()  << "\n"
+        << "Initiative: " << character.getInitiative() << "\n"
+        << endl;
+}
+
 
 #endif // DISPLAY_H

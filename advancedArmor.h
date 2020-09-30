@@ -1,7 +1,6 @@
 /******************************************************************************
 * advancedArmor.h
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *    Contains advancedArmor class with a list of armor and their statistics.
 ******************************************************************************/

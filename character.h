@@ -1,7 +1,6 @@
 /******************************************************************************
 * hero.h
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *    Generates a character object. Accepts weapon objects from weapon class.
 ******************************************************************************/
@@ -9,9 +8,9 @@
 #define CHARACTER_H
 #include <iostream>
 #include <vector>
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <time.h> 
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include "advancedWeapon.h"
 #include "advancedArmor.h"
 using namespace std;
@@ -19,40 +18,21 @@ using namespace std;
 class Character {
 public:
 
-   Character() {
-      srand(time(0));
-      int x = rand() % monsters.size();
-      pair<vector<string>, vector<short>> newMonster = monsters[x];
-      this->name =          newMonster.first[0];
-      this->hitPoints =     newMonster.second[0];
-      this->bloodPoints =   newMonster.second[1];
-      this->essencePoints = newMonster.second[2];
-      this->initiative =    newMonster.second[3];
-      setWeapon(newMonster.first[1]);
-      getWeapon()->setAction(newMonster.first[2]);
-      getWeapon()->setMinDamage(newMonster.second[4]);
-      getWeapon()->setRangeDamage(newMonster.second[5]);
-   }
+   Character(string newMonster = "None");
+   Character(string name, bool hero);
 
-   // Setup initial hero character.
-   Character(string name) {
-      this->name = name;
-      this->ishero = true;
-   }
-	
    // Getters
-   string getName();             
-   short getHitPoints();          
-   short getBloodPoints();         
-   short getEssencePoints();       
+   string getName();
+   short getHitPoints();
+   short getBloodPoints();
+   short getEssencePoints();
    short getInitiative();
    short isBleeding();
-   bool isDefending(); 
-   bool isHero(); 
-
+   bool isDefending();
+   bool isHero();
 
    AdvancedWeapon* getWeapon();
-   AdvancedWeapon* getOffhand(); 
+   AdvancedWeapon* getOffhand();
 
    // Setters
    void setHitPoints(short change);
@@ -70,6 +50,7 @@ public:
 
    // Functions
    void displayStats();
+   void generateMonstersList();
 
    // Make bare fists a weapon
    short minDamage = 0, rangeDamage = 0;
@@ -77,7 +58,7 @@ public:
 private:
    string name;
 
-   short  
+   short
       hitPoints = 800,
       bloodPoints = 800,
       essencePoints = 800,
@@ -88,38 +69,33 @@ private:
    bool defending = false,
         ishero = false;
 
+   vector<string> monsters;
+
    AdvancedWeapon* weapon;
    AdvancedWeapon* offhand;
-   AdvancedArmor* armor;    
-
+   AdvancedArmor* armor;
 
    /***************************************************************************
-   * Monster character list w/stats. 
-   *    Stats Description: 
-   *       Descriptives: Monster Name, Weapon Type, Attack Description   
+   * Monster character list w/stats.
+   *    Stats Description:
+   *       Descriptives: Monster Name, Weapon Type, Attack Description
    *       Stats: HP, BP, EP, Slow, Min Damage, Damage Range
    ***************************************************************************/
-   pair<vector<string>, vector<short>>
-   skeleton =  { {"Skeleton", "Pure Slash", " claws at "},  
-                 {300, 500, 150, 170, 20, 10} },
-   slime =     { {"Slime", "Pure Crush", " spits at "},
-                  {800, 500, 350, 170, 20, 10} },
-   snake =     { {"Cobra", "Pure Stab", " strikes at "},
-                 {300, 500, 250, 174, 20, 10} },
-   wolf =      { {"Spider Wolf", "Pure Chop", " bites at "},
-                 {400, 500, 600, 170, 20, 10} },
-   giantWasp = { {"Giant Wasp", "Pure Stab", " swoops at "}, 
-                 {350, 500, 650, 170, 20, 10} },
-   zombie =    { {"Zombie", "Pure Crush", " hurls itself at "},      
-                 {800, 500, 500, 170, 20, 10} };
-
-   /***************************************************************************
-   * Monster custom weapons
-   ***************************************************************************/
-
-   vector<pair <vector<string>, vector<short> >> monsters = {
-   skeleton, slime, snake, wolf, giantWasp, zombie
+   map<string, pair<vector<string>, vector<short>>> monster = {
+   {"Skeleton", {{ "Skeleton", "Pure Slash", " claws at " }, 
+                 { 300, 500, 150, 40, 30, 20 }}},
+   {"Slime",    {{ "Slime", "Pure Crush", " spits at " },   
+                 { 800, 500, 350, 190, 100, 50 }}},
+   {"Snake",    {{ "Cobra", "Pure Stab", " strikes at " },
+                 { 300, 500, 250, 40, 100, 50 }}},
+   {"Wolf",     {{ "Spider Wolf", "Pure Chop", " bites at " },
+                 { 400, 500, 600, 20, 10, 10 }}},
+   {"GiantWasp",{{ "Giant Wasp", "Pure Stab", " swoops at " },
+                 { 350, 500, 650, 40, 30, 20 }}},
+   {"Zombie",   {{ "Zombie", "Pure Crush", " hurls itself at "},
+                 { 800, 500, 500, 190, 100, 50 }}}
    };
+
 };
 
 #endif // CHARACTER_H

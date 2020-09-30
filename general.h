@@ -1,7 +1,6 @@
 /******************************************************************************
 * general.h
 * Author: Jonathan Carlson
-* Last Updated: September 2020
 * Description:
 *    Contains generic functions not belonging to any specific class.
 ******************************************************************************/

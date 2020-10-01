@@ -108,8 +108,15 @@ void calculateRawDamage(Character & victim, short rawDamage[], short dT[]) {
 ******************************************************************************/
 void determineAffliction(Character & aggressor, Character & victim, short damage[]) {
    AdvancedWeapon *wep = aggressor.getWeapon();
-   if(wep->isSharp() && !victim.isDefending()) {
-      victim.setBleeding((damage[0] * 0.2 + damage[2] * 0.1) * 10);
+
+   // Afflictions that apply only if the victim is not defending
+   if(!victim.isDefending()) {
+
+      if(wep->isSharp()) 
+         victim.setBleeding((damage[0] * 0.2 + damage[2] * 0.1) * 10);
+      
+
+
    }
 }
 
@@ -158,23 +165,29 @@ bool isDefeated(short HP, short BP, short EP) {
    return !(HP && BP && EP);
 }
 
+
+
+
+
+
+
 /******************************************************************************
-* void combat()
+* void combat(Character)
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
 ******************************************************************************/
-void combat(Character & player) {
+void combat(Character & player, string newMonster) {
 
    bool battle = true;
-   Character monster;
-   Character *character;
-   short round = 1;
-   short pSlow = player.getInitiative(),
+   Character monster(newMonster);
+   short round = 1,
+         pSlow = player.getInitiative(),
          mSlow = monster.getInitiative(),
          rpSlow = pSlow,
          rmSlow = mSlow,
          option;
-
+   
+   // Temporaries
    selectWeapon(player);
 
    cout << "A " << monster.getName() << " draws near!\n" << endl;
@@ -184,12 +197,16 @@ void combat(Character & player) {
    displayStats(monster);
 
    while(battle) {
-
+      
       if(nextAction(pSlow, mSlow, rpSlow, rmSlow) == "Player's") {
-         character = &player;
          
-         // To do: Refactor this so the monster and player share all actions.
-
+         /*********************************************************************
+         *                     Round Ending Action Block
+         * This block is called after all players and monsters have taken at 
+         * least 1 action (this is what defines a 'combat round').
+         * Actions that occur once per round should be placed here, such as
+         * bleeding, resetting defend status, etc.
+         *********************************************************************/
          // Apply bleeding
          if(player.isBleeding())
             if(applyBleeding(player))
@@ -201,11 +218,12 @@ void combat(Character & player) {
          }
 
          displayCharacterStats(player, monster, round++);
+
          // Reset Stats
          monster.setDefending(0); player.setDefending(0);
 
          /*********************************************************************
-         * Player's Action Block
+         *                        Player's Action Block
          *********************************************************************/
          option = getUserInput({"Attack", "Defend", "Flee"});
 
@@ -215,9 +233,9 @@ void combat(Character & player) {
                combatVictory(player, monster);
                break;
             }
-            // Set monster affliction by your weapon
             // Set monster's retaliation to your attack
             // Set monster's retaliation afliction
+            // Set residual actions
          }
          else if (option == 2) {
             defend(player);
@@ -226,9 +244,10 @@ void combat(Character & player) {
             flee();
          }
       }
+
       else {
          /*********************************************************************
-         * Monster's Action Block
+         *                        Monster's Action Block
          *********************************************************************/
          if(attackCharacter(player, monster)) {        // Returns 1 if defeated
             combatDefeat();
@@ -237,20 +256,19 @@ void combat(Character & player) {
          
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
+
+         // Set residual actions
       }
 
-      /*********************************************************************
-      * Residual Action Block
-      *********************************************************************/
+      /************************************************************************
+      *                        Residual Action Block
+      * The code in this block will be called after ever action by any
+      * character (rapid DOT afflictions).
+      ************************************************************************/
 
+      
+      // Action code goes here.
 
-      // }
-
-      // Additional affliction damage actions against monster {
-
-      // }
-
-      // delete player.getWeapon();
    }
 }
 #endif // COMBAT_H

@@ -1,3 +1,4 @@
 #!/bin/bash
+/media/jonathan/"2TB Storage and Game Drive"/Jon/Programming/Gladiator/./clean
 g++ -o gladiator.out main.cpp character.cpp
 exit

@@ -5,10 +5,15 @@ using namespace std;
 
 int main() {
 
-	Character monster;
 
-    cout << monster.getName() << endl;
- 	monster.getWeapon()->displayStats();
+	Character player("Stinky", true);
+	player.setWeapon("Battle Axe");
+    player.getWeapon()->displayStats();
+
+	player.setArmor("ImmuneST");
+
+	player.getArmor()->displayStats();
+
 
 
 	return 0;

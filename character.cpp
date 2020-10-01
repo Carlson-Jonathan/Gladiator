@@ -6,7 +6,7 @@
 // Generate new monster. Is also the default constructor.
 Character::Character(string newMonster) {
    // If no monster provided, select one at random.
-   if(newMonster == "None") {
+   if(newMonster == "Random") {
       generateMonstersList();
       srand(time(0));
       int x = rand() % monsters.size();
@@ -43,6 +43,7 @@ bool Character::isDefending()           {return defending;}
 bool Character::isHero()                {return ishero;}
 AdvancedWeapon* Character::getWeapon()  {return weapon;}
 AdvancedWeapon* Character::getOffhand() {return weapon;}
+AdvancedArmor* Character::getArmor()    {return armor;}
 
 /******************************************************************************
 * Character Class Setters:
@@ -71,16 +72,12 @@ void Character::setDefending(bool defending) {
    this->defending = defending;
 }
 
-void Character::setWeapon(string weaponType) {
-   weapon = new AdvancedWeapon(weaponType);
-}
-
-void Character::setOffhand(string weaponType) {
-   weapon = new AdvancedWeapon(weaponType);
-}
-
 void Character::setBleeding(short bleeding) {
   this->bleeding += bleeding;
+}
+
+void Character::setWeapon(string weaponType) {
+   weapon = new AdvancedWeapon(weaponType);
 }
 
 void Character::setWeapon(string name, short min, short range, float st, 
@@ -88,10 +85,16 @@ void Character::setWeapon(string name, short min, short range, float st,
    weapon = new AdvancedWeapon(name, min, range, st, cr, sl, ch, slow);
 }
 
+void Character::setOffhand(string weaponType) {
+   weapon = new AdvancedWeapon(weaponType);
+}
+
 void Character::setOffhand(string name, short min, short range, float st, 
    float cr, float sl, float ch, short slow) {
    offhand = new AdvancedWeapon(name, min, range, st, cr, sl, ch, slow);
 }
+
+// void Character::setArmor(string name) {armor = new AdvancedArmor(name);}
 
 /******************************************************************************
 * void generateMonstersList()

@@ -18,7 +18,8 @@ using namespace std;
 class Character {
 public:
 
-   Character(string newMonster = "None");
+   Character() {}
+   Character(string newMonster);
    Character(string name, bool hero);
 
    // Getters
@@ -33,6 +34,7 @@ public:
 
    AdvancedWeapon* getWeapon();
    AdvancedWeapon* getOffhand();
+   AdvancedArmor* getArmor();
 
    // Setters
    void setHitPoints(short change);
@@ -47,6 +49,7 @@ public:
    void setOffhand(string weaponType);
    void setOffhand(string name, short min, short range, float st, float cr, 
       float sl, float ch, short slow);
+   void setArmor(string name) {armor = new AdvancedArmor(name);}
 
    // Functions
    void displayStats();

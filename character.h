@@ -13,6 +13,7 @@
 #include <time.h>
 #include "advancedWeapon.h"
 #include "advancedArmor.h"
+//#include "monsters.cpp"
 using namespace std;
 
 class Character {
@@ -77,27 +78,8 @@ private:
    AdvancedWeapon* weapon;
    AdvancedWeapon* offhand;
    AdvancedArmor* armor;
-
-   /***************************************************************************
-   * Monster character list w/stats.
-   *    Stats Description:
-   *       Descriptives: Monster Name, Weapon Type, Attack Description
-   *       Stats: HP, BP, EP, Slow, Min Damage, Damage Range
-   ***************************************************************************/
-   map<string, pair<vector<string>, vector<short>>> monster = {
-   {"Skeleton", {{ "Skeleton", "Pure Slash", " claws at " }, 
-                 { 300, 500, 150, 40, 30, 20 }}},
-   {"Slime",    {{ "Slime", "Pure Crush", " spits at " },   
-                 { 800, 500, 350, 190, 100, 50 }}},
-   {"Snake",    {{ "Cobra", "Pure Stab", " strikes at " },
-                 { 300, 500, 250, 40, 100, 50 }}},
-   {"Wolf",     {{ "Spider Wolf", "Pure Chop", " bites at " },
-                 { 400, 500, 600, 20, 10, 10 }}},
-   {"GiantWasp",{{ "Giant Wasp", "Pure Stab", " swoops at " },
-                 { 350, 500, 650, 40, 30, 20 }}},
-   {"Zombie",   {{ "Zombie", "Pure Crush", " hurls itself at "},
-                 { 800, 500, 500, 190, 100, 50 }}}
-   };
+   
+   #include "monsters.cpp"
 
 };
 

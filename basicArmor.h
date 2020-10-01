@@ -79,21 +79,23 @@ protected:
          water,
          shock;
 
-   map<string, pair<pair<vector<string>, vector<bool>>, pair<vector<short>, vector<float>>>> armor {
+   #include "armors.cpp"
 
-   //  key          Name         ?        ?      ?        Wt   Vol  blk   st   cr   sl   ch   dr
-   {"Padding", {{{"", ""}, {true, false}}, {{100, 200, 20}, {0.1, 0.5, 0.2, 0.2, 0.1 }}}},
-   {"Leather", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"Brigindine", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"Chain", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"Scale", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"Plate", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    map<string, pair<pair<vector<string>, vector<bool>>, pair<vector<short>, vector<float>>>> armor {
 
-   // Monster armors
-   {"ImmuneST", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3, 0.4, 0.5}}}},
-   {"UmmuneCR", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"ImmuneSL", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-   {"ImmuneCH", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}}};
+//    //  key          Name         ?        ?      ?        Wt   Vol  blk   st   cr   sl   ch   dr
+//    {"Padding", {{{"", ""}, {true, false}}, {{100, 200, 20}, {0.1, 0.5, 0.2, 0.2, 0.1 }}}},
+//    {"Leather", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"Brigindine", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"Chain", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"Scale", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"Plate", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+
+//    // Monster armors
+//    {"ImmuneST", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3, 0.4, 0.5}}}},
+//    {"UmmuneCR", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"ImmuneSL", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
+//    {"ImmuneCH", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}}};
 
 };
 #endif // BASICARMOR_H

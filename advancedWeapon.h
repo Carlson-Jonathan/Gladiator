@@ -75,6 +75,7 @@ private:
 
    short maxMulti;
 
+
 };
 
 #endif // ADVANCEDWEAPONS_H

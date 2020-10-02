@@ -8,11 +8,11 @@ int main() {
 
 	Character player("Stinky", true);
 	player.setWeapon("Battle Axe");
-    player.getWeapon()->displayStats();
+    player.weapon->displayStats();
 
 	player.setArmor("ImmuneST");
 
-	player.getArmor()->displayStats();
+	player.armor->displayStats();
 
 
 

@@ -11,8 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "advancedWeapon.h"
-#include "advancedArmor.h"
+#include "weapon.h"
+#include "armor.h"
 //#include "monsters.cpp"
 using namespace std;
 
@@ -23,28 +23,11 @@ public:
    Character(string newMonster);
    Character(string name, bool hero);
 
-   // Getters
-   string getName();
-   short getHitPoints();
-   short getBloodPoints();
-   short getEssencePoints();
-   short getInitiative();
-   short isBleeding();
-   bool isDefending();
-   bool isHero();
-
-   AdvancedWeapon* getWeapon();
-   AdvancedWeapon* getOffhand();
-   AdvancedArmor* getArmor();
-
    // Setters
    void setHitPoints(short change);
    void setBloodPoints(short change);
    void setEssencePoints(short change);
-   void setInitiative(short initiative);
-   void setDefending(bool defending);
    void setWeapon(string weaponType);
-   void setBleeding(short bleed);
    void setWeapon(string name, short min, short range, float cr, float ch, 
       float sl, float st, short slow);
    void setOffhand(string weaponType);
@@ -56,28 +39,29 @@ public:
    void displayStats();
    void generateMonstersList();
 
-   // Make bare fists a weapon
-   short minDamage = 0, rangeDamage = 0;
-
-private:
-   string name;
+   string 
+      name;
 
    short
+      minDamage = 0, 
+      rangeDamage = 0,
       hitPoints = 1000,
       bloodPoints = 1000,
       essencePoints = 1000,
       initiative = 100, // Higher is slower
       strength = 100,
-      bleeding = 0;
+      isBleeding = 0;
 
-   bool defending = false,
-        ishero = false;
+   bool 
+      isDefending = false,
+      isHero = false;
 
    vector<string> monsters;
 
-   AdvancedWeapon* weapon;
-   AdvancedWeapon* offhand;
-   AdvancedArmor* armor;
+   Weapon* weapon;
+   Weapon* offhand;
+
+   Armor* armor;
    
    #include "monsters.cpp"
 

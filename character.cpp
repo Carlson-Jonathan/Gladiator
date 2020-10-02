@@ -20,82 +20,51 @@ Character::Character(string newMonster) {
    this->initiative =    monster[newMonster].second[3];
    setWeapon(monster[newMonster].first[1]);
    setArmor(monster[newMonster].first[3]);
-   getWeapon()->setAction(monster[newMonster].first[2]);
-   getWeapon()->setMinDamage(monster[newMonster].second[4]);
-   getWeapon()->setRangeDamage(monster[newMonster].second[5]);
+   weapon->actionDescription = monster[newMonster].first[2];
+   weapon->minDamage = monster[newMonster].second[4];
+   weapon->rangeDamage = monster[newMonster].second[5];
 }
 
 // Setup initial hero character.
 Character::Character(string name, bool hero) {
    this->name = name;
-   this->ishero = hero;
+   this->isHero = hero;
 }
-
-/******************************************************************************
-* Character Class Getters:
-******************************************************************************/
-string Character::getName()             {return name;}   
-short Character::getHitPoints()         {return hitPoints;}
-short Character::getBloodPoints()       {return bloodPoints;}
-short Character::getEssencePoints()     {return essencePoints;}
-short Character::getInitiative()        {return initiative;}
-short Character::isBleeding()           {return bleeding;}
-bool Character::isDefending()           {return defending;}
-bool Character::isHero()                {return ishero;}
-AdvancedWeapon* Character::getWeapon()  {return weapon;}
-AdvancedWeapon* Character::getOffhand() {return weapon;}
-AdvancedArmor* Character::getArmor()    {return armor;}
 
 /******************************************************************************
 * Character Class Setters:
 ******************************************************************************/
 void Character::setHitPoints(short change) {
-   hitPoints += change;
-   if(hitPoints < 0) 
-   hitPoints = 0;
+   hitPoints - change < 0 ? hitPoints = 0 : hitPoints += change;
 }
 
 void Character::setBloodPoints(short change) {
-   bloodPoints += change;
-   if(bloodPoints < 0) bloodPoints = 0;  
+   bloodPoints < 0 ? bloodPoints = 0: bloodPoints += change;
 }
 
 void Character::setEssencePoints(short change) {
-   essencePoints += change;
-   if(essencePoints < 0) essencePoints = 0;
-}
-
-void Character::setInitiative(short change) {
-	initiative += change;
-}
-
-void Character::setDefending(bool defending) {
-   this->defending = defending;
-}
-
-void Character::setBleeding(short bleeding) {
-  this->bleeding += bleeding;
+   essencePoints < 0 ? essencePoints = 0 : essencePoints += change;
 }
 
 void Character::setWeapon(string weaponType) {
-   weapon = new AdvancedWeapon(weaponType);
+   weapon = new Weapon(weaponType);
 }
 
 void Character::setWeapon(string name, short min, short range, float cr, 
    float ch, float sl, float st, short slow) {
-   weapon = new AdvancedWeapon(name, min, range, cr, ch, sl, st, slow);
+   weapon = new Weapon(name, min, range, cr, ch, sl, st, slow);
 }
 
 void Character::setOffhand(string weaponType) {
-   weapon = new AdvancedWeapon(weaponType);
+   weapon = new Weapon(weaponType);
 }
 
 void Character::setOffhand(string name, short min, short range, float cr, 
    float ch, float sl, float st, short slow) {
-   offhand = new AdvancedWeapon(name, min, range, cr, ch, sl, st, slow);
+   offhand = new Weapon(name, min, range, cr, ch, sl, st, slow);
 }
 
-void Character::setArmor(string name) {armor = new AdvancedArmor(name);}
+void Character::setArmor(string name) {armor = new Armor(name);}
 
 /******************************************************************************
 * void generateMonstersList()
@@ -112,7 +81,7 @@ void Character::generateMonstersList() {
 ******************************************************************************/
 void Character::displayStats() {
   cout << name << " stats:\n"
-       << "Hit Points:\t"     << getHitPoints()     << "\n"
-       << "Blood Points\t"    << getBloodPoints()   << "\n"
-       << "Essence Points:\t" << getEssencePoints() << "\n\n";
+       << "Hit Points:\t"     << hitPoints     << "\n"
+       << "Blood Points\t"    << bloodPoints   << "\n"
+       << "Essence Points:\t" << essencePoints << "\n\n";
 }

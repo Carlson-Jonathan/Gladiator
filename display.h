@@ -108,7 +108,7 @@ void writeMessageScroll(string message) {
 void combatVictory(Character player, Character monster) {
    
    string message = "\t";
-   message += "The "; message += monster.getName(); 
+   message += "The "; message += monster.name; 
    message += " drops to the ground writhing in agony.";
 	
    message = writeMessage(message);
@@ -118,7 +118,7 @@ void combatVictory(Character player, Character monster) {
    cout << "========================================"
 	    << "=======================================\n";
 
-   message = player.getName() + " is victorious!";
+   message = player.name + " is victorious!";
    short length = message.length();
    
    for(int i = 0; i < 36 - message.length() / 2; i++)
@@ -150,24 +150,24 @@ void combatDefeat() {
 void displayAttackMessage(Character & victim, Character & aggressor, short damage[]) {
    
    string message = "", x;
-   if(!aggressor.isHero())
+   if(!aggressor.isHero)
       message += "The ";
-   message += aggressor.getName() += aggressor.getWeapon()->getAction();
-   if(aggressor.isHero())
+   message += aggressor.name + aggressor.weapon->actionDescription;
+   if(aggressor.isHero)
       message += "the ";
-   message += victim.getName();
-   if(aggressor.isHero()) {
+   message += victim.name;
+   if(aggressor.isHero) {
       message += " with the "; 
-      message += aggressor.getWeapon()->getName();
+      message += aggressor.weapon->name;
    }
    message += "!\n";
 
    message = writeMessage(message);
    usleep(300000);
 
-   if(aggressor.isHero())
+   if(aggressor.isHero)
       message += "The ";
-   message += victim.getName() += " takes damage:";
+   message += victim.name + " takes damage:";
    writeMessage(message);
 
    cout << "\n\t\tHP: -" << damage[0] << "  |  " << "BP: -" << damage[1] << "  |  "
@@ -187,18 +187,18 @@ void displayCharacterStats(Character player, Character monster, short round) {
    string text = 
       "******************************* Combat Round " + to_string(round) +
       " ********************************\n" + 
-      "                 " + player.getName() +
-      "                                        " + monster.getName() + "\n" + 
-      "                 HP: " + to_string(player.getHitPoints()) +
+      "                 " + player.name +
+      "                                        " + monster.name + "\n" + 
+      "                 HP: " + to_string(player.hitPoints) +
       "                                      HP: " + 
-      to_string(monster.getHitPoints()) + "\n" + "                 BP: " +
-      to_string(player.getBloodPoints()) + 
+      to_string(monster.hitPoints) + "\n" + "                 BP: " +
+      to_string(player.bloodPoints) + 
       "                                      " + 
-      "BP: " + to_string(monster.getBloodPoints()) + "\n" + 
+      "BP: " + to_string(monster.bloodPoints) + "\n" + 
       "                 EP: " + 
-      to_string(player.getEssencePoints()) + 
+      to_string(player.essencePoints) + 
       "                                      " + 
-      "EP: " + to_string(monster.getEssencePoints()) + "\n" + 
+      "EP: " + to_string(monster.essencePoints) + "\n" + 
       "***************************************" +
       "****************************************\n"; 
 
@@ -233,29 +233,29 @@ void selectArmor(Character & player) {
 ******************************************************************************/
 void bleedingMessage(Character & victim) {
    string message = "";
-   if(!victim.isHero())
+   if(!victim.isHero)
       message += "The ";
-   message += victim.getName() + " is bleeding from ";
-   if(!victim.isHero())
+   message += victim.name + " is bleeding from ";
+   if(!victim.isHero)
       message += "its ";
    else
    	  message += "their "; 
    message += "wounds\n\tand takes " + 
-   to_string(victim.isBleeding() / 10) + " blood point damage!\n\n";
+   to_string(victim.isBleeding / 10) + " blood point damage!\n\n";
    writeMessage(message); 
 }
 
 void displayStats(Character character) {
-   short min = character.getWeapon()->getMinDamage();
-   short range = character.getWeapon()->getRangeDamage();
-   cout << "Weapon: " << character.getWeapon()->getName() << "\n"
+   short min = character.weapon->minDamage;
+   short range = character.weapon->rangeDamage;
+   cout << "Weapon: " << character.weapon->name << "\n"
         << "Damage: " << min << " - " 
         << (min + range) << "\n"
-        << "Crush: " << character.getWeapon()->getCrush() << "\n"
-        << "Chop: "  << character.getWeapon()->getChop()  << "\n"
-        << "Slash: " << character.getWeapon()->getSlash() << "\n"
-        << "Stab: "  << character.getWeapon()->getStab()  << "\n"
-        << "Initiative: " << character.getInitiative() << "\n"
+        << "Crush: " << character.weapon->crush << "\n"
+        << "Chop: "  << character.weapon->chop  << "\n"
+        << "Slash: " << character.weapon->slash << "\n"
+        << "Stab: "  << character.weapon->stab  << "\n"
+        << "Initiative: " << character.initiative << "\n"
         << endl;
 }
 

@@ -12,6 +12,7 @@
 string nextAction(short pSlow, short mSlow, short& rpSlow, short & rmSlow);
 bool attackCharacter(Character & victim, Character & aggressor);
 void calculateDamageTypes(Character & aggressor, Character victim, short damage[]);
+void calculateDamageBlock(Character & victim, short block[]);
 void calculateRawDamage(Character & victim, short rawDamage[], short dT[]);
 void determineAffliction(Character & aggressor, Character & victim, short damage[]);
 bool applyBleeding(Character & victim);
@@ -43,10 +44,34 @@ string nextAction(short pSlow, short mSlow, short &rpSlow, short &rmSlow) {
 ******************************************************************************/
 bool attackCharacter(Character & victim, Character & aggressor) {
 
-   short damageTypes[4], rawDamage[3];
+   short damageTypes[4], rawDamage[3], block[4];
+   
    calculateDamageTypes(aggressor, victim, damageTypes);
+   cout << "Damage Types:" << endl;
+      cout << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+
+   calculateDamageBlock(victim, block);
+   cout << "Armor block values based on defence power: " << victim.getArmor()->getDefencePower() << endl;
+   cout << "Crush: " << block[0] << " | Chop: " << block[1] << " | Slash: " << block[2] << " | Stab: " << block[3] << "\n\n";
+
+   for(short i = 0; i < 4; i++) {
+      damageTypes[i] -= block[i];
+      if(damageTypes[i] < 0)
+         damageTypes[i] = 0;
+   }
+
+   cout << "Modified Damage Types:" << endl;
+   cout << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+
    calculateRawDamage(victim, rawDamage, damageTypes);
+   cout << "Raw Damage using modified types:" << endl;
+   cout << "HP: " << rawDamage[0] << " | BP: " << rawDamage[1] << " | EP: " << rawDamage[2] << "\n\n";
+
    displayAttackMessage(victim, aggressor, rawDamage);
+
+   short damageHP = rawDamage[0] - block[0],
+         damageBP = rawDamage[1] - block[1],
+         damageEP = rawDamage[2] - block[2];
 
    victim.setHitPoints(-rawDamage[0]);
    victim.setBloodPoints(-rawDamage[1]);
@@ -63,7 +88,7 @@ bool attackCharacter(Character & victim, Character & aggressor) {
 }
 
 /******************************************************************************
-* void calculateDamageTypes(Character, short[])
+* void calculateDamageTypes(Character, Character, short[])
 * Calculates stab, crush, slash, and chop damage values and returns in an array
 ******************************************************************************/
 void calculateDamageTypes(Character & aggressor, Character victim, 
@@ -76,17 +101,35 @@ void calculateDamageTypes(Character & aggressor, Character victim,
          aggressor.rangeDamage + wep.getRangeDamage()
    );
 
-   baseDamage -= victim.getArmor()->getDamageBlock();
-
    short mStab = baseDamage * wep.getStab(),
         mCrush = baseDamage * wep.getCrush(),
         mSlash = baseDamage * wep.getSlash(),
          mChop = baseDamage * wep.getChop();
 
-   damage[0] = mStab;
-   damage[1] = mCrush;
-   damage[2] = mSlash;
-   damage[3] = mChop;
+   damage[0] = mCrush;
+   damage[1] = mSlash;
+   damage[2] = mChop;
+   damage[3] = mStab;
+}
+
+/******************************************************************************
+* void calculateDamageBlock(Character, short[])
+* Calculates the damage reduction provided by various armors. Each block[]
+* value (shorts) represent the amount to reduce the damage type by.
+******************************************************************************/
+void calculateDamageBlock(Character & victim, short block[]) {
+   AdvancedArmor armor = *victim.getArmor();
+
+   short dCrush = armor.getDefencePower() * armor.getCrush(),
+         dChop = armor.getDefencePower()  * armor.getChop(),
+         dSlash = armor.getDefencePower() * armor.getSlash(),
+         dStab = armor.getDefencePower()  * armor.getStab();
+
+   block[0] = dCrush;
+   block[1] = dChop;
+   block[2] = dSlash;
+   block[3] = dStab;
+
 }
 
 /******************************************************************************
@@ -97,25 +140,25 @@ void calculateDamageTypes(Character & aggressor, Character victim,
 ******************************************************************************/
 void calculateRawDamage(Character & victim, short rawDamage[], short dT[]) {
 
-   cout << "Damage before armor reductions:" << endl;
-   cout << "1 - St: " << dT[0] << " Cr: " << dT[1] << " Sl: " << dT[2] << " Ch: " << dT [3] << endl;
 
    // Reduce for Armor/Immunity
-   dT[0] = dT[0] * (1.0 - victim.getArmor()->getStab());
-   dT[1] = dT[1] * (1.0 - victim.getArmor()->getCrush());
-   dT[2] = dT[2] * (1.0 - victim.getArmor()->getSlash());
-   dT[3] = dT[3] * (1.0 - victim.getArmor()->getChop());
+   // dT[0] = dT[0] * (1.0 - victim.getArmor()->getStab());
+   // dT[1] = dT[1] * (1.0 - victim.getArmor()->getCrush());
+   // dT[2] = dT[2] * (1.0 - victim.getArmor()->getSlash());
+   // dT[3] = dT[3] * (1.0 - victim.getArmor()->getChop());
    
-   cout << "Damage after armor reductions:" << endl;
-   cout << "2- St: " << dT[0] << " Cr: " << dT[1] << " Sl: " << dT[2] << " Ch: " << dT [3] << "\n\n";
+   // cout << "Damage after armor reductions:" << endl;
+   // cout << "2- St: " << dT[0] << " Cr: " << dT[1] << " Sl: " << dT[2] << " Ch: " << dT [3] << "\n\n";
 
    // SPlit Damages (HP/BP/EP)
    rawDamage[0] = dT[1] + (dT[2] * 0.34) + (dT[3] * 0.66),
    rawDamage[1] = dT[0] + (dT[2] * 0.66) + (dT[3] * 0.34),
    rawDamage[2] = 0;
 
-   if(victim.isDefending())
+   if(victim.isDefending()) {
+      cout << victim.getName() << " defends, cutting damage in half!\n\n";
       rawDamage[0] /= 2; rawDamage[1] /= 2; rawDamage[2] /= 2;
+   }
 }
 
 /******************************************************************************
@@ -183,7 +226,11 @@ bool isDefeated(short HP, short BP, short EP) {
 
 
 
-
+//=============================================================================
+//=============================================================================
+//=============================================================================
+//=============================================================================
+//=============================================================================
 
 
 

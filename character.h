@@ -45,11 +45,11 @@ public:
    void setDefending(bool defending);
    void setWeapon(string weaponType);
    void setBleeding(short bleed);
-   void setWeapon(string name, short min, short range, float st, float cr, 
-      float sl, float ch, short slow);
+   void setWeapon(string name, short min, short range, float cr, float ch, 
+      float sl, float st, short slow);
    void setOffhand(string weaponType);
-   void setOffhand(string name, short min, short range, float st, float cr, 
-      float sl, float ch, short slow);
+   void setOffhand(string name, short min, short range, float cr, float ch, 
+      float sl, float st, short slow);
    void setArmor(string name);
 
    // Functions

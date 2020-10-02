@@ -28,23 +28,23 @@ Shorts:  HP | BP | EP | Speed | Min Damage | Damage Range       */
 
 {"Slime",    
    {{ "Slime", "Pure Crush", " spits at ", "Plate" },   
-   { 800, 500, 350, 190, 100, 50 }}},
+   { 1000, 1000, 1000, 100, 100, 1 }}},
 
 {"Snake",    
    {{ "Cobra", "Pure Stab", " strikes at ", "Plate" },
-   { 300, 500, 250, 40, 100, 50 }}},
+   { 1000, 1000, 1000, 100, 100, 1 }}},
 
 {"Wolf",     
    {{ "Spider Wolf", "Pure Chop", " bites at ", "Plate" },
-   { 400, 500, 600, 20, 10, 10 }}},
+   { 1000, 1000, 1000, 100, 100, 1 }}},
 
 {"GiantWasp",
    {{ "Giant Wasp", "Pure Stab", " swoops at ", "Plate" },
-   { 350, 500, 650, 40, 30, 20 }}},
+   { 1000, 1000, 1000, 100, 100, 1 }}},
 
 {"Zombie",   
    {{ "Zombie", "Pure Crush", " hurls itself at ", "Plate" },
-   { 800, 500, 500, 190, 100, 50 }}}
+   { 1000, 1000, 1000, 100, 100, 1 }}}
 };
 
 #endif // MONSTERS_CPP

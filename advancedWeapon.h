@@ -19,10 +19,10 @@ public:
       this->actionDescription = weapons[weaponType].first;
       this->minDamage = weapons[weaponType].second.first[0];
       this->rangeDamage = weapons[weaponType].second.first[1];
-      this->stab =      weapons[weaponType].second.second[0];
-      this->crush =     weapons[weaponType].second.second[1];
+      this->crush =     weapons[weaponType].second.second[0];
+      this->chop =      weapons[weaponType].second.second[1];
       this->slash =     weapons[weaponType].second.second[2];
-      this->chop =      weapons[weaponType].second.second[3];
+      this->stab =      weapons[weaponType].second.second[3];
       this->sharp = ((stab >= 0.4) || (slash >= 0.5));
    }
 
@@ -32,10 +32,10 @@ public:
        this->actionDescription = attack;
        this->minDamage = min;
        this->rangeDamage = range;
-       this->stab = stab;
        this->crush = crush;
-       this->slash = slash;
        this->chop = chop;
+       this->slash = slash;
+       this->stab = stab;
        this->slow = slow;
    }
 

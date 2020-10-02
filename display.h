@@ -218,7 +218,7 @@ void selectWeapon(Character & player) {
 
 /******************************************************************************
 * void selectWeapon(Character)
-* Temporary function that sets the players weapon for testing purposes.
+* Temporary function that sets the players armor for testing purposes.
 ******************************************************************************/
 void selectArmor(Character & player) {
 
@@ -251,10 +251,10 @@ void displayStats(Character character) {
    cout << "Weapon: " << character.getWeapon()->getName() << "\n"
         << "Damage: " << min << " - " 
         << (min + range) << "\n"
-        << "Stab: "  << character.getWeapon()->getStab()  << "\n"
         << "Crush: " << character.getWeapon()->getCrush() << "\n"
-        << "Slash: " << character.getWeapon()->getSlash() << "\n"
         << "Chop: "  << character.getWeapon()->getChop()  << "\n"
+        << "Slash: " << character.getWeapon()->getSlash() << "\n"
+        << "Stab: "  << character.getWeapon()->getStab()  << "\n"
         << "Initiative: " << character.getInitiative() << "\n"
         << endl;
 }

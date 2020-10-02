@@ -17,11 +17,11 @@ public:
       this->name = name;
       this->weight = armor[name].second.first[0];
       this->volume = armor[name].second.first[1];
-      this->damageBlock = armor[name].second.first[2];
-      this->stab = armor[name].second.second[0];
-      this->crush = armor[name].second.second[1];
+      this->defencePower = armor[name].second.first[2];
+      this->crush = armor[name].second.second[0];
+      this->chop = armor[name].second.second[1];
       this->slash = armor[name].second.second[2];
-      this->chop = armor[name].second.second[3];
+      this->stab = armor[name].second.second[3];
       this->damageReduce = armor[name].second.second[4];
    }   
 

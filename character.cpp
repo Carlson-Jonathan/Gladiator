@@ -81,18 +81,18 @@ void Character::setWeapon(string weaponType) {
    weapon = new AdvancedWeapon(weaponType);
 }
 
-void Character::setWeapon(string name, short min, short range, float st, 
-   float cr, float sl, float ch, short slow) {
-   weapon = new AdvancedWeapon(name, min, range, st, cr, sl, ch, slow);
+void Character::setWeapon(string name, short min, short range, float cr, 
+   float ch, float sl, float st, short slow) {
+   weapon = new AdvancedWeapon(name, min, range, cr, ch, sl, st, slow);
 }
 
 void Character::setOffhand(string weaponType) {
    weapon = new AdvancedWeapon(weaponType);
 }
 
-void Character::setOffhand(string name, short min, short range, float st, 
-   float cr, float sl, float ch, short slow) {
-   offhand = new AdvancedWeapon(name, min, range, st, cr, sl, ch, slow);
+void Character::setOffhand(string name, short min, short range, float cr, 
+   float ch, float sl, float st, short slow) {
+   offhand = new AdvancedWeapon(name, min, range, cr, ch, sl, st, slow);
 }
 
 void Character::setArmor(string name) {armor = new AdvancedArmor(name);}

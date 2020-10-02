@@ -21,10 +21,10 @@ public:
       this->actionDescription = weapons[weaponType].first;
       this->minDamage =         weapons[weaponType].second.first[0];
       this->rangeDamage =       weapons[weaponType].second.first[1];
-      this->stab =              weapons[weaponType].second.second[0];
-      this->crush =             weapons[weaponType].second.second[1];
+      this->crush =             weapons[weaponType].second.second[0];
+      this->chop =              weapons[weaponType].second.second[1];
       this->slash =             weapons[weaponType].second.second[2];
-      this->chop =              weapons[weaponType].second.second[3];
+      this->stab =              weapons[weaponType].second.second[3];
    }
 
    // Getters
@@ -32,19 +32,19 @@ public:
    string getAction()     {return actionDescription;}
    short getMinDamage()   {return minDamage;}
    short getRangeDamage() {return rangeDamage;}
-   float getStab()        {return stab;}
    float getCrush()       {return crush;}
-   float getSlash()       {return slash;}
    float getChop()        {return chop;}
+   float getSlash()       {return slash;}
+   float getStab()        {return stab;}
 
    // Setters
    void setAction(string action)          {this->actionDescription = action;}
    void setMinDamage(short minDamage)     {this->minDamage = minDamage;}
    void setRangeDamage(short rangeDamage) {this->rangeDamage = rangeDamage;}
-   void setStab(float stab)               {this->stab = stab;}
    void setCrush(float crush)             {this->crush = crush;}
-   void setSlash(float slash)             {this->slash = slash;}
    void setChop(float chop)               {this->chop = chop;}
+   void setSlash(float slash)             {this->slash = slash;}
+   void setStab(float stab)               {this->stab = stab;}
 
    ~BasicWeapon() {}
 
@@ -52,10 +52,10 @@ public:
       cout << "Weapon: " << name << "\n"
            << "Damage: " << minDamage << " - " 
            << (minDamage + rangeDamage) << "\n"
-           << "Stab: "  << stab  << "\n"
            << "Crush: "	<< crush << "\n"
+           << "Chop: "  << chop  << "\n"
            << "Slash: " << slash << "\n"
-           << "Chop: "  << chop  << "\n" << endl;
+           << "Stab: "  << stab  << "\n" << endl;
    }
 
 protected:	
@@ -67,10 +67,10 @@ protected:
          rangeDamage;
 
    // Damage Type
-   float stab,
-         crush,
+   float crush,
+         chop,
          slash,
-         chop;
+         stab;
 
    #include "weapons.cpp"
    

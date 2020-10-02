@@ -23,18 +23,18 @@ std::map<std::string, std::pair<std::string,
 {"Weapon Name", 
    { " combat text ",              - strings
    { min damage, damage range },   - shorts
-   { stab, crush, slash, chop }}   - floats
+   { crush, chop, slash, stab }}   - floats
 */
     
 {"Fists",       
    { " punches ",    
    {{ 5 , 10 },  
-   { 0.0, 0.0, 1.0, 0.0 }}}},
+   { 1.0, 0.0, 0.0, 0.0 }}}},
 
 {"Broad Sword", 
    { " slashes at ", 
    {{ 100, 1 },  
-   { 0.3, 0.0, 0.5, 0.2 }}}},
+   { 0.0, 0.2, 0.5, 0.3 }}}},
 
 {"Katana",      
    { " slashes at ", 
@@ -44,27 +44,28 @@ std::map<std::string, std::pair<std::string,
 {"Battle Axe",  
    { " chops at ",   
    {{ 45, 110 }, 
-   { 0.0, 0.2, 0.1, 0.7 }}}},
+   { 0.1, 0.7, 0.1, 0.0 }}}},
 
 {"Spear",       
    {" lunges at ",  
    {{ 100, 1 },  
-   { 0.9, 0.0, 0.1, 0.0 }}}},
+   { 0.0, 0.0, 0.1, 0.9 }}}},
 
 {"Mace",        
    {" swings at ",  
    {{ 1, 100 },  
-   { 0.0, 1.0, 0.0, 0.0 }}}},
+   { 1.0, 0.0, 0.0, 0.0 }}}},
 
 /*********************** Monster Weapons ***********************/
-{"Pure Stab",   
-   {"",  
-   {{ 1, 100 },   
-   { 1.0, 0.0, 0.0, 0.0 }}}},
 
 {"Pure Crush",  
    {"",  
    {{ 1, 100 }, 
+   { 1.0, 0.0, 0.0, 0.0 }}}},
+
+{"Pure Chop",   
+   {"",  
+   {{ 1, 100 },   
    { 0.0, 1.0, 0.0, 0.0 }}}},
 
 {"Pure Slash",  
@@ -72,7 +73,7 @@ std::map<std::string, std::pair<std::string,
    {{ 1, 100 },   
    { 0.0, 0.0, 1.0, 0.0 }}}},
 
-{"Pure Chop",   
+{"Pure Stab",   
    {"",  
    {{ 1, 100 },   
    { 0.0, 0.0, 0.0, 1.0 }}}}};

@@ -19,31 +19,31 @@
 std::map<std::string, std::pair<std::vector<std::string>, 
                                 std::vector<short>>> monster = {
 /*
-Strings: Creature's name | Attack type | Attack Description
+Strings: Creature's name | Attack type | Attack Description | Armor
 Shorts:  HP | BP | EP | Speed | Min Damage | Damage Range       */
 
 {"Skeleton", 
-   {{ "Skeleton", "Pure Slash", " claws at " }, 
-   { 300, 500, 150, 40, 30, 20 }}},
+   {{ "Skeleton", "Pure Slash", " claws at ", "ImmuneST" }, 
+   { 1000, 1000, 1000, 100, 100, 1 }}},
 
 {"Slime",    
-   {{ "Slime", "Pure Crush", " spits at " },   
+   {{ "Slime", "Pure Crush", " spits at ", "Plate" },   
    { 800, 500, 350, 190, 100, 50 }}},
 
 {"Snake",    
-   {{ "Cobra", "Pure Stab", " strikes at " },
+   {{ "Cobra", "Pure Stab", " strikes at ", "Plate" },
    { 300, 500, 250, 40, 100, 50 }}},
 
 {"Wolf",     
-   {{ "Spider Wolf", "Pure Chop", " bites at " },
+   {{ "Spider Wolf", "Pure Chop", " bites at ", "Plate" },
    { 400, 500, 600, 20, 10, 10 }}},
 
 {"GiantWasp",
-   {{ "Giant Wasp", "Pure Stab", " swoops at " },
+   {{ "Giant Wasp", "Pure Stab", " swoops at ", "Plate" },
    { 350, 500, 650, 40, 30, 20 }}},
 
 {"Zombie",   
-   {{ "Zombie", "Pure Crush", " hurls itself at "},
+   {{ "Zombie", "Pure Crush", " hurls itself at ", "Plate" },
    { 800, 500, 500, 190, 100, 50 }}}
 };
 

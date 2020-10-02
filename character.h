@@ -50,7 +50,7 @@ public:
    void setOffhand(string weaponType);
    void setOffhand(string name, short min, short range, float st, float cr, 
       float sl, float ch, short slow);
-   void setArmor(string name) {armor = new AdvancedArmor(name);}
+   void setArmor(string name);
 
    // Functions
    void displayStats();
@@ -63,9 +63,9 @@ private:
    string name;
 
    short
-      hitPoints = 800,
-      bloodPoints = 800,
-      essencePoints = 800,
+      hitPoints = 1000,
+      bloodPoints = 1000,
+      essencePoints = 1000,
       initiative = 100, // Higher is slower
       strength = 100,
       bleeding = 0;

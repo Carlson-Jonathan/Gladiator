@@ -19,6 +19,7 @@ Character::Character(string newMonster) {
    this->essencePoints = monster[newMonster].second[2];
    this->initiative =    monster[newMonster].second[3];
    setWeapon(monster[newMonster].first[1]);
+   setArmor(monster[newMonster].first[3]);
    getWeapon()->setAction(monster[newMonster].first[2]);
    getWeapon()->setMinDamage(monster[newMonster].second[4]);
    getWeapon()->setRangeDamage(monster[newMonster].second[5]);
@@ -94,7 +95,7 @@ void Character::setOffhand(string name, short min, short range, float st,
    offhand = new AdvancedWeapon(name, min, range, st, cr, sl, ch, slow);
 }
 
-// void Character::setArmor(string name) {armor = new AdvancedArmor(name);}
+void Character::setArmor(string name) {armor = new AdvancedArmor(name);}
 
 /******************************************************************************
 * void generateMonstersList()

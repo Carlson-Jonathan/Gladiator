@@ -217,6 +217,17 @@ void selectWeapon(Character & player) {
 }
 
 /******************************************************************************
+* void selectWeapon(Character)
+* Temporary function that sets the players weapon for testing purposes.
+******************************************************************************/
+void selectArmor(Character & player) {
+
+	vector<string> arm = {"Padding", "Leather", "Ring", "Chain", "Scale", "Plate"};
+	short selection = getUserInput(arm);
+    player.setArmor(arm[selection - 1]);
+}
+
+/******************************************************************************
 * void bleedingMessage(Character)
 * Displays the damage amount if beeding is in affect.
 ******************************************************************************/

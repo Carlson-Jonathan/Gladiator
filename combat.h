@@ -11,7 +11,7 @@
 
 string nextAction(short pSlow, short mSlow, short& rpSlow, short & rmSlow);
 bool attackCharacter(Character & victim, Character & aggressor);
-void calculateDamageTypes(Character & aggressor, short damage[]);
+void calculateDamageTypes(Character & aggressor, Character victim, short damage[]);
 void calculateRawDamage(Character & victim, short rawDamage[], short dT[]);
 void determineAffliction(Character & aggressor, Character & victim, short damage[]);
 bool applyBleeding(Character & victim);
@@ -44,7 +44,7 @@ string nextAction(short pSlow, short mSlow, short &rpSlow, short &rmSlow) {
 bool attackCharacter(Character & victim, Character & aggressor) {
 
    short damageTypes[4], rawDamage[3];
-   calculateDamageTypes(aggressor, damageTypes);
+   calculateDamageTypes(aggressor, victim, damageTypes);
    calculateRawDamage(victim, rawDamage, damageTypes);
    displayAttackMessage(victim, aggressor, rawDamage);
 
@@ -66,7 +66,8 @@ bool attackCharacter(Character & victim, Character & aggressor) {
 * void calculateDamageTypes(Character, short[])
 * Calculates stab, crush, slash, and chop damage values and returns in an array
 ******************************************************************************/
-void calculateDamageTypes(Character & aggressor, short damage[]) {
+void calculateDamageTypes(Character & aggressor, Character victim, 
+                          short damage[]) {
    AdvancedWeapon wep;
    wep = *aggressor.getWeapon();
 
@@ -74,6 +75,8 @@ void calculateDamageTypes(Character & aggressor, short damage[]) {
          aggressor.minDamage + wep.getMinDamage(),
          aggressor.rangeDamage + wep.getRangeDamage()
    );
+
+   baseDamage -= victim.getArmor()->getDamageBlock();
 
    short mStab = baseDamage * wep.getStab(),
         mCrush = baseDamage * wep.getCrush(),
@@ -94,6 +97,19 @@ void calculateDamageTypes(Character & aggressor, short damage[]) {
 ******************************************************************************/
 void calculateRawDamage(Character & victim, short rawDamage[], short dT[]) {
 
+   cout << "Damage before armor reductions:" << endl;
+   cout << "1 - St: " << dT[0] << " Cr: " << dT[1] << " Sl: " << dT[2] << " Ch: " << dT [3] << endl;
+
+   // Reduce for Armor/Immunity
+   dT[0] = dT[0] * (1.0 - victim.getArmor()->getStab());
+   dT[1] = dT[1] * (1.0 - victim.getArmor()->getCrush());
+   dT[2] = dT[2] * (1.0 - victim.getArmor()->getSlash());
+   dT[3] = dT[3] * (1.0 - victim.getArmor()->getChop());
+   
+   cout << "Damage after armor reductions:" << endl;
+   cout << "2- St: " << dT[0] << " Cr: " << dT[1] << " Sl: " << dT[2] << " Ch: " << dT [3] << "\n\n";
+
+   // SPlit Damages (HP/BP/EP)
    rawDamage[0] = dT[1] + (dT[2] * 0.34) + (dT[3] * 0.66),
    rawDamage[1] = dT[0] + (dT[2] * 0.66) + (dT[3] * 0.34),
    rawDamage[2] = 0;
@@ -189,12 +205,18 @@ void combat(Character & player, string newMonster) {
    
    // Temporaries
    selectWeapon(player);
+   selectArmor(player);
 
    cout << "A " << monster.getName() << " draws near!\n" << endl;
    cout << "Player Weapon:" << endl;
    displayStats(player);
+   cout << "Player Armor:" << endl;
+   player.getArmor()->displayStats();
    cout << "Monster Weapon:" << endl;
    displayStats(monster);
+   cout << "Monster Armor:" << endl;
+   monster.getArmor()->displayStats();
+
 
    while(battle) {
       

@@ -35,7 +35,7 @@ public:
    float getDamageReduce() {return damageReduce;}
    short getWeight()       {return weight;}
    short getVolume()       {return volume;}
-   short getdamageBlock()  {return damageBlock;}
+   short getDamageBlock()  {return damageBlock;}
    
 
    // Setters
@@ -57,7 +57,7 @@ public:
            << "Crush:\t\t" << crush << "\n"
            << "Slash:\t\t" << slash << "\n"
            << "Chop:\t\t" << chop << "\n"
-           << "Reduction:\t" << damageReduce << "\n";
+           << "Reduction:\t" << damageReduce << "\n\n";
    }
 
 protected:
@@ -80,22 +80,6 @@ protected:
          shock;
 
    #include "armors.cpp"
-
-//    map<string, pair<pair<vector<string>, vector<bool>>, pair<vector<short>, vector<float>>>> armor {
-
-//    //  key          Name         ?        ?      ?        Wt   Vol  blk   st   cr   sl   ch   dr
-//    {"Padding", {{{"", ""}, {true, false}}, {{100, 200, 20}, {0.1, 0.5, 0.2, 0.2, 0.1 }}}},
-//    {"Leather", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"Brigindine", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"Chain", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"Scale", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"Plate", {{{"", ""}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-
-//    // Monster armors
-//    {"ImmuneST", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3, 0.4, 0.5}}}},
-//    {"UmmuneCR", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"ImmuneSL", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}},
-//    {"ImmuneCH", {{{"Chainmail", "str2"}, {true, false}}, {{1, 2, 3}, {0.1, 0.2, 0.3}}}}};
 
 };
 #endif // BASICARMOR_H

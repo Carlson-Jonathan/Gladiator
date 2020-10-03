@@ -21,73 +21,29 @@ std::map<std::string, std::pair<std::pair<std::vector<std::string>,
 std::vector<bool>>, std::pair<std::vector<short>, std::vector<float>>>> 
 armor {
 
-/*                    Legend:
-Key/Name
-   Reserved                                     -Strings
-   Reserved                                     -Booleans
-   Weight, Volume, Block value                  -Shorts
-   % Reductions for Stab, Crush, Slash, Chop    -Floats
-*/
+/******************************** Glossary *************************************
+*   Wt  = Weight of armor. Affects initiative.
+*   Vol = Volume of armor. Even light equipment can be cumbersome.
+*   DP  = Defence Power. Determines overall effectiveness of armor.
+*   Cr  = Defence against crushing.
+*   Ch  = Defence against chopping.
+*   Sl  = Defence against slashing.
+*   St  = Defence against stabbing.
+*******************************************************************************/ 
+//             Placeholders
+//           strings   bools           Shorts                Floats
+//  Key                             Wt  Vol  DP        Cr   Ch   Sl   St   
+{"Padding", {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.7, 0.2, 0.1, 0.0 }}}},
+{"Leather", {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.2, 0.3, 0.3, 0.2 }}}},
+{"Ring",    {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.3, 0.3, 0.3, 0.1 }}}},
+{"Chain",   {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.1, 0.1, 0.6, 0.2 }}}},
+{"Scale",   {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.1, 0.1, 0.3, 0.5 }}}},
+{"Plate",   {{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.3, 0.3, 0.2, 0.2 }}}}, 
 
-{"Padding", 
-   {{{ "", "" }, 
-   { true, false }}, 
-   {{ 100, 200, 100 }, 
-   { 0.5, 0.2, 0.2, 0.1 }}}},
-
-{"Leather", 
-   {{{ "" , "" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.2, 0.3, 0.3, 0.2 }}}},
-
-{"Ring", 
-   {{{ "", "" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.3, 0.3, 0.3, 0.1 }}}},
-
-{"Chain", 
-   {{{ "" , "" }, 
-   { true, false }}, 
-   {{ 1, 2, 100}, 
-   { 0.1, 0.1, 0.6, 0.2 }}}},
-
-{"Scale", 
-   {{{ "", "" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 },
-   { 0.1, 0.1, 0.3, 0.5 }}}},
-
-{"Plate",  
-   {{{ "" , "" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.3, 0.3, 0.2, 0.2 }}}},
-
-// Monster armors
-{"ImmuneST", 
-   {{{ "" }, 
-   { true }}, 
-   {{1, 2, 100}, 
-   {1.0, -0.5, 0.5, -0.2}}}},
-
-{"UmmuneCR", 
-   {{{ "Chainmail", "str2" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.1, 0.2, 0.3 }}}},
-
-{"ImmuneSL", 
-   {{{ "Chainmail", "str2" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.1, 0.2, 0.3 }}}},
-
-{"ImmuneCH", 
-   {{{ "Chainmail", "str2" }, 
-   { true, false }}, 
-   {{ 1, 2, 100 }, 
-   { 0.1, 0.2, 0.3 }}}}};
+// Monster armors                   Wt  Vol  DP        Cr   Ch   Sl   St
+{"ImmuneST",{{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 1.0, 0.5, 0.5, 0.2 }}}},
+{"UmmuneCR",{{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.1, 0.2, 0.3, 0.4 }}}},
+{"ImmuneSL",{{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.1, 0.2, 0.3, 0.4 }}}},
+{"ImmuneCH",{{{ "" },  { 0 }},  {{ 100, 200, 100 },  { 0.1, 0.2, 0.3, 0.4 }}}}};
 
 #endif // ARMORS_CPP

@@ -27,18 +27,6 @@ public:
       this->damageReduce = armor[name].second.second[4];
    }
 
-   void displayStats() {
-      cout << "Armor:\t\t" << name << "\n"
-           << "Weight:\t\t" << weight  << "\n"
-           << "Volume:\t\t" << volume << "\n"
-           << "Defence Power:\t" << defencePower << "\n"
-           << "Crush:\t\t" << crush << "\n"
-           << "Chop:\t\t" << chop << "\n"
-           << "Slash:\t\t" << slash << "\n"
-           << "Stab:\t\t" << stab << "\n"
-           << "Reduction:\t" << damageReduce << "\n\n";
-   }
-
    string name;
    short weight, // Affects turn speed
          volume,

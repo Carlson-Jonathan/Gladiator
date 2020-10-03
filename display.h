@@ -245,18 +245,31 @@ void bleedingMessage(Character & victim) {
    writeMessage(message); 
 }
 
+/******************************************************************************
+* void displayStats(Character)
+* Displays character statistics. Used for testing.
+******************************************************************************/
 void displayStats(Character character) {
    short min = character.weapon->minDamage;
    short range = character.weapon->rangeDamage;
-   cout << "Weapon: " << character.weapon->name << "\n"
-        << "Damage: " << min << " - " 
+   cout << character.name << "'s Stats:\n"
+        << "Weapon:\t\t" << character.weapon->name << "\n"
+        << "Damage:\t\t" << min << " - " 
         << (min + range) << "\n"
-        << "Crush: " << character.weapon->crush << "\n"
-        << "Chop: "  << character.weapon->chop  << "\n"
-        << "Slash: " << character.weapon->slash << "\n"
-        << "Stab: "  << character.weapon->stab  << "\n"
-        << "Initiative: " << character.initiative << "\n"
-        << endl;
+        << "Crush:\t\t" << character.weapon->crush << "\n"
+        << "Chop:\t\t"  << character.weapon->chop  << "\n"
+        << "Slash:\t\t" << character.weapon->slash << "\n"
+        << "Stab:\t\t"  << character.weapon->stab  << "\n"
+        << "Initiative:\t" << character.initiative << "\n"
+        << "Armor:\t\t" << character.armor->name << "\n"
+        << "Weight:\t\t" << character.armor->weight  << "\n"
+        << "Volume:\t\t" << character.armor->volume << "\n"
+        << "Defence Power:\t" << character.armor->defencePower << "\n"
+        << "Crush:\t\t" << character.armor->crush << "\n"
+        << "Chop:\t\t" << character.armor->chop << "\n"
+        << "Slash:\t\t" << character.armor->slash << "\n"
+        << "Stab:\t\t" << character.armor->stab << "\n"
+        << "Reduction:\t" << character.armor->damageReduce << "\n\n";
 }
 
 

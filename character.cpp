@@ -1,8 +1,8 @@
 #include "character.h"
 
-/******************************************************************************
+/*******************************************************************************
 * Character Class Constructors:
-******************************************************************************/
+*******************************************************************************/
 // Generate new monster. Is also the default constructor.
 Character::Character(string newMonster) {
    // If no monster provided, select one at random.
@@ -31,9 +31,9 @@ Character::Character(string name, bool hero) {
    this->isHero = hero;
 }
 
-/******************************************************************************
+/*******************************************************************************
 * Character Class Setters:
-******************************************************************************/
+*******************************************************************************/
 void Character::setHitPoints(short change) {
    hitPoints - change < 0 ? hitPoints = 0 : hitPoints += change;
 }
@@ -46,18 +46,14 @@ void Character::setEssencePoints(short change) {
    essencePoints < 0 ? essencePoints = 0 : essencePoints += change;
 }
 
-void Character::setWeapon(string weaponType) {
-   weapon = new Weapon(weaponType);
-}
+void Character::setWeapon(string weaponType) {weapon = new Weapon(weaponType);}
 
 void Character::setWeapon(string name, short min, short range, float cr, 
    float ch, float sl, float st, short slow) {
    weapon = new Weapon(name, min, range, cr, ch, sl, st, slow);
 }
 
-void Character::setOffhand(string weaponType) {
-   weapon = new Weapon(weaponType);
-}
+void Character::setOffhand(string weaponType) {offhand = new Weapon(weaponType);}
 
 void Character::setOffhand(string name, short min, short range, float cr, 
    float ch, float sl, float st, short slow) {
@@ -66,19 +62,19 @@ void Character::setOffhand(string name, short min, short range, float cr,
 
 void Character::setArmor(string name) {armor = new Armor(name);}
 
-/******************************************************************************
+/*******************************************************************************
 * void generateMonstersList()
 * Iterates through the map of monsters and saves all names to a vector.
-******************************************************************************/
+*******************************************************************************/
 void Character::generateMonstersList() {
       for(auto & i : monster)
          monsters.push_back(i.first);
 }
 
-/******************************************************************************
+/*******************************************************************************
 * void displayStats()
 * Used mostly for testing purposes. Shows Character object's stats.
-******************************************************************************/
+*******************************************************************************/
 void Character::displayStats() {
   cout << name << " stats:\n"
        << "Hit Points:\t"     << hitPoints     << "\n"

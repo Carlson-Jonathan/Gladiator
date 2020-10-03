@@ -43,8 +43,6 @@ public:
       name;
 
    short
-      minDamage = 0, 
-      rangeDamage = 0,
       hitPoints = 1000,
       bloodPoints = 1000,
       essencePoints = 1000,

@@ -16,32 +16,40 @@
 #include <vector>
 #include <map>
 
+// Just a last ditch effort to prevent my table from getting too wide. 
+// Variable 'a' stands for 'attack' description.
+string a[8] = {" claws at ", " spits at ", " strikes at ", " bites at ", 
+" swoops at ", " hurls itself at ", " pecks at ", " flails its tenticles at "};
+
+/******************************** Glossary *************************************
+* AD = Attack Description, what displays when the monster attacks. 
+* HP = Hit Points
+* BP = Blood Points
+* EP = Essence Points
+* Init = Character initiative (higher is slower)
+* Min = Minimum damage on attack
+* Rg = Range of damage. Min 50 + Rg 100 = 50 - 150 damage range.
+* Vnm = Venemous. Adds to players base initiative if active.
+* Stn = Stun caused on attack. Number is added to the player's running initiative.
+* Hz = Hazard damage. The damage the attacker takes (like kicking a cactus).
+* Cr, Ch, Sl, St = Crush, chop, slash, stab. For Attack, the damage range is
+*    distributed to each by its percentage. For armor, damage is reduced by the 
+*    percentage. Negative percentages increase damage (vulerabilities).
+*******************************************************************************/ 
 std::map<std::string, std::pair<std::pair<std::vector<std::string>, 
 std::vector<bool>>, std::pair<std::vector<short>, std::vector<float>>>> 
 monster {
-
-/******************************** Glossary *************************************
-* Attack Description = What displays when the monster attacks. 
-* DP  = Defence Power. Determines overall effectiveness of armor.
-* Cr  = Offence or Defence with crushing (Attack/Armor).
-* Ch  = Offence or Defence with chopping (Attack/Armor).
-* Sl  = Offence or Defence with slashing (Attack/Armor).
-* St  = Offence or Defence with stabbing (Attack/Armor).
-*    Note: Leave monster DP at 100. Armor values are percentage reductions of
-*    damage taken. Negative values increase damage taken (vulnerabilities).
-*    1.0 means immune, 0.5 is half damage, -1.0 take double damage.
-*******************************************************************************/ 
-//                                                                                                           Floats
-//                     Strings            bools                   Shorts                          Attack                 Armor
-//  Key          Attack Description                    HP    BP    EP  Slow  Min Range      Cr   Ch   Sl   St     Cr   Ch   Sl   St
-{"Skeleton",  {{{ " claws at "        },  { 0 }},  {{ 1000, 1000, 1000,  80, 100,  50 },  { 0.0, 0.1, 0.7, 0.2,   -1.0, -0.5, 0.4, 1.0 }}}},
-{"Slime",     {{{ " spits at "        },  { 0 }},  {{ 1000, 1000, 1000, 160, 100, 200 },  { 1.0, 0.0, 0.0, 0.0,   0.7, -0.2, -0.5, 0.0 }}}},
-{"Snake",     {{{ " strikes at "      },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.0, 0.0, 0.1, 0.9,   0.6, -0.6, -0.3, 0.5 }}}},
-{"Wolf",      {{{ " bites at "        },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.1, 0.7, 0.1, 0.1,   0.4, 0.5, 0.2, -0.7 }}}},
-{"GiantWasp", {{{ " swoops at "       },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.0, 0.0, 0.1, 0.9,   -0.7, 0.2, 0.1, 0.0 }}}},
-{"Zombie",    {{{ " hurls itself at " },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.7, 0.3, 0.0, 0.0,   0.7, -0.7, 0.6, 0.8 }}}},
-{"Duckling",  {{{ " pecks at "        },  { 0 }},  {{   25,   25, 1000,  30,  25, 50  },  { 0.0, 0.0, 0.0, 1.0,   0.9,  0.9, 0.9, 0.9 }}}},
-
+//            |Strings |    bools    |                Shorts                      |   |                    Floats                      
+//            |        |             |                                            |   |      Attack         |          Armor         |  
+//  Key       |    AD  | placeholder |  HP    BP    EP   Init Min   Rg Vnm Stn Hz |   | Cr   Ch   Sl   St   |  Cr    Ch    Sl    St  |
+{"Skeleton",  {{{ a[0] },  { 0 }},  {{ 1000, 1000, 1000,  80, 100,  50, 0,  0,  0 },  { 0.0, 0.1, 0.7, 0.2,   -1.0, -0.5,  0.4,  1.0 }}}},
+{"Slime",     {{{ a[1] },  { 0 }},  {{ 1000, 1000, 1000, 160, 100, 200, 10, 0,  0 },  { 1.0, 0.0, 0.0, 0.0,    0.7, -0.2, -0.5,  0.0 }}}},
+{"Snake",     {{{ a[2] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 10, 0,  0 },  { 0.0, 0.0, 0.1, 0.9,    0.6, -0.6, -0.3,  0.5 }}}},
+{"Wolf",      {{{ a[3] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 0,  0,  0 },  { 0.1, 0.7, 0.1, 0.1,    0.4,  0.5,  0.2, -0.7 }}}},
+{"Giant Wasp",{{{ a[4] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 20, 0,  0 },  { 0.0, 0.0, 0.1, 0.9,   -0.7,  0.2,  0.1,  0.0 }}}},
+{"Zombie",    {{{ a[5] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 0,  0,  0 },  { 0.7, 0.3, 0.0, 0.0,    0.7, -0.7,  0.6,  0.8 }}}},
+{"Duckling",  {{{ a[6] },  { 0 }},  {{   25,   25, 1000,  30,  25,  50, 0,  0,  0 },  { 0.0, 0.0, 0.0, 1.0,    0.9,  0.9,  0.9,  0.9 }}}},
+{"Cactopus",  {{{ a[7] },  { 0 }},  {{   25,   25, 1000,  30,  25,  50, 0,  0,  2 },  { 0.0, 0.0, 0.0, 1.0,    0.9,  0.9,  0.9,  0.9 }}}},
 
 };
 

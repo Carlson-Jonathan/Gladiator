@@ -24,19 +24,21 @@ std::vector<float>>>> weapons = {
 * Min = The minimum amount of damage done by the weapon.
 * Rg = The weapon's range of damage. Min 100 and Range 50 = 100-150 damage.
 * Sp = Weapon speed. This is added to the player's total initiative.
+* Vnm = Venomous. Applied poisons. Amount is added to victim's base initiative.
+* Stn = Stun amount. Is added to victim's running initiative.
 * Cr = The percentage of the weapon's total damage allocated to crushing.
 * Ch = The percentage of the weapon's total damage allocated to chopping.
 * Sl = The percentage of the weapon's total damage allocated to slashing.
 * St = The percentage of the weapon's total damage allocated to stabbing.
 *******************************************************************************/
     
-//      Key        Description       Min   Rg   Sp       Cr   Ch   Sl   St
-{"Fists",       { " punches ",    {{   5,  10, -50 },  { 1.0, 0.0, 0.0, 0.0 }}}},
-{"Broad Sword", { " slashes at ", {{  75,  25,  20 },  { 0.0, 0.2, 0.5, 0.3 }}}},
-{"Katana",      { " slashes at ", {{  50,  50, -10 },  { 0.2, 0.0, 0.7, 0.1 }}}},
-{"Battle Axe",  { " chops at ",   {{  45, 110,  50 },  { 0.1, 0.7, 0.1, 0.0 }}}},
-{"Spear",       { " lunges at ",  {{  30,  25, -30 },  { 0.0, 0.0, 0.1, 0.9 }}}},
-{"Mace",        { " swings at ",  {{  50, 100,  30 },  { 1.0, 0.0, 0.0, 0.0 }}}}};
+//      Key        Description       Min   Rg   Sp  Vnm Stn      Cr   Ch   Sl   St
+{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0 },  { 1.0, 0.0, 0.0, 0.0 }}}},
+{"Broad Sword", { " slashes at ", {{  75,  25,  20,  0,   0 },  { 0.0, 0.2, 0.5, 0.3 }}}},
+{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0 },  { 0.2, 0.0, 0.7, 0.1 }}}},
+{"Battle Axe",  { " chops at ",   {{  45, 110,  50,  0,   0 },  { 0.1, 0.7, 0.1, 0.0 }}}},
+{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0 },  { 0.0, 0.0, 0.1, 0.9 }}}},
+{"Mace",        { " swings at ",  {{  50, 100,  30,  0, 100 },  { 1.0, 0.0, 0.0, 0.0 }}}}};
 
 /*
 Additional weapon ideas:

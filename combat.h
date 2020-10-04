@@ -32,7 +32,7 @@ void combat(Character & player);
 string nextAction(const short pSlow, const short mSlow, 
                         short & rpSlow, short & rmSlow) {
 
-   cout << "Player/Monster Initiatives: " << rpSlow << " | " << rmSlow << "\n\n";
+   cout << "\t\t\tPlayer/Monster Initiatives: " << rpSlow << " | " << rmSlow << "\n\n";
    if(rpSlow <= rmSlow) {
        rpSlow += pSlow;
        return "Player's";
@@ -64,25 +64,30 @@ void preventNegativeDamage(short damageTypes[], short block[]) {
 bool attackCharacter(Character & victim, Character & aggressor) {
 
    short damageTypes[4], rawDamage[3], block[4]; 
+   
    calculateDamageTypes(aggressor, damageTypes);
-   cout << aggressor.name << " damage Types:" << endl;
-   cout << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+   cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
+   cout << "\t\t\t" << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
 
    calculateDamageBlock(victim, block);
-   cout << victim.name << " armor block values based on defence power: " << victim.armor->defencePower << endl;
-   cout << "Crush: " << block[0] << " | Chop: " << block[1] << " | Slash: " << block[2] << " | Stab: " << block[3] << "\n\n";
+   cout << "\t\t\t" << victim.name << " armor block values based on defence power: " << victim.armor->defencePower << endl;
+   cout << "\t\t\tCrush: " << block[0] << " | Chop: " << block[1] << " | Slash: " << block[2] << " | Stab: " << block[3] << "\n\n";
 
    preventNegativeDamage(damageTypes, block);
-   cout << aggressor.name << " modified Damage Types:" << endl;
-   cout << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+   cout << "\t\t\t" << aggressor.name << " modified Damage Types:" << endl;
+   cout << "\t\t\tCr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
 
    calculateRawDamage(victim, rawDamage, damageTypes);
-   cout << "Raw Damage using modified types:" << endl;
-   cout << "HP: " << rawDamage[0] << " | BP: " << rawDamage[1] << " | EP: " << rawDamage[2] << "\n\n";
+   cout << "\t\t\t" << "Raw Damage using modified types:" << endl;
+   cout << "\t\t\tHP: " << rawDamage[0] << " | BP: " << rawDamage[1] << " | EP: " << rawDamage[2] << "\n\n";
 
    displayAttackMessage(victim, aggressor, rawDamage);
+   
    if(applyDamage(victim, rawDamage)) return true;
+   
    determineAffliction(aggressor, victim, damageTypes);
+
+   // receiveHazardDamage();
 
    return false;
 }
@@ -133,7 +138,6 @@ void calculateRawDamage(const Character & victim, short rawDamage[], short dT[])
    rawDamage[2] = 0;                                                 // EP
 
    if(victim.isDefending) {
-      cout << victim.name << " defends, cutting damage in half!\n\n";
       rawDamage[0] /= 2; rawDamage[1] /= 2; rawDamage[2] /= 2;
    }
 }
@@ -164,18 +168,25 @@ void determineAffliction(const Character & aggressor, Character & victim,
    if(!victim.isDefending) {
 
       // Sets a bleeding affliction 
-      if(wep->sharp) {
+      if(wep->isSharp) {
          victim.isBleeding += ceil(damageTypes[3] * 0.2 + damageTypes[2] * 0.1) * 10;
          // cout << victim.name << " begins hemorrhaging from their wound!" << "\n\n";
       }
       
       // Sets a stun affliction (skips the victim's next turn).
-      if(wep->blunt)
+      if(wep->canStun)
          if(damageTypes[0] > aggressor.weapon->minDamage + 
-            aggressor.weapon->rangeDamage / 2) {
+            aggressor.weapon->rangeDamage / 2) {    // Damge > than 50% of potential
             stunMessage(aggressor, victim);
-            victim.runningInitiative += victim.initiative;
+            victim.runningInitiative += wep->canStun;
          }
+
+      if(wep->venomous) {
+         victim.initiative += wep->venomous;   
+         cout << victim.name << "'s movement is slowed by the " << aggressor.name 
+              << "'s attack!\n\n";
+         cout << "\t\t\t" << victim.name << "'s base initiative: " << victim.initiative << "\n\n";
+      }
 
    // Set Affliction
 
@@ -232,7 +243,9 @@ bool isDefeated(short HP, short BP, short EP) {
 }
 
 
-
+void receiveHazardDamage() {
+   // 
+}
 
 
 /*##############################################################################
@@ -310,6 +323,8 @@ void combat(Character & player, string newMonster) {
                combatVictory(player, monster);
                break;
             }
+            
+            // Set hazard damage
             // Set monster's retaliation to your attack
             // Set monster's retaliation afliction
             // Set residual actions

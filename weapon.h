@@ -26,8 +26,8 @@ public:
       this->slash =             weapons[weaponType].second.second[2];
       this->stab =              weapons[weaponType].second.second[3];
       this->speed =             weapons[weaponType].second.first[2];
-      this->sharp =             ((stab >= 0.4) || (slash >= 0.5));
-      this->blunt =             (crush >= 0.5);
+      this->canStun =           weapons[weaponType].second.first[4];
+      this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
    }
 
    // Custom monster weapon damage
@@ -40,8 +40,9 @@ public:
        this->chop =              newMonsterWeapon.second.second[1];
        this->slash =             newMonsterWeapon.second.second[2];
        this->stab =              newMonsterWeapon.second.second[3];
-       this->sharp =             ((stab >= 0.4) || (slash >= 0.5));
-       this->blunt =             (crush >= 0.5);
+       this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
+       this->venomous =          newMonsterWeapon.second.first[6];
+       this->canStun =           newMonsterWeapon.second.first[7];
    }
 
    ~Weapon() {}
@@ -55,7 +56,9 @@ public:
       minDamage,
       rangeDamage,
       maxMulti,
-      speed;
+      speed,
+      venomous,      // Slows initiative
+      canStun;
 
    // Damage Type
    float 
@@ -66,13 +69,11 @@ public:
 
    bool 
       burn = false,
-      sharp = false, // Bleed
-      venom = false,
-      blunt = false, // Stun
+      isSharp = false,     // Bleed
+      isBlunt = false,     // Stun
       blind = false,
-      slow = false,
-      freeze = false,
-      parry = false;
+      isCold = false,
+      canParry = false;
 
    void displayStats() {
       cout << "Weapon: " << name << "\n"

@@ -14,7 +14,7 @@ using namespace std;
 class Weapon {
 public:
 
-   // Constructors
+   // Player weapon
    Weapon() {}
    Weapon(string weaponType) {
       this->name =              weaponType;
@@ -25,33 +25,37 @@ public:
       this->chop =              weapons[weaponType].second.second[1];
       this->slash =             weapons[weaponType].second.second[2];
       this->stab =              weapons[weaponType].second.second[3];
-      this->sharp = ((stab >= 0.4) || (slash >= 0.5));
+      this->speed =             weapons[weaponType].second.first[2];
+      this->sharp =             ((stab >= 0.4) || (slash >= 0.5));
+      this->blunt =             (crush >= 0.5);
    }
 
-   // Custom monster damage
-   Weapon(string attack, short min, short range, float stab, 
-    float crush, float slash, float chop, short slow) {
-       this->actionDescription = attack;
-       this->minDamage = min;
-       this->rangeDamage = range;
-       this->crush = crush;
-       this->chop = chop;
-       this->slash = slash;
-       this->stab = stab;
-       this->slow = slow;
+   // Custom monster weapon damage
+   Weapon(pair<pair<vector<string>, vector<bool>>, 
+          pair<vector<short>, vector<float>>> newMonsterWeapon) {
+       this->actionDescription = newMonsterWeapon.first.first[0];
+       this->minDamage =         newMonsterWeapon.second.first[4];
+       this->rangeDamage =       newMonsterWeapon.second.first[5];
+       this->crush =             newMonsterWeapon.second.second[0];
+       this->chop =              newMonsterWeapon.second.second[1];
+       this->slash =             newMonsterWeapon.second.second[2];
+       this->stab =              newMonsterWeapon.second.second[3];
+       this->sharp =             ((stab >= 0.4) || (slash >= 0.5));
+       this->blunt =             (crush >= 0.5);
    }
 
    ~Weapon() {}
 
    string 
-      name,
+      name = "attack",
       actionDescription = " attacks ";
 
    // Damage amount
    short 
       minDamage,
       rangeDamage,
-      maxMulti;
+      maxMulti,
+      speed;
 
    // Damage Type
    float 
@@ -62,9 +66,9 @@ public:
 
    bool 
       burn = false,
-      sharp = false,
+      sharp = false, // Bleed
       venom = false,
-      stun = false,
+      blunt = false, // Stun
       blind = false,
       slow = false,
       freeze = false,

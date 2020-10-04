@@ -16,35 +16,33 @@
 #include <vector>
 #include <map>
 
-std::map<std::string, std::pair<std::vector<std::string>, 
-                                std::vector<short>>> monster = {
-/*
-Strings: Creature's name | Attack type | Attack Description | Armor
-Shorts:  HP | BP | EP | Speed | Min Damage | Damage Range       */
+std::map<std::string, std::pair<std::pair<std::vector<std::string>, 
+std::vector<bool>>, std::pair<std::vector<short>, std::vector<float>>>> 
+monster {
 
-{"Skeleton", 
-   {{ "Skeleton", "Pure Slash", " claws at ", "ImmuneST" }, 
-   { 1000, 1000, 1000, 100, 100, 100 }}},
+/******************************** Glossary *************************************
+* Attack Description = What displays when the monster attacks. 
+* DP  = Defence Power. Determines overall effectiveness of armor.
+* Cr  = Offence or Defence with crushing (Attack/Armor).
+* Ch  = Offence or Defence with chopping (Attack/Armor).
+* Sl  = Offence or Defence with slashing (Attack/Armor).
+* St  = Offence or Defence with stabbing (Attack/Armor).
+*    Note: Leave monster DP at 100. Armor values are percentage reductions of
+*    damage taken. Negative values increase damage taken (vulnerabilities).
+*    1.0 means immune, 0.5 is half damage, -1.0 take double damage.
+*******************************************************************************/ 
+//                                                                                                           Floats
+//                     Strings            bools                   Shorts                          Attack                 Armor
+//  Key          Attack Description                    HP    BP    EP  Slow  Min Range      Cr   Ch   Sl   St     Cr   Ch   Sl   St
+{"Skeleton",  {{{ " claws at "        },  { 0 }},  {{ 1000, 1000, 1000,  80, 100,  50 },  { 0.0, 0.1, 0.7, 0.2,   -1.0, -0.5, 0.4, 1.0 }}}},
+{"Slime",     {{{ " spits at "        },  { 0 }},  {{ 1000, 1000, 1000, 160, 100, 200 },  { 1.0, 0.0, 0.0, 0.0,   0.7, -0.2, -0.5, 0.0 }}}},
+{"Snake",     {{{ " strikes at "      },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.0, 0.0, 0.1, 0.9,   0.6, -0.6, -0.3, 0.5 }}}},
+{"Wolf",      {{{ " bites at "        },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.1, 0.7, 0.1, 0.1,   0.4, 0.5, 0.2, -0.7 }}}},
+{"GiantWasp", {{{ " swoops at "       },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.0, 0.0, 0.1, 0.9,   -0.7, 0.2, 0.1, 0.0 }}}},
+{"Zombie",    {{{ " hurls itself at " },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100 },  { 0.7, 0.3, 0.0, 0.0,   0.7, -0.7, 0.6, 0.8 }}}},
+{"Duckling",  {{{ " pecks at "        },  { 0 }},  {{   25,   25, 1000,  30,  25, 50  },  { 0.0, 0.0, 0.0, 1.0,   0.9,  0.9, 0.9, 0.9 }}}},
 
-{"Slime",    
-   {{ "Slime", "Pure Crush", " spits at ", "Plate" },   
-   { 1000, 1000, 1000, 100, 100, 100 }}},
 
-{"Snake",    
-   {{ "Cobra", "Pure Stab", " strikes at ", "Plate" },
-   { 1000, 1000, 1000, 100, 100, 100 }}},
-
-{"Wolf",     
-   {{ "Spider Wolf", "Pure Chop", " bites at ", "Plate" },
-   { 1000, 1000, 1000, 100, 100, 100 }}},
-
-{"GiantWasp",
-   {{ "Giant Wasp", "Pure Stab", " swoops at ", "Plate" },
-   { 1000, 1000, 1000, 100, 100, 100 }}},
-
-{"Zombie",   
-   {{ "Zombie", "Pure Crush", " hurls itself at ", "Plate" },
-   { 1000, 1000, 1000, 100, 100, 100 }}}
 };
 
 #endif // MONSTERS_CPP

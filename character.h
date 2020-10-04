@@ -1,9 +1,9 @@
-/******************************************************************************
+/*******************************************************************************
 * hero.h
 * Author: Jonathan Carlson
 * Description:
 *    Generates a character object. Accepts weapon objects from weapon class.
-******************************************************************************/
+*******************************************************************************/
 #ifndef CHARACTER_H
 #define CHARACTER_H
 #include <iostream>
@@ -13,7 +13,6 @@
 #include <time.h>
 #include "weapon.h"
 #include "armor.h"
-//#include "monsters.cpp"
 using namespace std;
 
 class Character {
@@ -28,11 +27,7 @@ public:
    void setBloodPoints(short change);
    void setEssencePoints(short change);
    void setWeapon(string weaponType);
-   void setWeapon(string name, short min, short range, float cr, float ch, 
-      float sl, float st, short slow);
    void setOffhand(string weaponType);
-   void setOffhand(string name, short min, short range, float cr, float ch, 
-      float sl, float st, short slow);
    void setArmor(string name);
 
    // Functions
@@ -47,12 +42,14 @@ public:
       bloodPoints = 1000,
       essencePoints = 1000,
       initiative = 100, // Higher is slower
+      runningInitiative,
       strength = 100,
       isBleeding = 0;
 
    bool 
       isDefending = false,
-      isHero = false;
+      isHero = false,
+      canRegenerate = false;
 
    vector<string> monsters;
 

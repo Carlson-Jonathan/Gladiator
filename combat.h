@@ -11,11 +11,9 @@
 #include "display.h"
 
 string nextAction(const short pSlow, const short mSlow, short & rpSlow, short & rmSlow);
-void preventNegativeDamage(short damageTypes[], short block[]);
-bool attackCharacter(Character & victim, Character & aggressor);
-void calculateDamageTypes(const Character & aggressor, short damage[]);
-void calculateDamageBlock(const Character & victim, short block[]);
-void calculateRawDamage(const Character & victim, short rawDamage[], short dT[]);
+void getDamageSum(short damageTypes[], short block[]);
+bool attackCharacter(Character & victim, Character & aggressor, bool hazardAttack);
+void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]);
 int applyDamage(Character & victim, short rawDamage[]); 
 void determineAffliction(const Character & aggressor, Character & victim, short damage[]);
 bool applyBleeding(Character & victim);
@@ -43,12 +41,12 @@ string nextAction(const short pSlow, const short mSlow,
 }
 
 /*******************************************************************************
-* void preventNegativeDamage(short, short[])
+* void getDamageSum(short, short[])
 * Applies the damage reduction of the armor assuring that it does not go below 
 * 0. The formula applied is to reduce each damage type by the block damage
 * type as a percentage.
 *******************************************************************************/
-void preventNegativeDamage(short damageTypes[], short block[]) {
+void getDamageSum(short damageTypes[], short block[]) {
    for(short i = 0; i < 4; i++) {
       damageTypes[i] *= (1.0 - ((float)block[i] / 100));
       if(damageTypes[i] < 0)
@@ -61,31 +59,45 @@ void preventNegativeDamage(short damageTypes[], short block[]) {
 * Governs the 'attack' action. Calls all functions that determine the pattern
 * of an attack. Anything printed in this section is just for testing.
 *******************************************************************************/
-bool attackCharacter(Character & victim, Character & aggressor) {
+bool attackCharacter(Character & victim, Character & aggressor, bool hazardAttack = 0) {
 
-   short damageTypes[4], rawDamage[3], block[4]; 
+   short rawDamage[3]; 
    
-   calculateDamageTypes(aggressor, damageTypes);
+   aggressor.weapon->getRandomDamageTypes();
    cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
-   cout << "\t\t\t" << "Cr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+   cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] << " | Ch: " 
+        << aggressor.weapon->damageTypes[1]  << " | Sl: " 
+        << aggressor.weapon->damageTypes[2]  << " | St: " 
+        << aggressor.weapon->damageTypes [3] << "\n\n";
 
-   calculateDamageBlock(victim, block);
-   cout << "\t\t\t" << victim.name << " armor block values based on defence power: " << victim.armor->defencePower << endl;
-   cout << "\t\t\tCrush: " << block[0] << " | Chop: " << block[1] << " | Slash: " << block[2] << " | Stab: " << block[3] << "\n\n";
+   cout << "\t\t\t" << victim.name << " armor block values based on defence power: " 
+        << victim.armor->defencePower << endl;
+   cout << "\t\t\tCrush: " << victim.armor->damageReduce[0] 
+        <<    " | Chop: "  << victim.armor->damageReduce[1] 
+        <<    " | Slash: " << victim.armor->damageReduce[2] 
+        <<    " | Stab: "  << victim.armor->damageReduce[3] << "\n\n";
 
-   preventNegativeDamage(damageTypes, block);
+   getDamageSum(aggressor.weapon->damageTypes, victim.armor->damageReduce);
    cout << "\t\t\t" << aggressor.name << " modified Damage Types:" << endl;
-   cout << "\t\t\tCr: " << damageTypes[0] << " | Ch: " << damageTypes[1] << " | Sl: " << damageTypes[2] << " | St: " << damageTypes [3] << "\n\n";
+   cout << "\t\t\tCr: " << aggressor.weapon->damageTypes[0] << " | Ch: " 
+        << aggressor.weapon->damageTypes[1] << " | Sl: " << aggressor.weapon->damageTypes[2] 
+        << " | St: " << aggressor.weapon->damageTypes [3] << "\n\n";
 
-   calculateRawDamage(victim, rawDamage, damageTypes);
+   convertToHP_BP(victim, rawDamage, aggressor.weapon->damageTypes);
    cout << "\t\t\t" << "Raw Damage using modified types:" << endl;
    cout << "\t\t\tHP: " << rawDamage[0] << " | BP: " << rawDamage[1] << " | EP: " << rawDamage[2] << "\n\n";
 
-   displayAttackMessage(victim, aggressor, rawDamage);
-   
-   if(applyDamage(victim, rawDamage)) return true;
-   
-   determineAffliction(aggressor, victim, damageTypes);
+   if(hazardAttack) {
+      for(float i : rawDamage)
+         i /= victim.isHazardous;
+      cout << "\t" << aggressor.name << " was hurt durring the attack and takes damage!\n"
+           << "\t\tHP: -" << rawDamage[0] << " | BP: -" << rawDamage[1] << " | EP: -" << rawDamage[2] << "\n\n";
+      if(applyDamage(aggressor, rawDamage)) return true;
+   } else {
+      displayAttackMessage(victim, aggressor, rawDamage);
+      if(applyDamage(victim, rawDamage)) return true;
+      determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
+   }
 
    // receiveHazardDamage();
 
@@ -93,44 +105,12 @@ bool attackCharacter(Character & victim, Character & aggressor) {
 }
 
 /*******************************************************************************
-* void calculateDamageTypes(Character, Character, short[])
-* Generates stab, crush, slash, and chop damage values and returns in an array.
-*******************************************************************************/
-void calculateDamageTypes(const Character & aggressor, short damage[]) {
-
-   short baseDamage = random(aggressor.weapon->minDamage, 
-                             aggressor.weapon->rangeDamage);
-
-   damage[0] = ceil(baseDamage * aggressor.weapon->crush);
-   damage[1] = ceil(baseDamage * aggressor.weapon->chop);
-   damage[2] = ceil(baseDamage * aggressor.weapon->slash);
-   damage[3] = ceil(baseDamage * aggressor.weapon->stab);
-}
-
-/*******************************************************************************
-* void calculateDamageBlock(Character, short[])
-* Calculates the damage reduction provided by various armors. Each block[]
-* value (shorts) represent the amount to reduce the damage type by.
-*******************************************************************************/
-void calculateDamageBlock(const Character & victim, short block[]) {
-   Armor armor = *victim.armor;
-
-   // To do: Figure out how to implement a vulnerability that increases 
-   // damage if the armor.(damageType) value is negative.         
-
-   block[0] = ceil(armor.defencePower * armor.crush);
-   block[1] = ceil(armor.defencePower * armor.chop);
-   block[2] = ceil(armor.defencePower * armor.slash);
-   block[3] = ceil(armor.defencePower * armor.stab);
-}
-
-/*******************************************************************************
-* void calculateRawDamage(Character, int, short[])
+* void convertToHP_BP(Character, int, short[])
 * Accepts either the Hero or Monster type objects and uses the weapon object
 * set in that type to determine the amount of damage that will be inflicted
 * per combat round. Basically it splits the 4 damage types into 3 health types.
 *******************************************************************************/
-void calculateRawDamage(const Character & victim, short rawDamage[], short dT[]) {
+void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]) {
 
        // dT[0] = Crush, dT[1] = Chop, dT[2] = Slash, dT[3] = Stab            
    rawDamage[0] = dT[0] + ceil(dT[2] * 0.34) + ceil(dT[1] * 0.66),   // HP
@@ -281,7 +261,7 @@ void combat(Character & player, string newMonster) {
    displayStats(player);
    displayStats(monster);
 
-   cout << "A " << monster.name << " draws near!\n" << endl;
+   cout << "\tA " << monster.name << " draws near!\n" << endl;
 
    while(battle) {
       
@@ -324,7 +304,8 @@ void combat(Character & player, string newMonster) {
                break;
             }
             
-            // Set hazard damage
+            if(monster.isHazardous)
+               attackCharacter(player, player, 1);
             // Set monster's retaliation to your attack
             // Set monster's retaliation afliction
             // Set residual actions

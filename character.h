@@ -44,7 +44,8 @@ public:
       initiative = 100, // Higher is slower
       runningInitiative,
       strength = 100,
-      isBleeding = 0;
+      isBleeding = 0,
+      isHazardous;      // Returns damage to an attacker 
 
    bool 
       isDefending = false,

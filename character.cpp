@@ -18,6 +18,7 @@ Character::Character(string newMonster) {
    this->bloodPoints =   monster[newMonster].second.first[1];
    this->essencePoints = monster[newMonster].second.first[2];
    this->initiative =    monster[newMonster].second.first[3];
+   this->isHazardous =   monster[newMonster].second.first[8];
    this->runningInitiative = initiative;
    weapon = new Weapon(monster[newMonster]);
    armor = new Armor(monster[newMonster]);

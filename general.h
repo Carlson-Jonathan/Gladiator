@@ -7,9 +7,9 @@
 #ifndef GENERAL_H
 #define GENERAL_H
 #include <iostream>
-// #include <stdio.h> 
-// #include <stdlib.h> 
-// #include <time.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <time.h> 
 using namespace std;
 
 int random(int min, int range) {

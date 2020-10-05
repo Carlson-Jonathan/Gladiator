@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <math.h>
 using namespace std;
 
 class Armor {
@@ -27,33 +28,48 @@ public:
       this->chop =         armor[name].second.second[1];
       this->slash =        armor[name].second.second[2];
       this->stab =         armor[name].second.second[3];
+      setDamageReduce();
    }
 
    // Custom monster armor (see 'monsters.cpp').
-   Armor(pair<pair<vector<string>, vector<bool>>, pair<vector<short>, 
-         vector<float>>> monsterArmor) {
+   Armor(const pair<pair<vector<string>, vector<bool>>, pair<vector<short>, 
+         vector<float>>> & monsterArmor) {
       this->crush = monsterArmor.second.second[4];
       this->chop =  monsterArmor.second.second[5];
       this->slash = monsterArmor.second.second[6];
       this->stab =  monsterArmor.second.second[7];
+      setDamageReduce();
+   }
+
+   void setDamageReduce() {
+      damageReduce[0] = ceil(defencePower * crush);
+      damageReduce[1] = ceil(defencePower * chop);
+      damageReduce[2] = ceil(defencePower * slash);
+      damageReduce[3] = ceil(defencePower * stab);
    }
 
    string name;
-   short weight, // Affects turn speed
-         volume,
-         defencePower = 100;
+   short 
+      weight, // Affects turn speed
+      volume,
+      defencePower = 100;
+      
+   // The percentage of damage reduction to be applied [crush, chop, slash, stab]
+   short damageReduce[4];
 
    // Physical Defence values
-   float crush,
-         chop,
-         slash,
-         stab;
+   float 
+      crush,
+      chop,
+      slash,
+      stab;
 
    // Elemental Defence Values
-   float fire,
-         air, 
-         water,
-         shock;
+   float 
+      fire,
+      air, 
+      water,
+      shock;
 
    #include "armors.cpp"
 

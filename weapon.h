@@ -9,6 +9,10 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 using namespace std;
 
 class Weapon {
@@ -47,6 +51,23 @@ public:
 
    ~Weapon() {}
 
+   /****************************************************************************
+   * void randomDamageTypes(short[])
+   * Generates random short damage values for crush/chop/slash/stab based on the
+   * min/range damage range.
+   ****************************************************************************/
+   void getRandomDamageTypes() {
+
+      srand(time(0));
+      short baseDamage = rand() % rangeDamage + minDamage;
+
+      damageTypes[0] = ceil(baseDamage * crush);
+      damageTypes[1] = ceil(baseDamage * chop);
+      damageTypes[2] = ceil(baseDamage * slash);
+      damageTypes[3] = ceil(baseDamage * stab);
+   }
+
+
    string 
       name = "attack",
       actionDescription = " attacks ";
@@ -58,7 +79,8 @@ public:
       maxMulti,
       speed,
       venomous,      // Slows initiative
-      canStun;
+      canStun,
+      damageTypes[4];
 
    // Damage Type
    float 

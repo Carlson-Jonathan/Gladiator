@@ -32,6 +32,7 @@ string a[8] = {" claws at ", " spits at ", " strikes at ", " bites at ",
 * Vnm = Venemous. Adds to players base initiative if active.
 * Stn = Stun caused on attack. Number is added to the player's running initiative.
 * Hz = Hazard damage. The damage the attacker takes (like kicking a cactus).
+*    Divide attacker damage by this number to get hazard damage.
 * Cr, Ch, Sl, St = Crush, chop, slash, stab. For Attack, the damage range is
 *    distributed to each by its percentage. For armor, damage is reduced by the 
 *    percentage. Negative percentages increase damage (vulerabilities).
@@ -49,7 +50,7 @@ monster {
 {"Giant Wasp",{{{ a[4] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 20, 0,  0 },  { 0.0, 0.0, 0.1, 0.9,   -0.7,  0.2,  0.1,  0.0 }}}},
 {"Zombie",    {{{ a[5] },  { 0 }},  {{ 1000, 1000, 1000, 100, 100, 100, 0,  0,  0 },  { 0.7, 0.3, 0.0, 0.0,    0.7, -0.7,  0.6,  0.8 }}}},
 {"Duckling",  {{{ a[6] },  { 0 }},  {{   25,   25, 1000,  30,  25,  50, 0,  0,  0 },  { 0.0, 0.0, 0.0, 1.0,    0.9,  0.9,  0.9,  0.9 }}}},
-{"Cactopus",  {{{ a[7] },  { 0 }},  {{   25,   25, 1000,  30,  25,  50, 0,  0,  2 },  { 0.0, 0.0, 0.0, 1.0,    0.9,  0.9,  0.9,  0.9 }}}},
+{"Cactopus",  {{{ a[7] },  { 0 }},  {{ 1000, 1000, 1000, 150,  20,  30, 0,  0,  2 },  { 0.3, 0.0, 0.3, 0.4,    0.3, -0.5, -0.2,  0.5 }}}},
 
 };
 

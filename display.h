@@ -114,7 +114,7 @@ void writeMessageScroll(const string message) {
 
 
 /*******************************************************************************
-* combatVictory
+* void combatVictory(Character, Character)
 * Displays victory message at the end of combat. 
 *******************************************************************************/
 void combatVictory(const Character & player, const Character & monster) {
@@ -292,5 +292,10 @@ void stunMessage(const Character & aggressor, const Character & victim) {
         << aggressor.name << "'s " << aggressor.weapon->name << "!\n\n";
 }
 
+void hazardDamageMessage(Character aggressor, short damageHpBpEp[]) {
+    string message = aggressor.name + " was injured durring the attack and takes damage!\n";
+    writeMessage(message);
+    cout << "\t\tHP: -" << damageHpBpEp[0] << "  |  BP: -" << damageHpBpEp[1] << "  |  EP: -" << damageHpBpEp[2] << "\n\n";
+}
 
 #endif // DISPLAY_H

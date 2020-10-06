@@ -279,54 +279,45 @@ void combat(Character & player, string newMonster) {
    cout << "\tA " << monster.name << " draws near!\n" << endl;
 
    while(battle) {
-      // if(player.runningInitiative >= 201 && monster.runningInitiative >= 201) {
-      // player.runningInitiative -= 200 && monster.runningInitiative -= 200
-	     /**********************************************************************
-	     *                     Round Ending Action Block
-	     * This block is called after all players and monsters have taken at 
-	     * least 1 action (this is what defines a 'combat round').
-	     * Actions that occur once per round should be placed here, such as
-	     * bleeding, resetting defend status, etc.
-	     **********************************************************************/
+	    /**********************************************************************
+	    *                     Round Ending Action Block
+	    * This block is called after 200 time units (initiative) has passed.
+      * Afflictions such as bleeding should be placed in this block of code.
+	    **********************************************************************/
+      if(player.runningInitiative >= 201 && monster.runningInitiative >= 201) {
+        player.runningInitiative -= 200;
+        monster.runningInitiative -= 200;
+
+  	    // Apply bleeding
+  	    if(player.isBleeding)
+  	      if(applyBleeding(player)) {
+  	          combatDefeat();
+  	          break;
+  	    }
+  	     
+  	    if(monster.isBleeding)
+  	       if(applyBleeding(monster)) {
+  	          combatVictory(player, monster);
+  	          break;
+  	    } 
+      }
+
+      /**********************************************************************
+      *                     Turn Ending Action Block
+      * This block is called after after each character takes a turn. 
+      * Afflictions that should affect each character after every turn should
+      * be placed here.
+      **********************************************************************/
       if(nextAction(player.initiative, monster.initiative, 
                     player.runningInitiative, 
                     monster.runningInitiative) == "Player's") {
-	     // Apply bleeding
-	     if(player.isBleeding)
-	        if(applyBleeding(player)) {
-	           combatDefeat();
-	           break;
-	     }
-	     
-	     if(monster.isBleeding)
-	        if(applyBleeding(monster)) {
-	           combatVictory(player, monster);
-	           break;
-	     } 
 
-	     // Being low on BP increases running initiative
-         if(player.bloodPoints < player.maxBloodPoints * 0.66) {
-	        short additionalInit = (player.maxBloodPoints * 0.66 - player.bloodPoints) / 4;
-	        player.runningInitiative += additionalInit;
-	        cout << "\t" << player.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
-	     } 
-
-	     if(monster.bloodPoints < monster.maxBloodPoints * 0.66) {
-	        short additionalInit = (monster.maxBloodPoints * 0.66 - monster.bloodPoints) / 4;
-	        monster.runningInitiative += additionalInit;
-	        cout << "\t" << monster.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
-	      }
-
-	      // Displays player and monster stats for testing.
-	      displayCharacterStats(player, monster, round++);
-         
-
-
-         // Reset Stats
-         monster.isDefending = false; player.isDefending = false;
+         // Displays player and monster stats for testing.
+         displayCharacterStats(player, monster, round++);
          /**********************************************************************
          *                        Player's Action Block
          **********************************************************************/
+         player.isDefending = false;
          option = getUserInput({"Attack", "Defend", "Flee"});
 
          // Set player action
@@ -342,32 +333,37 @@ void combat(Character & player, string newMonster) {
          else if(option == 3) {
             flee();
          }
-      }
 
-      else {
+         if(player.bloodPoints < player.maxBloodPoints * 0.66) {
+  	        short additionalInit = (player.maxBloodPoints * 0.66 - player.bloodPoints) / 4;
+  	        player.runningInitiative += additionalInit;
+  	        cout << "\t" << player.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
+  	     } 
+      } else {
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
+         monster.isDefending = false; 
+         
          if(attackCharacter(monster, player, damageHpBpEp)) {
             combatDefeat();
             break;
          }
+
+  	     if(monster.bloodPoints < monster.maxBloodPoints * 0.66) {
+  	        short additionalInit = (monster.maxBloodPoints * 0.66 - monster.bloodPoints) / 4;
+  	        monster.runningInitiative += additionalInit;
+  	        cout << "\t" << monster.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
+  	     }
          
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
          // Set residual actions
       }
-
-      /*************************************************************************
-      *                        Residual Action Block
-      * The code in this block will be called after ever action by any
-      * character (rapid DOT afflictions).
-      *************************************************************************/
-
-      
-      // Action code goes here.
-
    }
-   player.initiative = 0; monster.initiative = 0;
+   player.initiative = 0; 
+   cout << "\nDont forget to reset the stats at the end of combat!" << endl;
+   displayStats(player);
+   cout << "\n\n";
 }
 #endif // COMBAT_H

@@ -198,8 +198,8 @@ void displayCharacterStats(const Character & player, const Character & monster,
 	                       const short round) { 
    
    string text = 
-      "******************************* Combat Round " + to_string(round) +
-      " ********************************\n" + 
+      "******************************** Combat Turn " + to_string(round) +
+      " *******************************\n" + 
       "                 " + player.name +
       "                                        " + monster.name + "\n" + 
       "                 HP: " + to_string(player.hitPoints) +

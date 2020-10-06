@@ -77,10 +77,11 @@ public:
       minDamage,
       rangeDamage,
       maxMulti,
-      speed,
-      venomous,      // Slows initiative
-      canStun,
-      damageTypes[4];
+      speed,          // Adds to player's base initiative. 
+      venomous,       // Slows base initiative during combat.
+      canStun,        // Adds to running initiative during combat.
+      damageTypes[4], // Crush, Chop, Slash, Stab values
+      percision;      // Determines how likely an attack is to miss.
 
    // Damage Type
    float 

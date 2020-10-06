@@ -14,7 +14,8 @@ int main() {
    getline(cin, name);
    Character player(name, true);
 
-   combat(player, "Wolf");
+   // Param1 creates player object. Param 2 = type of monster. Param3 = debug mode.
+   combat(player, "Wolf", 0);
 
    cout << "\n\n>> End of Program. <<" << endl;
 

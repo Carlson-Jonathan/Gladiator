@@ -36,6 +36,8 @@ void selectArmor(Character & player);    // To be deleted
 void bleedingMessage(const Character & victim);
 void displayStats(const Character & character);
 void stunMessage(const Character & aggressor, const Character & victim);
+void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]);
+void fatigueMessage(const Character & victim, short init);
 
 /*******************************************************************************
 * void getUserInput(vector<string>)
@@ -291,10 +293,20 @@ void stunMessage(const Character & aggressor, const Character & victim) {
         << aggressor.name << "'s " << aggressor.weapon->name << "!\n\n";
 }
 
-void hazardDamageMessage(Character aggressor, short damageHpBpEp[]) {
-    string message = aggressor.name + " was injured durring the attack and takes damage!\n";
+void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]) {
+    string message = aggressor.name + 
+    " was injured durring the attack and takes damage!\n";
     writeMessage(message);
-    cout << "\t\tHP: -" << damageHpBpEp[0] << "  |  BP: -" << damageHpBpEp[1] << "  |  EP: -" << damageHpBpEp[2] << "\n\n";
+    cout << "\t\tHP: -" << damageHpBpEp[0] << "  |  BP: -" << damageHpBpEp[1] 
+    << "  |  EP: -" << damageHpBpEp[2] << "\n\n";
 }
+
+void fatigueMessage(const Character & victim, short init) {
+  string message = "\t" + victim.name + " is fatigued from loss of blood. (+" +
+  to_string(init) + " slow)\n\n";
+  writeMessage(message);
+}
+
+/******************************************************************************/
 
 #endif // DISPLAY_H

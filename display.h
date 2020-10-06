@@ -16,7 +16,6 @@
 #include <sstream>
 #include <bits/stdc++.h>
 #include "character.h"
-#include "general.h"
 using namespace std;
 
 /*******************************************************************************
@@ -114,7 +113,7 @@ void writeMessageScroll(const string message) {
 
 
 /*******************************************************************************
-* void combatVictory(Character, Character)
+* combatVictory
 * Displays victory message at the end of combat. 
 *******************************************************************************/
 void combatVictory(const Character & player, const Character & monster) {

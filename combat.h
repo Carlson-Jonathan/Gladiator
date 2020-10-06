@@ -10,7 +10,8 @@
 #include <cmath>
 #include "display.h"
 
-string nextAction(const short pSlow, const short mSlow, short & rpSlow, short & rmSlow);
+string nextAction(const short pSlow, const short mSlow, unsigned short & rpSlow, 
+	              unsigned short & rmSlow);
 void getDamageSum(short damageTypes[], short block[]);
 void getPhysicalDamages(Character, Character);
 void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]);
@@ -28,9 +29,15 @@ void combat(Character & player);
 * initiative levels. The player wins ties.
 *******************************************************************************/
 string nextAction(const short pSlow, const short mSlow, 
-                        short & rpSlow, short & rmSlow) {
+                        unsigned short & rpSlow, unsigned short & rmSlow) {
 
-   cout << "\t\t\tPlayer/Monster Initiatives: " << rpSlow << " | " << rmSlow << "\n\n";
+   if(rpSlow > 60000 || rmSlow > 60000) {
+   	  rpSlow -= 50000;
+   	  rmSlow -= 50000;
+   }
+
+   cout << "\t\t\tPlayer/Monster Base Initiatives: " << pSlow << " | " << mSlow << endl;
+   cout << "\t\t\tPlayer/Monster Running Initiatives: " << rpSlow << " | " << rmSlow << "\n\n";
    if(rpSlow <= rmSlow) {
        rpSlow += pSlow;
        return "Player's";
@@ -144,6 +151,7 @@ void determineAffliction(const Character & aggressor, Character & victim,
             victim.runningInitiative += wep->canStun;
          }
 
+      // Slows base initiative by venom stat
       if(wep->venomous) {
          victim.initiative += wep->venomous;   
          cout << victim.name << "'s movement is slowed by the " << aggressor.name 
@@ -232,6 +240,8 @@ bool attackCharacter(Character & aggressor, Character & victim, short (&damageHp
 }
 
 
+
+
 /*##############################################################################
 ################################################################################
 ################################################################################
@@ -263,41 +273,57 @@ void combat(Character & player, string newMonster) {
          option,
          damageHpBpEp[3];
 
-
    displayStats(player);
    displayStats(monster);
 
    cout << "\tA " << monster.name << " draws near!\n" << endl;
 
    while(battle) {
-      
+      // if(player.runningInitiative >= 201 && monster.runningInitiative >= 201) {
+      // player.runningInitiative -= 200 && monster.runningInitiative -= 200
+	     /**********************************************************************
+	     *                     Round Ending Action Block
+	     * This block is called after all players and monsters have taken at 
+	     * least 1 action (this is what defines a 'combat round').
+	     * Actions that occur once per round should be placed here, such as
+	     * bleeding, resetting defend status, etc.
+	     **********************************************************************/
       if(nextAction(player.initiative, monster.initiative, 
                     player.runningInitiative, 
                     monster.runningInitiative) == "Player's") {
-         
-         /**********************************************************************
-         *                     Round Ending Action Block
-         * This block is called after all players and monsters have taken at 
-         * least 1 action (this is what defines a 'combat round').
-         * Actions that occur once per round should be placed here, such as
-         * bleeding, resetting defend status, etc.
-         **********************************************************************/
-         // Apply bleeding
-         if(player.isBleeding)
-            if(applyBleeding(player))
-               break;
-         if(monster.isBleeding)
-            if(applyBleeding(monster)) {
-               combatVictory(player, monster);
-               break;
-         }
+	     // Apply bleeding
+	     if(player.isBleeding)
+	        if(applyBleeding(player)) {
+	           combatDefeat();
+	           break;
+	     }
+	     
+	     if(monster.isBleeding)
+	        if(applyBleeding(monster)) {
+	           combatVictory(player, monster);
+	           break;
+	     } 
 
-         // Displays player and monster stats for testing.
-         displayCharacterStats(player, monster, round++);
+	     // Being low on BP increases running initiative
+         if(player.bloodPoints < player.maxBloodPoints * 0.66) {
+	        short additionalInit = (player.maxBloodPoints * 0.66 - player.bloodPoints) / 4;
+	        player.runningInitiative += additionalInit;
+	        cout << "\t" << player.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
+	     } 
+
+	     if(monster.bloodPoints < monster.maxBloodPoints * 0.66) {
+	        short additionalInit = (monster.maxBloodPoints * 0.66 - monster.bloodPoints) / 4;
+	        monster.runningInitiative += additionalInit;
+	        cout << "\t" << monster.name << " is fatigued from loss of blood. (+" << additionalInit << ")\n\n";
+	      }
+
+	      // Displays player and monster stats for testing.
+	      displayCharacterStats(player, monster, round++);
+         
+
 
          // Reset Stats
          monster.isDefending = false; player.isDefending = false;
-
          /**********************************************************************
          *                        Player's Action Block
          **********************************************************************/
@@ -323,13 +349,12 @@ void combat(Character & player, string newMonster) {
          *                        Monster's Action Block
          **********************************************************************/
          if(attackCharacter(monster, player, damageHpBpEp)) {
-             combatDefeat();
-             break;
+            combatDefeat();
+            break;
          }
          
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
-
          // Set residual actions
       }
 

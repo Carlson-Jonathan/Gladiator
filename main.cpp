@@ -14,7 +14,7 @@ int main() {
    getline(cin, name);
    Character player(name, true);
 
-   combat(player, "Cactopus");
+   combat(player, "Wolf");
 
    cout << "\n\n>> End of Program. <<" << endl;
 

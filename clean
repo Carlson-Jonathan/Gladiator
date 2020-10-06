@@ -1,0 +1,10 @@
+###############################################################################
+# Removes all files with ".o", ".out", and ".gch" extensions (compiled objects)
+# This should be run before compililing to remove certain false positive
+# errors in the code from re-using old objects.
+###############################################################################
+#!/bin/bash
+trash *.gch
+trash *.o
+trash *.out
+exit

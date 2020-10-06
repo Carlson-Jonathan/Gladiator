@@ -38,14 +38,18 @@ public:
       name;
 
    short
+      maxHitPoints = 1000,
       hitPoints = 1000,
-      bloodPoints = 1000,
+      maxBloodPoints = 1000,
+      bloodPoints = 700,
+      maxEssencePoints = 1000,
       essencePoints = 1000,
       initiative = 100, // Higher is slower
-      runningInitiative,
       strength = 100,
       isBleeding = 0,
       isHazardous;      // Returns damage to an attacker 
+
+   unsigned short runningInitiative;
 
    bool 
       isDefending = false,

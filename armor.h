@@ -50,8 +50,8 @@ public:
 
    string name;
    short 
-      weight, // Affects turn speed
-      volume,
+      weight = 0, // Affects turn speed
+      volume = 0,
       defencePower = 100;
       
    // The percentage of damage reduction to be applied [crush, chop, slash, stab]

@@ -14,14 +14,17 @@ Character::Character(string newMonster) {
    }
 
    this->name =          newMonster;
-   this->hitPoints =     monster[newMonster].second.first[0];
-   this->bloodPoints =   monster[newMonster].second.first[1];
-   this->essencePoints = monster[newMonster].second.first[2];
+   this->maxHitPoints =  monster[newMonster].second.first[0];
+   this->maxBloodPoints =   monster[newMonster].second.first[1];
+   this->maxEssencePoints = monster[newMonster].second.first[2];
    this->initiative =    monster[newMonster].second.first[3];
    this->isHazardous =   monster[newMonster].second.first[8];
    this->runningInitiative = initiative;
+   this->hitPoints = maxHitPoints; 
+   this->bloodPoints = maxBloodPoints; 
    weapon = new Weapon(monster[newMonster]);
    armor = new Armor(monster[newMonster]);
+   essencePoints = maxEssencePoints;
 }
 
 // Setup initial hero character.
@@ -34,15 +37,27 @@ Character::Character(string name, bool hero) {
 * Character Class Setters:
 *******************************************************************************/
 void Character::setHitPoints(short change) {
-   hitPoints + change < 0 ? hitPoints = 0 : hitPoints += change;
+   hitPoints += change;
+   if(hitPoints < 0)
+      hitPoints = 0;
+   if(hitPoints > maxHitPoints)
+      hitPoints = maxHitPoints;
 }
 
 void Character::setBloodPoints(short change) {
-   bloodPoints + change < 0 ? bloodPoints = 0: bloodPoints += change;
+   bloodPoints += change;
+   if(bloodPoints < 0)
+      bloodPoints = 0;
+   if(bloodPoints > maxBloodPoints)
+      bloodPoints = maxBloodPoints;	
 }
 
 void Character::setEssencePoints(short change) {
-   essencePoints + change < 0 ? essencePoints = 0 : essencePoints += change;
+   essencePoints += change;
+   if(essencePoints < 0)
+      essencePoints = 0;
+   if(essencePoints > maxEssencePoints)
+      essencePoints = maxEssencePoints;	
 }
 
 void Character::setWeapon(string weaponType) {

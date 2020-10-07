@@ -18,7 +18,7 @@
 
 // Just a last ditch effort to prevent my table from getting too wide. 
 // Variable 'a' stands for 'attack' description.
-string a[8] = {" claws at ", " spits at ", " strikes at ", " bites at ", 
+std::string a[8] = {" claws at ", " spits at ", " strikes at ", " bites at ", 
 " swoops at ", " hurls itself at ", " pecks at ", " flails its tenticles at "};
 
 /******************************** Glossary *************************************

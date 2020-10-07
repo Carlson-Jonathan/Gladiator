@@ -103,7 +103,7 @@ void writeMessageScroll(const string message) {
    stringstream ss(char_array);
    string to;
 
-   if (char_array != NULL) 
+//    if (char_array != NULL) 
       while(getline(ss,to,'\n')) {
          cout << to << endl;
          cout.flush();

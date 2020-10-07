@@ -20,7 +20,7 @@ Character* nextAction(vector<Character> cp);
 void getDamageSum(short damageTypes[], short block[]);
 void getPhysicalDamages(Character, Character);
 void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]);
-int applyDamage(Character & victim, short rawDamage[]); 
+bool applyDamage(Character & victim, short rawDamage[]); 
 void determineAffliction(const Character & aggressor, Character & victim, 
                          short damage[]);
 bool applyBleeding(Character & victim);
@@ -59,25 +59,18 @@ bool sorter(Character* a, Character* b);
 // }
 
 Character* nextAction(vector<Character*> cp) {
-   // 'cp' means combatParticipants
+   // 'cp' stands for 'combatParticipants'
    sort(cp.begin(), cp.end(), sorter);
 
-   // if(debugMode) cout << "\t\t\t" << cp[0]->name << "'s initiative: " 
-   //                    << cp[0]->initiative << "\n\t\t\t" << cp[0]->name 
-   //                    << "'s running initiative: " << cp[0]->runningInitiative
-   //                    << " \n\n ";
-   // if(debugMode) cout << "\t\t\t" << cp[1]->name << "'s initiative: " 
-   //                    << cp[1]->initiative << "\n\t\t\t" << cp[1]->name 
-   //                    << "'s running initiative: " << cp[1]->runningInitiative
-   //                    << " \n\n ";
-   // if(debugMode) cout << "\t\t\t" << cp[2]->name << "'s initiative: " 
-   //                    << cp[2]->initiative << "\n\t\t\t" << cp[2]->name 
-   //                    << "'s running initiative: " << cp[2]->runningInitiative
-   //                    << " \n\n ";
-   // if(debugMode) cout << "\t\t\t" << cp[3]->name << "'s initiative: " 
-   //                    << cp[3]->initiative << "\n\t\t\t" << cp[3]->name 
-   //                    << "'s running initiative: " << cp[3]->runningInitiative
-   //                    << " \n\n ";
+   if(debugMode) {
+      cout << "\t\t\t\t\tInitiatives | Running Initiatives" << endl; 
+      for(auto i : cp) {
+         cout.width(40);
+         cout << right << i->name << ": " << i->initiative 
+              << " | " << i->runningInitiative << endl;
+      }
+      cout << endl;    
+   }
 
    cp[0]->runningInitiative += cp[0]->initiative;
 
@@ -162,13 +155,14 @@ void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]) {
 * Applies the calculated rawDamage to the victim's health and determines if
 * the victim has been defeated.
 *******************************************************************************/
-int applyDamage(Character & victim, short rawDamage[]) {
+bool applyDamage(Character & victim, short rawDamage[]) {
    victim.setHitPoints(-rawDamage[0]);
    victim.setBloodPoints(-rawDamage[1]);
    victim.setEssencePoints(-rawDamage[2]);
 
    if(isDefeated(victim.hitPoints, victim.bloodPoints, victim.essencePoints)) 
       return true;
+   return false;
 }
 
 /*******************************************************************************
@@ -202,8 +196,6 @@ void determineAffliction(const Character & aggressor, Character & victim,
          victim.initiative += wep->venomous;   
          cout << victim.name << "'s movement is slowed by the " << aggressor.name 
               << "'s attack!\n\n";
-         if(debugMode) cout << "\t\t\t" << victim.name << "'s base initiative: " 
-                            << victim.initiative << "\n\n";
       }
 
    // Set Affliction
@@ -294,6 +286,31 @@ bool attackCharacter(Character & aggressor, Character & victim,
 // Used to sort the vector of Character pointers.
 bool sorter(Character* a, Character* b) {return  (*a < *b);}
 
+// If all participant's running initiative's exceed 200, the round is over.
+bool isEndOfTurn(vector<Character*> combatParticipants) {
+   for(auto i : combatParticipants)
+      if(i->runningInitiative <= 200)
+         return false;
+   return true;
+}
+
+// Perform all turn ending actions
+bool executeEOTactions(vector<Character*> combatParticipants) {
+   for(auto participant : combatParticipants) { 
+      participant->runningInitiative -= 200;
+      if(participant->isBleeding) 
+         if(applyBleeding(*participant)) {
+            if(participant->isHero) {   
+               combatDefeat();
+               return true;
+            }
+            else;
+            //  destroyMonster() function
+         }
+   }
+   return false;
+}
+
 
 /*##############################################################################
 ################################################################################
@@ -318,9 +335,6 @@ void combat(Character & player, string newMonster, bool debug, short group) {
    debugMode = debug;
    srand(time(0));
    bool battle = true;
-   // Character monster(newMonster); /////////////
-
-
 
    // Create a list of pointers of combat participants
    vector<Character*> combatParticipants;
@@ -333,8 +347,6 @@ void combat(Character & player, string newMonster, bool debug, short group) {
       combatParticipants.push_back(participant);
       monster = participant;
    }
-
-
 
    // Sets default values at start of each combat. Some previously modified 
    // combat stats should not carry over (maybe certain ones should?).
@@ -354,29 +366,14 @@ void combat(Character & player, string newMonster, bool debug, short group) {
    cout << "\tA " << monster->name << " draws near!\n" << endl;
 
    while(battle) {
-	    /**********************************************************************
-	    *                     Round Ending Action Block
-	    * This block is called after 200 time units (initiative) has passed.
+      /**********************************************************************
+      *                     Round Ending Action Block
+      * This block is called after 200 time units (initiative) has passed.
       * Afflictions such as bleeding should be placed in this block of code.
-	    **********************************************************************/
-      // if(player.runningInitiative >= 201 && 
-      // monster.runningInitiative >= 201) {
-      //    player.runningInitiative -= 200;
-      //    monster.runningInitiative -= 200;
-
-  	   //   // Apply bleeding
-  	   //   if(player.isBleeding)
-  	   //      if(applyBleeding(player)) {
-  	   //         combatDefeat();
-  	   //         break;
-  	   //   }
-  	     
-  	   //   if(monster.isBleeding)
-  	   //      if(applyBleeding(monster)) {
-  	   //         combatVictory(player, monster);
-  	   //         break;
-  	   //   } 
-      // }
+      **********************************************************************/
+      if(isEndOfTurn(combatParticipants)) 
+         if(executeEOTactions(combatParticipants))
+            break;
 
       /**********************************************************************
       *                     Turn Ending Action Block

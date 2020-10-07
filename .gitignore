@@ -1,0 +1,12 @@
+clean
+compile
+makefile
+potentialCode.txt
+Element.doc
+'Flow Chart.docx'
+*.out
+*.out
+*.gch
+Art/
+requirements.docx
+.replit

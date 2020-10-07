@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <cstdlib>  // sleep
+#include <unistd.h> // sleep
 #include "weapon.h"
 #include "armor.h"
 using namespace std;
@@ -33,6 +35,10 @@ public:
    // Functions
    void displayStats();
    void generateMonstersList();
+
+   bool operator < (const Character & other) const {
+     return runningInitiative < other.runningInitiative;
+   }
 
    string 
       name;

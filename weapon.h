@@ -74,9 +74,9 @@ public:
 
    // Damage amount
    short 
-      minDamage,
-      rangeDamage,
-      maxMulti,
+      minDamage,      // Minimum damage that will be inflicted.
+      rangeDamage,    // Range of damage starting with minDamage.
+      maxMulti,       // Some weapons may use multiple strikes 
       speed,          // Adds to player's base initiative. 
       venomous,       // Slows base initiative during combat.
       canStun,        // Adds to running initiative during combat.

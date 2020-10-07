@@ -7,10 +7,10 @@
 Character::Character(string newMonster) {
    // If no monster provided, select one at random.
    if(newMonster == "Random") {
-      generateMonstersList();
-      srand(time(0));
+      if (!monsters.size()) generateMonstersList();
       int x = rand() % monsters.size();
       newMonster = monsters[x];
+      cout << "New monster = " << newMonster << endl;
    }
 
    this->name =          newMonster;
@@ -88,3 +88,4 @@ void Character::displayStats() {
        << "Blood Points\t"    << bloodPoints   << "\n"
        << "Essence Points:\t" << essencePoints << "\n\n";
 }
+

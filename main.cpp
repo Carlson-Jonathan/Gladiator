@@ -1,9 +1,11 @@
-/******************************************************************************
+/*******************************************************************************
 * main.cpp
 * Author Jonathan Carlson
 * Description:
 *    Main driver.
-******************************************************************************/
+*******************************************************************************/
+#ifndef MAIN_CPP
+#define MAIN_CPP
 #include <iostream>
 #include "combat.h"
 
@@ -14,10 +16,15 @@ int main() {
    getline(cin, name);
    Character player(name, true);
 
-   // Param1 creates player object. Param 2 = type of monster. Param3 = debug mode.
-   combat(player, "Wolf", 0);
+   //   Param 1 = create player object.
+   //   Param 2 = type of monster. 
+   //   Param 3 = toggles debug mode.
+   //   Param 4 = Number of extra monsters per combat.
+   combat(player, "Random", 1, 2);
 
    cout << "\n\n>> End of Program. <<" << endl;
 
    return 0;
 }
+
+#endif // MAIN_CPP

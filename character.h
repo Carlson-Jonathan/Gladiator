@@ -47,7 +47,7 @@ public:
       maxHitPoints = 1000,
       hitPoints = 1000,
       maxBloodPoints = 1000,
-      bloodPoints = 700,
+      bloodPoints = 1000,
       maxEssencePoints = 1000,
       essencePoints = 1000,
       initiative = 100, // Higher is slower

@@ -10,7 +10,7 @@ Character::Character(string newMonster) {
       if (!monsters.size()) generateMonstersList();
       int x = rand() % monsters.size();
       newMonster = monsters[x];
-      cout << "New monster = " << newMonster << endl;
+      cout << "\t\tGenerated Monster: " << newMonster << "\n";
    }
 
    this->name =          newMonster;

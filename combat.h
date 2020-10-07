@@ -14,9 +14,7 @@
 
 bool debugMode;
 
-// string nextAction(const short pSlow, const short mSlow, unsigned short & rpSlow, 
-// 	              unsigned short & rmSlow);
-Character* nextAction(vector<Character> cp);
+Character* nextAction(vector<Character*> cp);
 void getDamageSum(short damageTypes[], short block[]);
 void getPhysicalDamages(Character, Character);
 void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]);
@@ -27,39 +25,21 @@ bool applyBleeding(Character & victim);
 void focus(Character & character);
 void flee();
 bool isDefeated(short HP, short BP, short EP);
+bool receiveHazardDamage(Character & aggressor, const Character & victim, 
+                         short (&damageHpBpEp)[3]);
+bool attackCharacter(Character & aggressor, Character & victim, 
+                     short (&damageHpBpEp));
+bool inline sorter(Character* a, Character* b);
+bool executeEOTactions(vector<Character*> combatParticipants);
+vector<Character*> generateParticipantList(Character & player, short size);
 void combat(Character & player);
-bool sorter(Character* a, Character* b);
 
 /*******************************************************************************
-* string nextAction(short, short, &short, &short)
-* Determines the next character to take an action based on monster and Hero
-* initiative levels. The player wins ties.
+* Character* nextAction(vector<Character*>)
+* Receives the list of combat participants, sorts it by the running initiative
+* member, then returns the first participant (with the lowest value).
 *******************************************************************************/
-// string nextAction(const short pSlow, const short mSlow, 
-//                         unsigned short & rpSlow, unsigned short & rmSlow) {
-
-//    // May not need this
-//    if(rpSlow > 60000 || rmSlow > 60000) {
-//    	  rpSlow -= 50000;
-//    	  rmSlow -= 50000;
-//    }
-
-//    if(debugMode) cout << "\t\t\tPlayer/Monster Base Initiatives: " << pSlow 
-//                       << " | " << mSlow << endl;
-//    if(debugMode) cout << "\t\t\tPlayer/Monster Running Initiatives: " << rpSlow 
-//                       << " | " << rmSlow << "\n\n";
-
-//    if(rpSlow <= rmSlow) {
-//        rpSlow += pSlow;
-//        return "Player's";
-//    }
-
-//    rmSlow += mSlow;
-//    return "Monster's";
-// }
-
 Character* nextAction(vector<Character*> cp) {
-   // 'cp' stands for 'combatParticipants'
    sort(cp.begin(), cp.end(), sorter);
 
    if(debugMode) {
@@ -224,7 +204,7 @@ bool applyBleeding(Character & victim) {
 }
 
 /*******************************************************************************
-* void defend(Character, Character)
+* void focus(Character, Character)
 * Sets the player's defend status to true.
 *******************************************************************************/
 void focus(Character & character) {
@@ -269,22 +249,31 @@ bool receiveHazardDamage(Character & aggressor, const Character & victim,
     return false;
 }
 
-bool attackCharacter(Character & aggressor, Character & victim, 
+/*******************************************************************************
+* bool attackCharacter(Character, Character, short[])
+* Performs all functions in an attack action ending with receiving reflect dmg.
+*******************************************************************************/
+short attackCharacter(Character & aggressor, Character & victim, 
                      short (&damageHpBpEp)[3]) {
 
-    getPhysicalDamages(victim, aggressor, damageHpBpEp);
-    displayAttackMessage(victim, aggressor, damageHpBpEp);
-    if(applyDamage(victim, damageHpBpEp)) return true;
-    determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
+   getPhysicalDamages(victim, aggressor, damageHpBpEp);
+   displayAttackMessage(victim, aggressor, damageHpBpEp);
+   if(applyDamage(victim, damageHpBpEp)) return 1;
+   determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
 
-    if(victim.isHazardous) 
-        receiveHazardDamage(aggressor, victim, damageHpBpEp);
-
-    return false;
+   if(victim.isHazardous) 
+      if(receiveHazardDamage(aggressor, victim, damageHpBpEp))
+         return 2;
+       
+   return 0;
 }
 
-// Used to sort the vector of Character pointers.
-bool sorter(Character* a, Character* b) {return  (*a < *b);}
+/*******************************************************************************
+* bool sorter(Character*, Character*)
+* Used in combination with the overloaded '<' operator in character.h to sort
+* a vector of character object pointers.
+*******************************************************************************/
+bool inline sorter(Character* a, Character* b) {return  (*a < *b);}
 
 // If all participant's running initiative's exceed 200, the round is over.
 bool isEndOfTurn(vector<Character*> combatParticipants) {
@@ -294,7 +283,12 @@ bool isEndOfTurn(vector<Character*> combatParticipants) {
    return true;
 }
 
-// Perform all turn ending actions
+/*******************************************************************************
+* bool executeEOTactions(vector<Character*>)
+* Perform all turn ending actions at the end of a combat round. The end of turn
+* is defined as when all combat participants have a running initiative greater 
+* than 200. Initiatives are reset, and relevant afflictions are applied.
+*******************************************************************************/
 bool executeEOTactions(vector<Character*> combatParticipants) {
    for(auto participant : combatParticipants) { 
       participant->runningInitiative -= 200;
@@ -310,6 +304,27 @@ bool executeEOTactions(vector<Character*> combatParticipants) {
    }
    return false;
 }
+
+/*******************************************************************************
+* vector<Character*> generateParticipantList(Character, short)
+* Creates a vecotr of object pointers. Includes the player(s) and generates 
+* 'size' number of random new monster objects to include. 
+*******************************************************************************/
+vector<Character*> generateParticipantList(Character & player, short size) {
+   vector<Character*> combatParticipants;
+   Character* participant;
+   Character* monster;
+   participant = &player;
+   combatParticipants.push_back(participant);
+   for(short i = 0; i < size; i++) {
+      participant = new Character("Random");
+      combatParticipants.push_back(participant);
+      monster = participant;
+   }
+   return combatParticipants;
+}
+
+
 
 
 /*##############################################################################
@@ -330,78 +345,65 @@ bool executeEOTactions(vector<Character*> combatParticipants) {
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
 *******************************************************************************/
-void combat(Character & player, string newMonster, bool debug, short group) {
+void combat(Character & player, string newMonster, bool debug, short size) {
 
-   debugMode = debug;
-   srand(time(0));
+   debugMode = debug;          // Toggle in main.cpp
+   srand(time(0));             // Seeds sudo random number generator
    bool battle = true;
-
-   // Create a list of pointers of combat participants
-   vector<Character*> combatParticipants;
    Character* participant;
-   Character* monster;
-   participant = &player;
-   combatParticipants.push_back(participant);
-   for(short i = 0; i < group; i++) {
-      participant = new Character(newMonster);
-      combatParticipants.push_back(participant);
-      monster = participant;
-   }
+   player.initiative = 100 + player.weapon->speed; // Sets default initiative
+   short 
+      died,
+      option,
+      round = 1,
+      damageHpBpEp[3];
 
-   // Sets default values at start of each combat. Some previously modified 
-   // combat stats should not carry over (maybe certain ones should?).
-   player.initiative = 100 + player.weapon->speed; 
-   
+   vector<Character*> combatParticipants = generateParticipantList(player, size);
+
    // Temporaries. Don't use these later. display.h changes character objects.
    selectWeapon(player);
    selectArmor(player);
-   
-   short round = 1,
-         option,
-         damageHpBpEp[3];
 
    if(debugMode) displayStats(player);
-   if(debugMode) displayStats(*monster);
-
-   cout << "\tA " << monster->name << " draws near!\n" << endl;
 
    while(battle) {
-      /**********************************************************************
-      *                     Round Ending Action Block
-      * This block is called after 200 time units (initiative) has passed.
-      * Afflictions such as bleeding should be placed in this block of code.
-      **********************************************************************/
-      if(isEndOfTurn(combatParticipants)) 
-         if(executeEOTactions(combatParticipants))
-            break;
+      participant = nextAction(combatParticipants);
+      if(participant->isDefending) participant->isDefending = false;
 
       /**********************************************************************
       *                     Turn Ending Action Block
-      * This block is called after after each character takes a turn. 
-      * Afflictions that should affect each character after every turn should
-      * be placed here.
+      * Code in this block will be executed after any turn, player or monster
       **********************************************************************/
-      // if(nextAction(player.initiative, monster.initiative, 
-      //               player.runningInitiative, 
-      //               monster.runningInitiative) == "Player's") {
+      if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
+  	     short additionalInit = 
+            (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
 
-      participant = nextAction(combatParticipants);
+         participant->runningInitiative += additionalInit;
+  	     fatigueMessage(*participant, additionalInit);
+  	  } 
+      
+      /**********************************************************************
+      *                        Player's Action Block
+      **********************************************************************/
       if(participant->name == player.name) {        
-
+         Character* monster = combatParticipants[1]; // Temporary
+         
          // Displays player and monster stats for testing.
          displayCharacterStats(player, *monster, round++);
-         /**********************************************************************
-         *                        Player's Action Block
-         **********************************************************************/
-         player.isDefending = false;
          option = getUserInput({"Attack", "Defend", "Flee"});
 
          // Set player action
          if (option == 1) {
-             if(attackCharacter(player, *monster, damageHpBpEp)) {
-                 combatVictory(player, *monster);
-                 break;
-             }
+            // Player could kill a monster or themselves while attacking 
+            died = attackCharacter(player, *monster, damageHpBpEp);
+            if(died == 1) {
+               combatVictory(player, *monster);
+               break;
+            }
+            else if(died == 2) {
+               combatDefeat();
+               break;
+            }
          }
          else if (option == 2) {
             focus(player);
@@ -410,22 +412,18 @@ void combat(Character & player, string newMonster, bool debug, short group) {
             flee();
          }
 
-         if(player.bloodPoints < player.maxBloodPoints * 0.66) {
-  	        short additionalInit = 
-               (player.maxBloodPoints * 0.66 - player.bloodPoints) / 4;
-
-  	        player.runningInitiative += additionalInit;
-  	        fatigueMessage(player, additionalInit);
-  	     } 
       } 
       else {
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
-         participant->isDefending = false; 
-         
-         if(attackCharacter(*participant, player, damageHpBpEp)) {
+         died = attackCharacter(*participant, player, damageHpBpEp);
+         if(died == 1) {
             combatDefeat();
+            break;
+         }
+         else if(died == 2) {
+            combatVictory(player, *participant);
             break;
          }
 
@@ -440,7 +438,17 @@ void combat(Character & player, string newMonster, bool debug, short group) {
          // Set retaliation afliction against monster
          // Set residual actions
       }
+
+   /**********************************************************************
+   *                     Round Ending Action Block
+   * This block is called after 200 time units (initiative) has passed.
+   * Afflictions such as bleeding should be placed in this block of code.
+   **********************************************************************/
+   if(isEndOfTurn(combatParticipants)) 
+       if(executeEOTactions(combatParticipants))
+       break;
    }
+
    cout << "\nDont forget to reset world affecting stats at the end of combat!" 
         << endl;
    displayStats(player);
@@ -451,14 +459,7 @@ void combat(Character & player, string newMonster, bool debug, short group) {
 
 #endif // COMBAT_H
 
-
 /*******************************************************************************
-* To do as of 10/06/2020:
-* I just got the multi-monster combat basics working. I still need to:
+* To do as of 10/07/2020:
 * Set it so the player can pick which monster he attacks.
-* Re-activate the bleeding and make it work with the new setup.
-* Figure out when bleeding/end of round should take effect and how.
-* Fix the debugMode for nextAction() function.
-* Clean up clean up clean up.
-* Maybe tweak the monster stats so it is fair.
 *******************************************************************************/

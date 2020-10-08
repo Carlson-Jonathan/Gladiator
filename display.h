@@ -192,32 +192,33 @@ void displayAttackMessage(const Character & victim,
 }
 
 /*******************************************************************************
-* void displayCharacterStats(Character, Character)
+* void displayCharacterStats(vector<Character*>)
 * Used in combat.h
-* Prints both character's stats side by side.
+* Prints characters' in rows.
 *******************************************************************************/
-void displayCharacterStats(const Character & player, const Character & monster, 
-	                       const short round) { 
-   
-   string text = 
-      "******************************** Combat Turn " + to_string(round) +
-      " *******************************\n" + 
-      "                 " + player.name +
-      "                                        " + monster.name + "\n" + 
-      "                 HP: " + to_string(player.hitPoints) +
-      "                                      HP: " + 
-      to_string(monster.hitPoints) + "\n" + "                 BP: " +
-      to_string(player.bloodPoints) + 
-      "                                      " + 
-      "BP: " + to_string(monster.bloodPoints) + "\n" + 
-      "                 EP: " + 
-      to_string(player.essencePoints) + 
-      "                                      " + 
-      "EP: " + to_string(monster.essencePoints) + "\n" + 
-      "***************************************" +
-      "****************************************\n"; 
+void displayCharacterStats(const vector<Character*> & listOfMonsters, 
+                           const Character & player, const short round) { 
+   cout << "================================ Combat Turn " << round 
+        << " ===============================\n";
+   cout << setw(22) << "Name:" << setw(10) << right << "HP:" << setw(10) 
+        << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
+        << "Speed:" << endl;
+   cout << setw(22) << right << player.name << setw(10) << player.hitPoints
+        << setw(10) << player.bloodPoints << setw(10) << player.essencePoints
+        << setw(10) << player.initiative << endl;
+//    cout << "                    =============================================\n";
+   cout << "                 ---------------------------------------------\n";
+   for(auto i : listOfMonsters) {
+      cout << setw(22) << i->name << setw(10) << right << setw(10) << right
+           << i->hitPoints << setw(10) << right << i->bloodPoints << setw(10)
+           << right << i->essencePoints << setw(10) << right 
+           << i->runningInitiative;
+      if(i != listOfMonsters.back()) 
+         cout << endl;
+   }
 
-      writeMessageScroll(text);
+   cout << "\n======================================" 
+        << "========================================\n"; 
 }
 
 /*******************************************************************************

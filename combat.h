@@ -314,7 +314,7 @@ vector<Character*> generateParticipantList(Character & player, short size) {
    participant = &player;
    combatParticipants.push_back(participant);
    for(short i = 0; i < size; i++) {
-      participant = new Character("Duckling");
+      participant = new Character("Random");
       combatParticipants.push_back(participant);
       monster = participant;
    }
@@ -347,7 +347,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
    debugMode = debug;          // Toggle in main.cpp
    srand(time(0));             // Seeds sudo random number generator
    bool battle = true;
-   Character* participant;
+   Character* participant, monster;
    player.initiative = 100 + player.weapon->speed; // Sets default initiative
    short 
       died,
@@ -356,7 +356,12 @@ void combat(Character & player, string newMonster, bool debug, short size) {
       damageHpBpEp[3];
 
    vector<Character*> combatParticipants = generateParticipantList(player, size);
-
+   vector<Character*> staticParticipantsList = combatParticipants;
+   staticParticipantsList.erase(staticParticipantsList.begin());
+   vector<string> listOfMonsters;
+   for(auto i : staticParticipantsList)
+      listOfMonsters.push_back(i->name);
+   
    // Temporaries. Don't use these later. display.h changes character objects.
    selectWeapon(player);
    selectArmor(player);
@@ -383,14 +388,15 @@ void combat(Character & player, string newMonster, bool debug, short size) {
       *                        Player's Action Block
       **********************************************************************/
       if(participant->name == player.name) {        
-         Character* monster = combatParticipants[1]; // Temporary
          
          // Displays player and monster stats for testing.
-         displayCharacterStats(player, *monster, round++);
+         displayCharacterStats(staticParticipantsList, player, round++);
          option = getUserInput({"Attack", "Defend", "Flee"});
 
          // Set player action
          if (option == 1) {
+            Character* monster = combatParticipants[getUserInput(listOfMonsters)];
+
             // Player could kill a monster or themselves while attacking 
             died = attackCharacter(player, *monster, damageHpBpEp);
             if(died == 1) {

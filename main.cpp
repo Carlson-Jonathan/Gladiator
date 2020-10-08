@@ -20,7 +20,7 @@ int main() {
    //   Param 2 = type of monster. 
    //   Param 3 = toggles debug mode.
    //   Param 4 = Number of extra monsters per combat.
-   combat(player, "Random", 1, 2);
+   combat(player, "Random", 0, 10);
 
    cout << "\n\n>> End of Program. <<" << endl;
 

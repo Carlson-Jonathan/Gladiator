@@ -191,15 +191,18 @@ void determineAffliction(const Character & aggressor, Character & victim,
 *******************************************************************************/
 bool applyBleeding(Character & victim) {
    short bleedAmt = victim.isBleeding / 10;
+   
    victim.bloodPoints -= bleedAmt;
    if(victim.bloodPoints < 0)
       victim.bloodPoints = 0;
+   
    bleedingMessage(victim);
+   if(isDefeated(victim.hitPoints, victim.bloodPoints, victim.essencePoints)) 
+      return true;
+
    victim.isBleeding -= bleedAmt - 2;
    if(victim.isBleeding < 0)
       victim.isBleeding = 0;
-   if(isDefeated(victim.hitPoints, victim.bloodPoints, victim.essencePoints)) 
-      return true;
    return false;
 }
 
@@ -293,14 +296,8 @@ bool executeEOTactions(vector<Character*> combatParticipants) {
    for(auto participant : combatParticipants) { 
       participant->runningInitiative -= 200;
       if(participant->isBleeding) 
-         if(applyBleeding(*participant)) {
-            if(participant->isHero) {   
-               combatDefeat();
-               return true;
-            }
-            else;
-            //  destroyMonster() function
-         }
+         if(applyBleeding(*participant)) 
+            return true;
    }
    return false;
 }
@@ -317,7 +314,7 @@ vector<Character*> generateParticipantList(Character & player, short size) {
    participant = &player;
    combatParticipants.push_back(participant);
    for(short i = 0; i < size; i++) {
-      participant = new Character("Random");
+      participant = new Character("Duckling");
       combatParticipants.push_back(participant);
       monster = participant;
    }
@@ -397,7 +394,11 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             // Player could kill a monster or themselves while attacking 
             died = attackCharacter(player, *monster, damageHpBpEp);
             if(died == 1) {
+               // Remove participant from list.
+               // Destroy object.
+               // if participant list.size() = 0, then victory.
                combatVictory(player, *monster);
+
                break;
             }
             else if(died == 2) {
@@ -427,13 +428,6 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             break;
          }
 
-  	     if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
-  	        short additionalInit = 
-               (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
-  	        participant->runningInitiative += additionalInit;
-  	        fatigueMessage(*participant, additionalInit);
-  	     }
-         
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
          // Set residual actions
@@ -445,14 +439,15 @@ void combat(Character & player, string newMonster, bool debug, short size) {
    * Afflictions such as bleeding should be placed in this block of code.
    **********************************************************************/
    if(isEndOfTurn(combatParticipants)) 
-       if(executeEOTactions(combatParticipants))
-       break;
+       if(executeEOTactions(combatParticipants)) {
+          cout << "\tSomething just bled to death." << endl;
+          break;
+       }
    }
 
    cout << "\nDont forget to reset world affecting stats at the end of combat!" 
         << endl;
    displayStats(player);
-   cout << "\n\n";
 }
 
 /******************************************************************************/

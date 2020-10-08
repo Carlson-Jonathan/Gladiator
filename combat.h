@@ -33,6 +33,8 @@ bool inline sorter(Character* a, Character* b);
 bool executeEOTactions(vector<Character*> combatParticipants);
 vector<Character*> generateParticipantList(Character & player, short size);
 void combat(Character & player);
+void killMonster(vector<Character*> & staticL, vector<string> & displL, 
+                 vector<Character*> & cpL, short option);
 
 /*******************************************************************************
 * Character* nextAction(vector<Character*>)
@@ -307,18 +309,36 @@ bool executeEOTactions(vector<Character*> combatParticipants) {
 * Creates a vecotr of object pointers. Includes the player(s) and generates 
 * 'size' number of random new monster objects to include. 
 *******************************************************************************/
-vector<Character*> generateParticipantList(Character & player, short size) {
+vector<Character*> generateParticipantList(Character & player, short size, 
+                                           string newMonster) {
    vector<Character*> combatParticipants;
    Character* participant;
    Character* monster;
    participant = &player;
    combatParticipants.push_back(participant);
    for(short i = 0; i < size; i++) {
-      participant = new Character("Random");
+      participant = new Character(newMonster);
       combatParticipants.push_back(participant);
       monster = participant;
    }
    return combatParticipants;
+}
+
+/*******************************************************************************
+* void killMonster(vector<Character*>, vector<string>, vectorCharacter*>, short)
+* When monster is defeated, this function is called to remove the monster from 
+* the 3 lists used in the combat function. It also deletes the associated 
+* pointers/objects. 
+*******************************************************************************/
+void killMonster(vector<Character*> & staticL, vector<string> & displL, 
+                 vector<Character*> & cpL, short option) {
+   delete staticL[option - 1];
+   staticL.erase(staticL.begin() + option - 1);
+   displL.erase(displL.begin() + option - 1);
+   for(int i = 0; i < cpL.size(); i++)
+      if(isDefeated(cpL[i]->hitPoints, cpL[i]->bloodPoints, cpL[i]->essencePoints)) {
+         cpL.erase(cpL.begin() + i);
+      }
 }
 
 
@@ -347,7 +367,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
    debugMode = debug;          // Toggle in main.cpp
    srand(time(0));             // Seeds sudo random number generator
    bool battle = true;
-   Character* participant, monster;
+   Character* participant;
    player.initiative = 100 + player.weapon->speed; // Sets default initiative
    short 
       died,
@@ -355,7 +375,8 @@ void combat(Character & player, string newMonster, bool debug, short size) {
       round = 1,
       damageHpBpEp[3];
 
-   vector<Character*> combatParticipants = generateParticipantList(player, size);
+   vector<Character*> combatParticipants = 
+                      generateParticipantList(player, size, newMonster);
    vector<Character*> staticParticipantsList = combatParticipants;
    staticParticipantsList.erase(staticParticipantsList.begin());
    vector<string> listOfMonsters;
@@ -395,17 +416,22 @@ void combat(Character & player, string newMonster, bool debug, short size) {
 
          // Set player action
          if (option == 1) {
-            Character* monster = combatParticipants[getUserInput(listOfMonsters)];
+            if(listOfMonsters.size() > 1) 
+               option = getUserInput(listOfMonsters); 
+            else
+               option = 1;
+            Character* monster = staticParticipantsList[option - 1];
+            cout << "Target = " << staticParticipantsList[option -1]->name << "\n\n";
 
             // Player could kill a monster or themselves while attacking 
             died = attackCharacter(player, *monster, damageHpBpEp);
             if(died == 1) {
-               // Remove participant from list.
-               // Destroy object.
-               // if participant list.size() = 0, then victory.
-               combatVictory(player, *monster);
-
-               break;
+               killMonster(staticParticipantsList, listOfMonsters, 
+                           combatParticipants, option); 
+               if(!listOfMonsters.size()) {
+                  combatVictory(player, *monster);
+                  break;
+               }
             }
             else if(died == 2) {
                combatDefeat();
@@ -461,6 +487,10 @@ void combat(Character & player, string newMonster, bool debug, short size) {
 #endif // COMBAT_H
 
 /*******************************************************************************
-* To do as of 10/07/2020:
-* Set it so the player can pick which monster he attacks.
+* To do as of 10/08/2020:
+* Chop can inflict critical damage
+* Create a riposte ability and assign to rapier.
+* Create evasion ability and coresponding low HP penalty.
+* Create perscision stat.
+* Make 'defend' do something (increase damage (implements riposte?))
 *******************************************************************************/

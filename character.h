@@ -21,6 +21,7 @@ class Character {
 public:
 
    Character() {}
+   ~Character() { cout << "\tThe " << name << " drops dead!" << "\n\n";}
    Character(string newMonster);
    Character(string name, bool hero);
 

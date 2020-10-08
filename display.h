@@ -121,8 +121,7 @@ void writeMessageScroll(const string message) {
 void combatVictory(const Character & player, const Character & monster) {
    
    string message = "\t";
-   message += "The "; message += monster.name; 
-   message += " drops to the ground writhing in agony.";
+   message += "All monsters have been defeated!"; 
 	
    message = writeMessage(message);
    usleep(1000000);

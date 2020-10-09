@@ -35,6 +35,7 @@ vector<Character*> generateParticipantList(Character & player, short size);
 void combat(Character & player);
 void killMonster(vector<Character*> & staticL, vector<string> & displL, 
                  vector<Character*> & cpL, short option);
+bool missedAttack(const Character & aggressor, const Character & victim);
 
 /*******************************************************************************
 * Character* nextAction(vector<Character*>)
@@ -82,7 +83,9 @@ void getDamageSum(short damageTypes[], short block[]) {
 void getPhysicalDamages(Character & victim, Character & aggressor, 
                         short damageHpBpEp[]) {
 
-   aggressor.weapon->getRandomDamageTypes();
+   if(aggressor.weapon->getRandomDamageTypes())
+      cout << "Critical Strike!" << "\n\n";
+
    if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
    if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
                       << " | Ch: " 
@@ -261,14 +264,19 @@ bool receiveHazardDamage(Character & aggressor, const Character & victim,
 short attackCharacter(Character & aggressor, Character & victim, 
                      short (&damageHpBpEp)[3]) {
 
-   getPhysicalDamages(victim, aggressor, damageHpBpEp);
-   displayAttackMessage(victim, aggressor, damageHpBpEp);
-   if(applyDamage(victim, damageHpBpEp)) return 1;
-   determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
+   if(!missedAttack(aggressor, victim)) {
+      getPhysicalDamages(victim, aggressor, damageHpBpEp);
+      displayAttackMessage(victim, aggressor, damageHpBpEp);
+      if(applyDamage(victim, damageHpBpEp)) return 1;
+      determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
 
-   if(victim.isHazardous) 
-      if(receiveHazardDamage(aggressor, victim, damageHpBpEp))
-         return 2;
+      if(victim.isHazardous) 
+         if(receiveHazardDamage(aggressor, victim, damageHpBpEp))
+            return 2;
+   }
+   else
+      cout << aggressor.name << aggressor.weapon->actionDescription 
+           << victim.name << " but misses!\n\n";
        
    return 0;
 }
@@ -341,6 +349,11 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
       }
 }
 
+bool missedAttack(const Character & aggressor, const Character & victim) {
+   short willMiss = aggressor.percision - victim.evasion;
+   return (rand() % 100) >= willMiss;
+}
+
 
 
 
@@ -364,6 +377,7 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
 *******************************************************************************/
 void combat(Character & player, string newMonster, bool debug, short size) {
 
+   srand(time(0));
    debugMode = debug;          // Toggle in main.cpp
    srand(time(0));             // Seeds sudo random number generator
    bool battle = true;
@@ -421,7 +435,6 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             else
                option = 1;
             Character* monster = staticParticipantsList[option - 1];
-            cout << "Target = " << staticParticipantsList[option -1]->name << "\n\n";
 
             // Player could kill a monster or themselves while attacking 
             died = attackCharacter(player, *monster, damageHpBpEp);

@@ -30,15 +30,17 @@ std::vector<float>>>> weapons = {
 * Ch = The percentage of the weapon's total damage allocated to chopping.
 * Sl = The percentage of the weapon's total damage allocated to slashing.
 * St = The percentage of the weapon's total damage allocated to stabbing.
+* CC = Critical Chance - Has a 1 in 'CC' chance to do 'CM' times more damage.
+* Pr = Percision. Modifies players chance to miss when attacking.
 *******************************************************************************/
     
-//      Key        Description       Min   Rg   Sp  Vnm Stn      Cr   Ch   Sl   St
-{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0 },  { 1.0, 0.0, 0.0, 0.0 }}}},
-{"Broad Sword", { " slashes at ", {{  75,  25,  20,  0,   0 },  { 0.0, 0.2, 0.5, 0.3 }}}},
-{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0 },  { 0.2, 0.0, 0.7, 0.1 }}}},
-{"Battle Axe",  { " chops at ",   {{  45, 110,  50,  0,   0 },  { 0.1, 0.7, 0.1, 0.0 }}}},
-{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0 },  { 0.0, 0.0, 0.1, 0.9 }}}},
-{"Mace",        { " swings at ",  {{  4850, 100, 30,  0, 100 },  { 1.0, 0.0, 0.0, 0.0 }}}}};
+//      Key        Description       Min   Rg   Sp  Vnm Stn CC, Pr       Cr   Ch   Sl   St  CM
+{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 0, 5 },  { 1.0, 0.0, 0.0, 0.0, 0 }}}},
+{"Broad Sword", { " slashes at ", {{  75,  25,  20,  0,   0, 0, 5 },  { 0.0, 0.2, 0.5, 0.3, 0 }}}},
+{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0, 0, 5 },  { 0.2, 0.0, 0.7, 0.1, 0 }}}},
+{"Battle Axe",  { " chops at ",   {{  45, 110,  50,  0,   0, 4, 5 },  { 0.1, 0.7, 0.1, 0.0, 4 }}}},
+{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0, 0, 5 },  { 0.0, 0.0, 0.1, 0.9, 0 }}}},
+{"Mace",        { " swings at ",  {{  4850, 100, 30, 0, 100, 0, 5 },  { 1.0, 0.0, 0.0, 0.0, 0 }}}}};
 
 /*
 Additional weapon ideas:

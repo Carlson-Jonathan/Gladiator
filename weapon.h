@@ -32,6 +32,9 @@ public:
       this->speed =             weapons[weaponType].second.first[2];
       this->canStun =           weapons[weaponType].second.first[4];
       this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
+      this->criticalM =         weapons[weaponType].second.second[4];
+      this->criticalC =         weapons[weaponType].second.first[5];
+      this->percision +=        weapons[weaponType].second.first[6];
    }
 
    // Custom monster weapon damage
@@ -47,24 +50,38 @@ public:
        this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
        this->venomous =          newMonsterWeapon.second.first[6];
        this->canStun =           newMonsterWeapon.second.first[7];
+       this->criticalM =         newMonsterWeapon.second.second[8];
+       this->criticalC =         newMonsterWeapon.second.second[9];
+       this->percision =         newMonsterWeapon.second.first[9];
    }
 
    ~Weapon() {}
 
    /****************************************************************************
-   * void randomDamageTypes(short[])
+   * bool randomDamageTypes(short[])
    * Generates random short damage values for crush/chop/slash/stab based on the
-   * min/range damage range.
+   * min/range damage range. Also calculates critical strike damage.
    ****************************************************************************/
-   void getRandomDamageTypes() {
+   bool getRandomDamageTypes() {
 
       srand(time(0));
       short baseDamage = rand() % rangeDamage + minDamage;
+      bool criticalStrike = false; 
+      
+      if (criticalM) 
+         if(!(baseDamage % criticalC)) {     // C = 'Chance'
+            baseDamage *= ceil(criticalM);   // M = 'Multiplier'
+            criticalStrike = true;  
+         }
 
       damageTypes[0] = ceil(baseDamage * crush);
       damageTypes[1] = ceil(baseDamage * chop);
       damageTypes[2] = ceil(baseDamage * slash);
       damageTypes[3] = ceil(baseDamage * stab);
+
+      if(criticalStrike) return true;
+
+      return false;
    }
 
 
@@ -81,14 +98,16 @@ public:
       venomous,       // Slows base initiative during combat.
       canStun,        // Adds to running initiative during combat.
       damageTypes[4], // Crush, Chop, Slash, Stab values
-      percision;      // Determines how likely an attack is to miss.
+      percision,      // Determines how likely an attack is to miss.
+      criticalC = 0;   // The chance for a critical strike (1 in criticalC)
 
    // Damage Type
    float 
       crush,
       chop,
       slash,
-      stab;
+      stab,
+      criticalM = 0; // Critical hit multiplier.
 
    bool 
       burn = false,

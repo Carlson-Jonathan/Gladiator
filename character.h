@@ -51,10 +51,12 @@ public:
       bloodPoints = 1000,
       maxEssencePoints = 1000,
       essencePoints = 1000,
-      initiative = 100, // Higher is slower
+      initiative = 100,        // Higher is slower
       strength = 100,
       isBleeding = 0,
-      isHazardous;      // Returns damage to an attacker 
+      isHazardous,             // Returns damage to an attacker
+      percision = 80,          // % chance to hit/miss
+      evasion = 0;
 
    unsigned short runningInitiative;
 

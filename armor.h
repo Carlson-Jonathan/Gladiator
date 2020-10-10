@@ -18,7 +18,9 @@ public:
    Armor() {}
    ~Armor() {cout << "\tThe " << name << " explodes into bits.\n";}
 
-   // Player's armor (see 'armors.cpp').
+   /*****************************************
+   * Player armor constructor
+   /****************************************/
    Armor(string name) {
       this->name =         name;
       this->weight =       armor[name].second.first[0];
@@ -32,7 +34,9 @@ public:
       setDamageReduce();
    }
 
-   // Custom monster armor (see 'monsters.cpp').
+   /*****************************************
+   * Monsters' armor constructor
+   /****************************************/
    Armor(const pair<pair<vector<string>, vector<bool>>, pair<vector<short>, 
          vector<float>>> & monsterArmor) {
       this->name =  "armor";

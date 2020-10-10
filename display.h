@@ -21,24 +21,21 @@ using namespace std;
 /*******************************************************************************
 * Prototypes
 *******************************************************************************/
-short getUserInput(const vector<string> options);
-void anyKeyToContinue();
-string writeMessage(const string message);
-void writeMessageScroll(const string message);
-void combatVictory(const Character & player, const Character & monster);
-void combatDefeat();
-void displayAttackMessage(const Character & victim, const Character & aggressor, 
-	                      const short damage[]);
-void displayCharacterStats(const Character & player, const Character & monster, 
-	                       const short round);
-void selectWeapon(Character & player);   // To be deleted
-void selectArmor(Character & player);    // To be deleted
-void bleedingMessage(const Character & victim);
-void displayStats(const Character & character);
-void stunMessage(const Character & aggressor, const Character & victim);
-void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]);
-void fatigueMessage(const Character & victim, short init);
-
+short getUserInput          (const vector<string> options);
+string writeMessage         (const string message);
+void writeMessageScroll     (const string message);
+void combatVictory          (const Character & player, const Character & monster);
+void combatDefeat           ();
+void displayAttackMessage   (const Character & victim, const Character & aggressor, const short damage[]);
+void displayCharacterStats  (const Character & player, const Character & monster, const short round);
+void selectWeapon           (Character & player);   // To be deleted
+void selectArmor            (Character & player);    // To be deleted
+void bleedingMessage        (const Character & victim);
+void displayStats           (const Character & character);
+void stunMessage            (const Character & aggressor, const Character & victim);
+void hazardDamageMessage    (const Character & aggressor, short damageHpBpEp[]);
+void fatigueMessage         (const Character & victim, short init);
+void missedAttackMessage    (const Character & aggressor, const Character & victim);
 /*******************************************************************************
 * void getUserInput(vector<string>)
 * Aquires and validates user input. Parameter is a list of options.
@@ -62,18 +59,6 @@ short getUserInput(const vector<string> options) {
    cout << endl;
    
    return userSelection;
-}
-
-/*******************************************************************************
-* void anyKeyToContinue
-* Pauses until the user presses a key. Probably won't be using this soon.
-*******************************************************************************/
-void anyKeyToContinue() {
-   cout << setw(42) << "...\n\n";
-   string x;
-   getline(cin, x);
-   cin.clear(); 
-   cin.ignore(std::numeric_limits<int>::max(),'\n');
 }
 
 /*******************************************************************************
@@ -188,8 +173,8 @@ void displayAttackMessage(const Character & victim,
    message += victim.name + " takes damage:";
    writeMessage(message);
 
-   cout << "\n\t\tHP: -" << damage[0] << "  |  " << "BP: -" << damage[1] << "  |  "
-        << "EP: -" << damage[2] << "\n";
+   cout << "\n\t\tHP: -" << damage[0] << "  |  " << "BP: -" << damage[1] 
+        << "  |  " << "EP: -" << damage[2] << "\n";
 
    usleep(700000);
    cout << endl;
@@ -302,11 +287,19 @@ void displayStats(const Character & character) {
         << "Weapon Speed:\t" << character.weapon->speed << "\n\n";
 }
 
+/*******************************************************************************
+* void stunMessage(const Character&, const Character&)
+* When stun applies, displays this.
+*******************************************************************************/
 void stunMessage(const Character & aggressor, const Character & victim) {
    cout << victim.name << " is staggered by the blow of " 
         << aggressor.name << "'s " << aggressor.weapon->name << "!\n\n";
 }
 
+/*******************************************************************************
+* void hazardDamageMessage(const Character&, short[])
+* Displays character statistics. Used for testing.
+*******************************************************************************/
 void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]) {
     string message = aggressor.name + 
     " was injured durring the attack and takes damage!\n";
@@ -315,12 +308,20 @@ void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]) {
     << "  |  EP: -" << damageHpBpEp[2] << "\n\n";
 }
 
+/*******************************************************************************
+* void fatigueMessage
+* Displays message if character BP < 2/3 max.
+*******************************************************************************/
 void fatigueMessage(const Character & victim, short init) {
   string message = "\t" + victim.name + " is fatigued from loss of blood. (+" +
   to_string(init) + " slow)\n\n";
   writeMessage(message);
 }
 
+/*******************************************************************************
+* void missedAttackMessage(const Character&, const Character&)
+* Displays when attacker's percision is less than random+defender's evasion.
+*******************************************************************************/
 void missedAttackMessage(const Character & aggressor, const Character & victim) {
    string message = "\t";
    if(!aggressor.isHero)

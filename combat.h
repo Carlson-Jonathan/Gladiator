@@ -14,28 +14,27 @@
 
 bool debugMode;
 
-Character* nextAction(vector<Character*> cp);
-void getDamageSum(short damageTypes[], short block[]);
-void getPhysicalDamages(Character, Character);
-void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]);
-bool applyDamage(Character & victim, short rawDamage[]); 
-void determineAffliction(const Character & aggressor, Character & victim, 
-                         short damage[]);
-bool applyBleeding(Character & victim);
-void focus(Character & character);
-void flee();
-bool isDefeated(short HP, short BP, short EP);
-bool receiveHazardDamage(Character & aggressor, const Character & victim, 
-                         short (&damageHpBpEp)[3]);
-bool attackCharacter(Character & aggressor, Character & victim, 
-                     short (&damageHpBpEp));
-bool inline sorter(Character* a, Character* b);
-// bool executeEOTactions(vector<Character*> combatParticipants);
-vector<Character*> generateParticipantList(Character & player, short size);
-void combat(Character & player);
-void killMonster(vector<Character*> & staticL, vector<string> & displL, 
-                 vector<Character*> & cpL, short option);
-bool missedAttack(const Character & aggressor, const Character & victim);
+/*******************************************************************************
+* Prototypes
+*******************************************************************************/
+Character* nextAction     (vector<Character*> cp);
+void getDamageSum         (short damageTypes[], short block[]);
+void getPhysicalDamages   (Character & victim, Character & aggressor, short damageHpBpEp[]);
+void convertToHP_BP       (const Character & victim, short rawDamage[], short dT[]);
+bool applyDamage          (Character & victim, short rawDamage[]); 
+void determineAffliction  (const Character & aggressor, Character & victim, short damageTypes[]);
+bool applyBleeding        (Character & victim);
+void focus                (Character & character);
+void flee                 ();
+bool isDefeated           (short HP, short BP, short EP);
+bool receiveHazardDamage  (Character & aggressor, const Character & victim, short (&damageHpBpEp)[3]);
+short attackCharacter     (Character & aggressor, Character & victim, short (&damageHpBpEp)[3]);
+bool sorter               (Character* a, Character* b);
+bool isEndOfTurn          (vector<Character*> combatParticipants);
+vector<Character*> generateParticipantList(Character & player, short size, string newMonster);
+void killMonster          (vector<Character*> & staticL, vector<string> & displL, vector<Character*> & cpL, short option);
+bool missedAttack         (const Character & aggressor, const Character & victim);
+void combat               (Character & player);
 
 /*******************************************************************************
 * Character* nextAction(vector<Character*>)
@@ -88,9 +87,9 @@ void getPhysicalDamages(Character & victim, Character & aggressor,
    if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
    if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
                       << " | Ch: " 
-        << aggressor.weapon->damageTypes[1]  << " | Sl: " 
-        << aggressor.weapon->damageTypes[2]  << " | St: " 
-        << aggressor.weapon->damageTypes [3] << "\n\n";
+                      << aggressor.weapon->damageTypes[1]  << " | Sl: " 
+                      << aggressor.weapon->damageTypes[2]  << " | St: " 
+                      << aggressor.weapon->damageTypes [3] << "\n\n";
 
    if(debugMode) cout << "\t\t\t" << victim.name 
                       << " armor block values based on defence power: " 
@@ -131,7 +130,6 @@ void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]) {
 
    if(victim.isDefending) 
       rawDamage[0] /= 2; rawDamage[1] /= 2; rawDamage[2] /= 2;
-   
 }
 
 /*******************************************************************************
@@ -182,10 +180,10 @@ void determineAffliction(const Character & aggressor, Character & victim,
               << "'s attack!\n\n";
       }
 
-   // Set Affliction
-
+   // Set additional afflictions
 
    // ...
+
    }
 }
 
@@ -207,6 +205,7 @@ bool applyBleeding(Character & victim) {
    victim.isBleeding -= bleedAmt - 2;
    if(victim.isBleeding < 0)
       victim.isBleeding = 0;
+
    return false;
 }
 
@@ -218,6 +217,7 @@ void focus(Character & character) {
    character.isDefending = true;
    cout << "\t" << character.name 
         << " raises their guard and plans their next strike.\n" << endl;
+   // Potential uses:        
    // Increases damage on next strike (allows for criticals?).
    // Increases chance to apply affliction on next strike.
    // Can be used to overcome enemy strengths (tough defence).
@@ -225,7 +225,7 @@ void focus(Character & character) {
 
 /*******************************************************************************
 * void flee()
-* Will house the flee function.
+* Will house the flee function. All it does right now is end the combat.
 *******************************************************************************/
 void flee() {
    // Based on yours and the monster's health
@@ -284,7 +284,8 @@ short attackCharacter(Character & aggressor, Character & victim,
 * Used in combination with the overloaded '<' operator in character.h to sort
 * a vector of character object pointers.
 *******************************************************************************/
-bool inline sorter(Character* a = NULL, Character* b = NULL) {return  (*a < *b);}
+bool sorter(Character* a = NULL, Character* b = NULL) {return  (*a < *b);}
+
 
 /*******************************************************************************
 * bool isEndOfTurn(vector<Character*>)
@@ -298,19 +299,6 @@ bool isEndOfTurn(vector<Character*> combatParticipants) {
          return false;
    return true;
 }
-
-/*******************************************************************************
-* bool executeEOTactions(vector<Character*>)
-* Perform all turn ending actions at the end of a combat round. The end of turn
-* is defined as when all combat participants have a running initiative greater 
-* than 200. Initiatives are reset, and relevant afflictions are applied.
-*******************************************************************************/
-// bool executeEOTactions(vector<Character*> combatParticipants) {
-
-
-
-//    return false;
-// }
 
 /*******************************************************************************
 * vector<Character*> generateParticipantList(Character, short)
@@ -344,15 +332,20 @@ vector<Character*> generateParticipantList(Character & player, short size,
 void killMonster(vector<Character*> & staticL, vector<string> & displL, 
                  vector<Character*> & cpL, short option) {
    
-   if(debugMode)cout << "Calling for object removal from static list..." << endl;
+   if(debugMode) cout << "Calling for object removal from static list..." 
+                      << endl;
    if(debugMode) cout << "The value of option is " << option << endl;
-   if(debugMode) cout << "Item being deleted is " << staticL[option - 1]->name << endl;
+   if(debugMode) cout << "Item being deleted is " 
+                      << staticL[option - 1]->name << endl;
    if(debugMode) cout << "Static list printout:" << endl;
+
    if(debugMode) for (auto i : staticL)
       cout << i->name << endl;
+
    if(debugMode) cout << endl;
 
-   if(debugMode) cout << "Object to be erased: " << (*(staticL.begin() + (option - 1)))->name << "\n\n";
+   if(debugMode) cout << "Object to be erased: " 
+                      << (*(staticL.begin() + (option - 1)))->name << "\n\n";
    if(debugMode) cout << "Nullifying pointer...\n";
    staticL[option - 1] = NULL;
    if(debugMode) cout << "Pointer nullified.\n";
@@ -366,16 +359,19 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
 
    if(debugMode) cout << "Moving on to removing object from cpL list:\n";
    for(int i = cpL.size() - 1; i >= 0; i--) {
-      if(debugMode) cout << "Checking for defeat condition of cpL[" << i << "] : " << cpL[i]->name << "\n\n";
+      if(debugMode) cout << "Checking for defeat condition of cpL[" 
+                         << i << "] : " << cpL[i]->name << "\n\n";
       if(isDefeated(cpL[i]->hitPoints, cpL[i]->bloodPoints, cpL[i]->essencePoints)) {
          if(debugMode) cout << "This object should be erased!\n"; 
-         if(debugMode) cout << "The value of 'i' in this backwards loop is " << i << endl;
+         if(debugMode) cout << "The value of 'i' in this backwards loop is " 
+                            << i << endl;
          if(debugMode) cout << "The objects in the list are: " << endl;
          if(debugMode) for (int j = 0; j < cpL.size(); j++) {
             cout << "object cpL[" << j << "]: ";
          	  cout << cpL[j]->name << endl; 
          }
-         if(debugMode)cout << "Calling 'delete' on object in sorting list, cpL[" << (i) << "]" << endl;      	
+         if(debugMode)cout << "Calling 'delete' on object in sorting list, cpL[" 
+                           << (i) << "]" << endl;      	
          delete cpL[i];
          if(debugMode) cout << "Nullifying pointer...\n";
          cpL[i] = NULL;     	
@@ -384,7 +380,8 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
            << " from sorting list of monsters..." << endl;
          cpL.erase(cpL.begin() + i);
          if(debugMode) cout << "Object erased!" << endl;
-         if(debugMode) cout << "Object has been destroyed! All dangling pointers have been de-weaponized!\n";
+         if(debugMode) cout << "Object has been destroyed! " 
+                            << "All dangling pointers have been de-weaponized!\n";
          if(debugMode) cout << "New cpL list:\n";
          if(debugMode) for (auto i : staticL)
             cout << i->name << endl;
@@ -405,6 +402,7 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
 * percision minus the victim's evasion, the attack fails.
 *******************************************************************************/
 bool missedAttack(const Character & aggressor, const Character & victim) {
+
    short willMiss = aggressor.percision - victim.evasion;
    short missed = rand() % 100;
    if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy: \n\t\t\t" 
@@ -417,16 +415,11 @@ bool missedAttack(const Character & aggressor, const Character & victim) {
 
 /*##############################################################################
 ################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
+###########################                        #############################
+#########################    Main Combat Function    ###########################
+###########################                        #############################
 ################################################################################
 ##############################################################################*/
-
-
-
-
 
 /*******************************************************************************
 * void combat(Character)
@@ -442,29 +435,28 @@ bool missedAttack(const Character & aggressor, const Character & victim) {
 *
 * Nevermind, the above wont work because it would be creating duplicate
 * monsters on the heap.
-*
-*
 *******************************************************************************/
 void combat(Character & player, string newMonster, bool debug, short size) {
 
-   srand(time(0));
-   debugMode = debug;          // Toggle in main.cpp
-   srand(time(0));             // Seeds sudo random number generator
-   bool battle = true;
-   Character* participant = NULL;
-   player.initiative = 100 + player.weapon->speed; // Sets default initiative
+   // General Setup
+   debugMode = debug;                // Global variable. Toggle in main.cpp
+   srand(time(0));                   // Seeds sudo random number generator
    short 
       died,
       option,
       round = 1,
       damageHpBpEp[3];
 
+   player.initiative = 100 + player.weapon->speed; // Sets default initiative
+   Character* participant = NULL;
+
+   // Monster lists
+   vector<string> listOfMonsters;
    vector<Character*> combatParticipants = 
                       generateParticipantList(player, size, newMonster);
    vector<Character*> staticParticipantsList = combatParticipants;
-
+   staticParticipantsList[0] = NULL;
    staticParticipantsList.erase(staticParticipantsList.begin());
-   vector<string> listOfMonsters;
    for(auto i : staticParticipantsList)
       listOfMonsters.push_back(i->name);
    
@@ -474,45 +466,47 @@ void combat(Character & player, string newMonster, bool debug, short size) {
 
    if(debugMode) displayStats(player);
 
-   while(battle) {
+
+   /******************************* Combat Loop ********************************/
+   while(true) {
       participant = nextAction(combatParticipants);
       if(participant->isDefending) participant->isDefending = false;
 
-      /**********************************************************************
+      /*************************************************************************
       *                     Turn Ending Action Block
       * Code in this block will be executed after any turn, player or monster
-      **********************************************************************/
+      *************************************************************************/
+      
+      // Apply Fatigue condition
       if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
   	     short additionalInit = 
             (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
-
          participant->runningInitiative += additionalInit;
   	     fatigueMessage(*participant, additionalInit);
   	  } 
+
+      // Apply Daized Condition here (low HP = poor evasion and percision)
       
-      /**********************************************************************
+      /*************************************************************************
       *                        Player's Action Block
-      **********************************************************************/
+      *************************************************************************/
       if(participant->name == player.name) {        
          
-         // Displays player and monster stats for testing.
          displayCharacterStats(staticParticipantsList, player, round++);
-         option = getUserInput({"Attack", "Defend", "Flee"});
 
          // Set player action
-         if (option == 1) {
-
-         	// No monster selection if only 1 left
+         option = getUserInput({"Attack", "Defend", "Flee"});
+         if (option == 1) {                                           // Attack
             if(listOfMonsters.size() > 1) 
-               option = getUserInput(listOfMonsters); 
+               option = getUserInput(listOfMonsters);           // Attack what?
             else
-               option = 1;
+               option = 1;                               // Only 1 monster left 
             
+            // Target specific monster
             Character* monster = staticParticipantsList[option - 1];
 
-            // Player could kill a monster or themselves while attacking 
             died = attackCharacter(player, *monster, damageHpBpEp);
-            if(died == 1) {
+            if(died == 1) {                             // Player killed monster
                killMonster(staticParticipantsList, listOfMonsters, 
                            combatParticipants, option); 
                if(!listOfMonsters.size()) {
@@ -520,32 +514,35 @@ void combat(Character & player, string newMonster, bool debug, short size) {
                   break;
                }
             }
-            else if(died == 2) {
+            else if(died == 2) {                  // Player died while attacking
                combatDefeat();
                break;
             }
          }
          else if (option == 2) {
-            focus(player);
+            focus(player);                                // Player is defending
          }
          else if(option == 3) {
-            flee();
+            flee();                                           // Player retreats
             break;
          }
-
       } 
       else {
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
          died = attackCharacter(*participant, player, damageHpBpEp);
-         if(died == 1) {
+         if(died == 1) {                                // Monster killed player
             combatDefeat();
             break;
          }
-         else if(died == 2) {
-            combatVictory(player, *participant);
-            break;
+         else if(died == 2) {             // Monster died while attacking player
+            killMonster(staticParticipantsList, listOfMonsters, 
+                        combatParticipants, 1);
+            if(!listOfMonsters.size()) {
+                  combatVictory(player, *participant);
+                  break;
+            }
          }
 
          // Set retaliation against monster attack
@@ -553,46 +550,45 @@ void combat(Character & player, string newMonster, bool debug, short size) {
          // Set residual actions
       }
 
-      /**********************************************************************
+      /*************************************************************************
       *                     Round Ending Action Block
       * This block is called after 200 time units (initiative) has passed.
       * Afflictions such as bleeding should be placed in this block of code.
-      **********************************************************************/
+      *************************************************************************/
       if(isEndOfTurn(combatParticipants)) {
          
          // Reset running initiative
          for(int i = combatParticipants.size() - 1; i >= 0; i--) {
             combatParticipants[i]->runningInitiative -= 200;
       
-	         // If it is bleeding, hurt it. If it dies, remove the corpse.
-	         if(combatParticipants[i]->isBleeding) 
-	            if(applyBleeding(*combatParticipants[i])) {
-	         	   if(combatParticipants[i]->isHero) {
-	         	      combatDefeat();
-	         	      break;
-	               }
-	               else {
-	                  killMonster(staticParticipantsList, listOfMonsters, 
-	                              combatParticipants, i + 1); 
-	         	      }	
-	               }
+	          // If it is bleeding, hurt it. If it dies, remove the corpse.
+	          if(combatParticipants[i]->isBleeding) 
+	             if(applyBleeding(*combatParticipants[i])) {
+	         	      if(combatParticipants[i]->isHero) {
+	         	         combatDefeat();
+	         	         break;
+	                }
+	                else
+	                   killMonster(staticParticipantsList, listOfMonsters, 
+	                               combatParticipants, i + 1); 
+	             }
+	       }
 
-	            }
-
-	         // if(executeEOTactions(combatParticipants)) {
-	         //    cout << "\tSomething just bled to death." << endl;
-	         //    break;
-	         // }
-         }   
-	     if(!listOfMonsters.size()) {
-            combatVictory(player, *participant);
-	        break;	
+	          // if(executeEOTactions(combatParticipants)) {
+	          //    cout << "\tSomething just bled to death." << endl;
+	          //    break;
+	          // }
+      }   
+	    if(!listOfMonsters.size()) {
+         combatVictory(player, *participant);
+	       break;	
       }
    }
-        
-   cout << "\nDont forget to reset world affecting stats at the end of combat!" 
-        << endl;
-   displayStats(player);
+   if(debugMode) {
+      cout << "\nDont forget to reset world affecting stats at the end of combat!" 
+         << endl;
+      displayStats(player);
+   }    
 }
 
 /******************************************************************************/

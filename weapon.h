@@ -18,7 +18,9 @@ using namespace std;
 class Weapon {
 public:
 
-   // Player weapon
+   /*****************************************
+   * Player weapon constructor
+   /****************************************/
    Weapon() {}
    ~Weapon() {cout << "\tThe " << name << " explodes into bits.\n";}
    Weapon(string weaponType) {
@@ -38,7 +40,9 @@ public:
       this->percision +=        weapons[weaponType].second.first[6];
    }
 
-   // Custom monster weapon damage
+   /*****************************************
+   * Monsters' weapon constructor
+   /****************************************/
    Weapon(pair<pair<vector<string>, vector<bool>>, 
           pair<vector<short>, vector<float>>> newMonsterWeapon) {
        this->name =              "devilish weapon";

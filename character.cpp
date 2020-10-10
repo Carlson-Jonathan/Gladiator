@@ -3,7 +3,10 @@
 /*******************************************************************************
 * Character Class Constructors:
 *******************************************************************************/
-// Generate new monster. Is also the default constructor.
+
+/*****************************************
+* Generates Monster
+/****************************************/
 Character::Character(string newMonster) {
    // If no monster provided, select one at random.
    if(newMonster == "Random") {
@@ -22,15 +25,18 @@ Character::Character(string newMonster) {
    this->runningInitiative =   initiative;
    this->hitPoints =           maxHitPoints; 
    this->bloodPoints =         maxBloodPoints; 
-   if(weapon != NULL) delete weapon;
-   weapon =                    new Weapon(monster[newMonster]);
-   armor =                     new Armor(monster[newMonster]);
    essencePoints =             maxEssencePoints;
+
+   weapon =                    new Weapon(monster[newMonster]);
    this->percision =           weapon->percision;
+
+   armor =                     new Armor(monster[newMonster]);
    this->evasion =             monster[newMonster].second.first[10];
 }
 
-// Setup initial hero character.
+/*****************************************
+* Generates Hero
+/****************************************/
 Character::Character(string name, bool hero) {
    this->name = name;
    this->isHero = hero;

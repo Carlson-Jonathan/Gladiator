@@ -13,6 +13,7 @@
 #include <time.h>
 #include <cstdlib>  // sleep
 #include <unistd.h> // sleep
+#include <memory> // shared pointers
 #include "weapon.h"
 #include "armor.h"
 using namespace std;
@@ -21,7 +22,15 @@ class Character {
 public:
 
    Character() {}
-   ~Character() { cout << "\tThe " << name << " drops dead!" << "\n\n";}
+   ~Character() { 
+      if(!isHero)
+         cout << "\tThe "; 
+      cout << name << " drops dead.\n";
+      if(weapon != NULL) 
+         delete weapon;
+      if(weapon != NULL)
+         delete armor;
+   }
    Character(string newMonster);
    Character(string name, bool hero);
 

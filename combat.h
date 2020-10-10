@@ -30,7 +30,7 @@ bool receiveHazardDamage(Character & aggressor, const Character & victim,
 bool attackCharacter(Character & aggressor, Character & victim, 
                      short (&damageHpBpEp));
 bool inline sorter(Character* a, Character* b);
-bool executeEOTactions(vector<Character*> combatParticipants);
+// bool executeEOTactions(vector<Character*> combatParticipants);
 vector<Character*> generateParticipantList(Character & player, short size);
 void combat(Character & player);
 void killMonster(vector<Character*> & staticL, vector<string> & displL, 
@@ -46,7 +46,7 @@ Character* nextAction(vector<Character*> cp) {
    sort(cp.begin(), cp.end(), sorter);
 
    if(debugMode) {
-      cout << "\t\t\t\t\tInitiatives | Running Initiatives" << endl; 
+      cout << "\t\t\tInitiatives | Running Initiatives" << endl; 
       for(auto i : cp) {
          cout.width(40);
          cout << right << i->name << ": " << i->initiative 
@@ -284,8 +284,13 @@ short attackCharacter(Character & aggressor, Character & victim,
 * Used in combination with the overloaded '<' operator in character.h to sort
 * a vector of character object pointers.
 *******************************************************************************/
-bool inline sorter(Character* a, Character* b) {return  (*a < *b);}
+bool inline sorter(Character* a = NULL, Character* b = NULL) {return  (*a < *b);}
 
+/*******************************************************************************
+* bool isEndOfTurn(vector<Character*>)
+* The end of a combat round is marked when all characters have exceeded 200
+* running initiative units. 
+*******************************************************************************/
 // If all participant's running initiative's exceed 200, the round is over.
 bool isEndOfTurn(vector<Character*> combatParticipants) {
    for(auto i : combatParticipants)
@@ -300,26 +305,23 @@ bool isEndOfTurn(vector<Character*> combatParticipants) {
 * is defined as when all combat participants have a running initiative greater 
 * than 200. Initiatives are reset, and relevant afflictions are applied.
 *******************************************************************************/
-bool executeEOTactions(vector<Character*> combatParticipants) {
-   for(auto participant : combatParticipants) { 
-      participant->runningInitiative -= 200;
-      if(participant->isBleeding) 
-         if(applyBleeding(*participant)) 
-            return true;
-   }
-   return false;
-}
+// bool executeEOTactions(vector<Character*> combatParticipants) {
+
+
+
+//    return false;
+// }
 
 /*******************************************************************************
 * vector<Character*> generateParticipantList(Character, short)
-* Creates a vecotr of object pointers. Includes the player(s) and generates 
+* Creates a vector of object pointers. Includes the player(s) and generates 
 * 'size' number of random new monster objects to include. 
 *******************************************************************************/
 vector<Character*> generateParticipantList(Character & player, short size, 
                                            string newMonster) {
    vector<Character*> combatParticipants;
-   Character* participant;
-   Character* monster;
+   Character* participant = NULL;
+   Character* monster = NULL;
    participant = &player;
    combatParticipants.push_back(participant);
    for(short i = 0; i < size; i++) {
@@ -332,19 +334,69 @@ vector<Character*> generateParticipantList(Character & player, short size,
 
 /*******************************************************************************
 * void killMonster(vector<Character*>, vector<string>, vectorCharacter*>, short)
-* When monster is defeated, this function is called to remove the monster from 
-* the 3 lists used in the combat function. It also deletes the associated 
-* pointers/objects. 
+* Yes, I know it looks like a mess. I had to educate myself on preventing 
+* memory leaks and dangling pointers, so I made a mess of "cout"s. I am leaving
+* them here in debug mode just in case.
+*
+* This function kills a monster. It removes it from both vectors of pointers, 
+* nullifies the said pointers, and deletes (destroys) the monster object.  
 *******************************************************************************/
 void killMonster(vector<Character*> & staticL, vector<string> & displL, 
                  vector<Character*> & cpL, short option) {
-   delete staticL[option - 1];
-   staticL.erase(staticL.begin() + option - 1);
-   displL.erase(displL.begin() + option - 1);
-   for(int i = 0; i < cpL.size(); i++)
+   
+   if(debugMode)cout << "Calling for object removal from static list..." << endl;
+   if(debugMode) cout << "The value of option is " << option << endl;
+   if(debugMode) cout << "Item being deleted is " << staticL[option - 1]->name << endl;
+   if(debugMode) cout << "Static list printout:" << endl;
+   if(debugMode) for (auto i : staticL)
+      cout << i->name << endl;
+   if(debugMode) cout << endl;
+
+   if(debugMode) cout << "Object to be erased: " << (*(staticL.begin() + (option - 1)))->name << "\n\n";
+   if(debugMode) cout << "Nullifying pointer...\n";
+   staticL[option - 1] = NULL;
+   if(debugMode) cout << "Pointer nullified.\n";
+   if(debugMode) cout << "Erasing pointer from list...\n";
+   staticL.erase(staticL.begin() + (option - 1));
+   if(debugMode) cout << "Pointer erased!\n";
+   if(debugMode) cout << "New static list of monsters:\n";
+   if(debugMode) for (auto i : staticL)
+      cout << i->name << endl;
+   if(debugMode) cout << "\n\n";
+
+   if(debugMode) cout << "Moving on to removing object from cpL list:\n";
+   for(int i = cpL.size() - 1; i >= 0; i--) {
+      if(debugMode) cout << "Checking for defeat condition of cpL[" << i << "] : " << cpL[i]->name << "\n\n";
       if(isDefeated(cpL[i]->hitPoints, cpL[i]->bloodPoints, cpL[i]->essencePoints)) {
+         if(debugMode) cout << "This object should be erased!\n"; 
+         if(debugMode) cout << "The value of 'i' in this backwards loop is " << i << endl;
+         if(debugMode) cout << "The objects in the list are: " << endl;
+         if(debugMode) for (int j = 0; j < cpL.size(); j++) {
+            cout << "object cpL[" << j << "]: ";
+         	  cout << cpL[j]->name << endl; 
+         }
+         if(debugMode)cout << "Calling 'delete' on object in sorting list, cpL[" << (i) << "]" << endl;      	
+         delete cpL[i];
+         if(debugMode) cout << "Nullifying pointer...\n";
+         cpL[i] = NULL;     	
+         if(debugMode) cout << "Pointer nullified!\n";
+         if(debugMode)cout << "Erasing object " << (*(cpL.begin() + i)) 
+           << " from sorting list of monsters..." << endl;
          cpL.erase(cpL.begin() + i);
+         if(debugMode) cout << "Object erased!" << endl;
+         if(debugMode) cout << "Object has been destroyed! All dangling pointers have been de-weaponized!\n";
+         if(debugMode) cout << "New cpL list:\n";
+         if(debugMode) for (auto i : staticL)
+            cout << i->name << endl;
+         if(debugMode) cout << "\n\n";
+         if(debugMode) cout << "Monster has been murdered! The end.\n\n";
       }
+      else
+        if(debugMode) cout << "Object is still alive. Moving on...\n";
+   }
+
+   if(debugMode)cout << "Erasing string from list of names..." << endl;
+   displL.erase(displL.begin() + (option - 1));
 }
 
 /*******************************************************************************
@@ -355,7 +407,7 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
 bool missedAttack(const Character & aggressor, const Character & victim) {
    short willMiss = aggressor.percision - victim.evasion;
    short missed = rand() % 100;
-   if(debugMode) cout << "\t\t\t\t" << aggressor.name << " accuracy: \n" 
+   if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy: \n\t\t\t" 
    	                  << missed << " | " << willMiss << "\n\n";
    return missed >= willMiss;
 }
@@ -380,6 +432,18 @@ bool missedAttack(const Character & aggressor, const Character & victim) {
 * void combat(Character)
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
+*
+* I cant do it with unique pointers because when one pointer is deleted, it 
+* destroys the object. The only solution is to use shared_ptr...maybe?
+*
+* Because I am copying the pointer lists, deleting items in one list will 
+* destroy items in the other. However, if I generate 2 lists individually,
+* this will not happen.
+*
+* Nevermind, the above wont work because it would be creating duplicate
+* monsters on the heap.
+*
+*
 *******************************************************************************/
 void combat(Character & player, string newMonster, bool debug, short size) {
 
@@ -387,7 +451,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
    debugMode = debug;          // Toggle in main.cpp
    srand(time(0));             // Seeds sudo random number generator
    bool battle = true;
-   Character* participant;
+   Character* participant = NULL;
    player.initiative = 100 + player.weapon->speed; // Sets default initiative
    short 
       died,
@@ -398,6 +462,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
    vector<Character*> combatParticipants = 
                       generateParticipantList(player, size, newMonster);
    vector<Character*> staticParticipantsList = combatParticipants;
+
    staticParticipantsList.erase(staticParticipantsList.begin());
    vector<string> listOfMonsters;
    for(auto i : staticParticipantsList)
@@ -436,6 +501,8 @@ void combat(Character & player, string newMonster, bool debug, short size) {
 
          // Set player action
          if (option == 1) {
+
+         	// No monster selection if only 1 left
             if(listOfMonsters.size() > 1) 
                option = getUserInput(listOfMonsters); 
             else
@@ -463,6 +530,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
          }
          else if(option == 3) {
             flee();
+            break;
          }
 
       } 
@@ -485,18 +553,43 @@ void combat(Character & player, string newMonster, bool debug, short size) {
          // Set residual actions
       }
 
-   /**********************************************************************
-   *                     Round Ending Action Block
-   * This block is called after 200 time units (initiative) has passed.
-   * Afflictions such as bleeding should be placed in this block of code.
-   **********************************************************************/
-   if(isEndOfTurn(combatParticipants)) 
-       if(executeEOTactions(combatParticipants)) {
-          cout << "\tSomething just bled to death." << endl;
-          break;
-       }
-   }
+      /**********************************************************************
+      *                     Round Ending Action Block
+      * This block is called after 200 time units (initiative) has passed.
+      * Afflictions such as bleeding should be placed in this block of code.
+      **********************************************************************/
+      if(isEndOfTurn(combatParticipants)) {
+         
+         // Reset running initiative
+         for(int i = combatParticipants.size() - 1; i >= 0; i--) {
+            combatParticipants[i]->runningInitiative -= 200;
+      
+	         // If it is bleeding, hurt it. If it dies, remove the corpse.
+	         if(combatParticipants[i]->isBleeding) 
+	            if(applyBleeding(*combatParticipants[i])) {
+	         	   if(combatParticipants[i]->isHero) {
+	         	      combatDefeat();
+	         	      break;
+	               }
+	               else {
+	                  killMonster(staticParticipantsList, listOfMonsters, 
+	                              combatParticipants, i + 1); 
+	         	      }	
+	               }
 
+	            }
+
+	         // if(executeEOTactions(combatParticipants)) {
+	         //    cout << "\tSomething just bled to death." << endl;
+	         //    break;
+	         // }
+         }   
+	     if(!listOfMonsters.size()) {
+            combatVictory(player, *participant);
+	        break;	
+      }
+   }
+        
    cout << "\nDont forget to reset world affecting stats at the end of combat!" 
         << endl;
    displayStats(player);

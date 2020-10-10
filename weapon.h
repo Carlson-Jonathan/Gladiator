@@ -20,6 +20,7 @@ public:
 
    // Player weapon
    Weapon() {}
+   ~Weapon() {cout << "\tThe " << name << " explodes into bits.\n";}
    Weapon(string weaponType) {
       this->name =              weaponType;
       this->actionDescription = weapons[weaponType].first;
@@ -40,6 +41,7 @@ public:
    // Custom monster weapon damage
    Weapon(pair<pair<vector<string>, vector<bool>>, 
           pair<vector<short>, vector<float>>> newMonsterWeapon) {
+       this->name =              "devilish weapon";
        this->actionDescription = newMonsterWeapon.first.first[0];
        this->minDamage =         newMonsterWeapon.second.first[4];
        this->rangeDamage =       newMonsterWeapon.second.first[5];
@@ -55,7 +57,6 @@ public:
        this->percision =         newMonsterWeapon.second.first[9];
    }
 
-   ~Weapon() {}
 
    /****************************************************************************
    * void randomDamageTypes(short[])

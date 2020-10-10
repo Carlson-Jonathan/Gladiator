@@ -16,7 +16,7 @@ class Armor {
 public:
 
    Armor() {}
-   ~Armor() {}
+   ~Armor() {cout << "\tThe " << name << " explodes into bits.\n";}
 
    // Player's armor (see 'armors.cpp').
    Armor(string name) {
@@ -29,13 +29,13 @@ public:
       this->slash =        armor[name].second.second[2];
       this->stab =         armor[name].second.second[3];
       this->evade =        armor[name].second.first[3];
-      cout << "\t\t\t\tArmor evade set to " << evade << "\n\n";
       setDamageReduce();
    }
 
    // Custom monster armor (see 'monsters.cpp').
    Armor(const pair<pair<vector<string>, vector<bool>>, pair<vector<short>, 
          vector<float>>> & monsterArmor) {
+      this->name =  "armor";
       this->crush = monsterArmor.second.second[4];
       this->chop =  monsterArmor.second.second[5];
       this->slash = monsterArmor.second.second[6];

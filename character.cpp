@@ -22,6 +22,7 @@ Character::Character(string newMonster) {
    this->runningInitiative =   initiative;
    this->hitPoints =           maxHitPoints; 
    this->bloodPoints =         maxBloodPoints; 
+   if(weapon != NULL) delete weapon;
    weapon =                    new Weapon(monster[newMonster]);
    armor =                     new Armor(monster[newMonster]);
    essencePoints =             maxEssencePoints;

@@ -83,8 +83,7 @@ void getDamageSum(short damageTypes[], short block[]) {
 void getPhysicalDamages(Character & victim, Character & aggressor, 
                         short damageHpBpEp[]) {
 
-   if(aggressor.weapon->getRandomDamageTypes())
-      cout << "Critical Strike!" << "\n\n";
+   aggressor.weapon->setCriticalDamage(aggressor.weapon->setRandomDamageTypes());
 
    if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
    if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
@@ -275,9 +274,8 @@ short attackCharacter(Character & aggressor, Character & victim,
             return 2;
    }
    else
-      cout << aggressor.name << aggressor.weapon->actionDescription 
-           << victim.name << " but misses!\n\n";
-       
+      missedAttackMessage(aggressor, victim);
+
    return 0;
 }
 
@@ -349,9 +347,17 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
       }
 }
 
+/*******************************************************************************
+* bool missedAttack(Character, Character)
+* Generates a random number. If that number is higher than the aggressor's
+* percision minus the victim's evasion, the attack fails.
+*******************************************************************************/
 bool missedAttack(const Character & aggressor, const Character & victim) {
    short willMiss = aggressor.percision - victim.evasion;
-   return (rand() % 100) >= willMiss;
+   short missed = rand() % 100;
+   if(debugMode) cout << "\t\t\t\t" << aggressor.name << " accuracy: \n" 
+   	                  << missed << " | " << willMiss << "\n\n";
+   return missed >= willMiss;
 }
 
 
@@ -434,6 +440,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
                option = getUserInput(listOfMonsters); 
             else
                option = 1;
+            
             Character* monster = staticParticipantsList[option - 1];
 
             // Player could kill a monster or themselves while attacking 

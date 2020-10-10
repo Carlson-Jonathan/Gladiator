@@ -28,6 +28,8 @@ public:
       this->chop =         armor[name].second.second[1];
       this->slash =        armor[name].second.second[2];
       this->stab =         armor[name].second.second[3];
+      this->evade =        armor[name].second.first[3];
+      cout << "\t\t\t\tArmor evade set to " << evade << "\n\n";
       setDamageReduce();
    }
 
@@ -41,6 +43,10 @@ public:
       setDamageReduce();
    }
 
+   /****************************************************************************
+   * void setDamageReduce()
+   * Divides the total defence power into the 4 relevant catagories.
+   ****************************************************************************/
    void setDamageReduce() {
       damageReduce[0] = ceil(defencePower * crush);
       damageReduce[1] = ceil(defencePower * chop);

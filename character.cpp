@@ -13,18 +13,20 @@ Character::Character(string newMonster) {
       cout << "\t\tA " << newMonster << " appears!\n";
    }
 
-   this->name =          newMonster;
-   this->maxHitPoints =  monster[newMonster].second.first[0];
-   this->maxBloodPoints =   monster[newMonster].second.first[1];
-   this->maxEssencePoints = monster[newMonster].second.first[2];
-   this->initiative =    monster[newMonster].second.first[3];
-   this->isHazardous =   monster[newMonster].second.first[8];
-   this->runningInitiative = initiative;
-   this->hitPoints = maxHitPoints; 
-   this->bloodPoints = maxBloodPoints; 
-   weapon = new Weapon(monster[newMonster]);
-   armor = new Armor(monster[newMonster]);
-   essencePoints = maxEssencePoints;
+   this->name =                newMonster;
+   this->maxHitPoints =        monster[newMonster].second.first[0];
+   this->maxBloodPoints =      monster[newMonster].second.first[1];
+   this->maxEssencePoints =    monster[newMonster].second.first[2];
+   this->initiative =          monster[newMonster].second.first[3];
+   this->isHazardous =         monster[newMonster].second.first[8];
+   this->runningInitiative =   initiative;
+   this->hitPoints =           maxHitPoints; 
+   this->bloodPoints =         maxBloodPoints; 
+   weapon =                    new Weapon(monster[newMonster]);
+   armor =                     new Armor(monster[newMonster]);
+   essencePoints =             maxEssencePoints;
+   this->percision =           weapon->percision;
+   this->evasion =             monster[newMonster].second.first[10];
 }
 
 // Setup initial hero character.
@@ -67,7 +69,10 @@ void Character::setWeapon(string weaponType) {
 }
 
 void Character::setOffhand(string weaponType) {offhand = new Weapon(weaponType);}
-void Character::setArmor(string name)         {armor = new Armor(name);}
+void Character::setArmor(string name) { 
+   armor = new Armor(name);
+   this->evasion += armor->evade;
+}
 
 /*******************************************************************************
 * void generateMonstersList()

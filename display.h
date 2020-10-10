@@ -178,6 +178,11 @@ void displayAttackMessage(const Character & victim,
    message = writeMessage(message);
    usleep(300000);
 
+   if(aggressor.weapon->isCritical) {
+      aggressor.weapon->isCritical = false;
+      writeMessage("\tC R I T I C A L   S T R I K E !\n");
+   }
+
    if(aggressor.isHero)
       message += "The ";
    message += victim.name + " takes damage:";
@@ -199,19 +204,21 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
                            const Character & player, const short round) { 
    cout << "================================ Combat Turn " << round 
         << " ===============================\n";
-   cout << setw(22) << "Name:" << setw(10) << right << "HP:" << setw(10) 
+   cout << setw(12) << "Name:" << setw(10) << right << "HP:" << setw(10) 
         << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
-        << "Speed:" << endl;
-   cout << setw(22) << right << player.name << setw(10) << player.hitPoints
+        << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
+   cout << setw(12) << right << player.name << setw(10) << player.hitPoints
         << setw(10) << player.bloodPoints << setw(10) << player.essencePoints
-        << setw(10) << player.initiative << endl;
-//    cout << "                    =============================================\n";
-   cout << "                 ---------------------------------------------\n";
+        << setw(10) << player.initiative << setw(10) << player.percision 
+        << setw(10) << player.evasion << endl;
+   cout << 
+   "       -----------------------------------------------------------------\n";
    for(auto i : listOfMonsters) {
-      cout << setw(22) << i->name << setw(10) << right << setw(10) << right
+      cout << setw(12) << i->name << setw(10) << right << setw(10) << right
            << i->hitPoints << setw(10) << right << i->bloodPoints << setw(10)
            << right << i->essencePoints << setw(10) << right 
-           << i->runningInitiative;
+           << i->runningInitiative << setw(10) << i->percision << setw(10)
+           << i->evasion;
       if(i != listOfMonsters.back()) 
          cout << endl;
    }
@@ -226,7 +233,14 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
 *******************************************************************************/
 void selectWeapon(Character & player) {
 
-	vector<string> wep = {"Broad Sword", "Battle Axe", "Spear", "Mace"};
+	vector<string> wep = 
+	   {"Broad Sword", 
+	    "Battle Axe", 
+	    "Spear", 
+	    "Mace",
+	    "Morning Star",
+	    "Katana",
+	    "Fists"};
 	short selection = getUserInput(wep);
 
     player.setWeapon(wep[selection - 1]);
@@ -305,6 +319,15 @@ void fatigueMessage(const Character & victim, short init) {
   string message = "\t" + victim.name + " is fatigued from loss of blood. (+" +
   to_string(init) + " slow)\n\n";
   writeMessage(message);
+}
+
+void missedAttackMessage(const Character & aggressor, const Character & victim) {
+   string message = "\t";
+   if(!aggressor.isHero)
+      message += "The ";
+   message += aggressor.name + aggressor.weapon->actionDescription + victim.name +
+   " but misses!\n\n";
+   writeMessage(message);
 }
 
 /******************************************************************************/

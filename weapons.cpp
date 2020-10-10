@@ -31,16 +31,20 @@ std::vector<float>>>> weapons = {
 * Sl = The percentage of the weapon's total damage allocated to slashing.
 * St = The percentage of the weapon's total damage allocated to stabbing.
 * CC = Critical Chance - Has a 1 in 'CC' chance to do 'CM' times more damage.
-* Pr = Percision. Modifies players chance to miss when attacking.
+* CM = Critical damage multiplier 
+* Pr = Percision. Higher = better aim and less missing on attack.
 *******************************************************************************/
     
-//      Key        Description       Min   Rg   Sp  Vnm Stn CC, Pr       Cr   Ch   Sl   St  CM
-{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 0, 5 },  { 1.0, 0.0, 0.0, 0.0, 0 }}}},
-{"Broad Sword", { " slashes at ", {{  75,  25,  20,  0,   0, 0, 5 },  { 0.0, 0.2, 0.5, 0.3, 0 }}}},
-{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0, 0, 5 },  { 0.2, 0.0, 0.7, 0.1, 0 }}}},
-{"Battle Axe",  { " chops at ",   {{  45, 110,  50,  0,   0, 4, 5 },  { 0.1, 0.7, 0.1, 0.0, 4 }}}},
-{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0, 0, 5 },  { 0.0, 0.0, 0.1, 0.9, 0 }}}},
-{"Mace",        { " swings at ",  {{  4850, 100, 30, 0, 100, 0, 5 },  { 1.0, 0.0, 0.0, 0.0, 0 }}}}};
+//      Key        Description       Min   Rg   Sp  Vnm Stn  CC,  Pr       Cr   Ch   Sl   St  CM
+{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 10,  25 },  { 1.0, 0.0, 0.0, 0.0, 1 }}}},
+{"Broad Sword", { " slashes at ", {{  75,  25, -20,  0,   0, 10,  0  },  { 0.0, 0.2, 0.5, 0.3, 1 }}}},
+{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0, 10,  5  },  { 0.2, 0.0, 0.7, 0.1, 1 }}}},
+{"Battle Axe",  { " chops at ",   {{  45, 110, -50,  0,   0,  4, -20 },  { 0.1, 0.7, 0.1, 0.0, 4 }}}},
+{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0, 10, -25 },  { 0.0, 0.0, 0.1, 0.9, 1 }}}},
+{"Mace",        { " swings at ",  {{  50,  40, -30,  0, 100, 10, -10 },  { 1.0, 0.0, 0.0, 0.0, 1 }}}},
+{"Morning Star",{ " swings at ",  {{  50, 100, -30,  0, 100, 10, -15 },  { 0.6, 0.0, 0.0, 0.4, 1 }}}}
+
+};
 
 /*
 Additional weapon ideas:

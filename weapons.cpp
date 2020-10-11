@@ -26,23 +26,25 @@ std::vector<float>>>> weapons = {
 * Sp = Weapon speed. This is added to the player's total initiative.
 * Vnm = Venomous. Applied poisons. Amount is added to victim's base initiative.
 * Stn = Stun amount. Is added to victim's running initiative.
+* CC = Critical Chance - Has a 1 in 'CC' chance to do 'CM' times more damage.
+* Pr = Percision. Higher = better aim and less missing on attack.
 * Cr = The percentage of the weapon's total damage allocated to crushing.
 * Ch = The percentage of the weapon's total damage allocated to chopping.
 * Sl = The percentage of the weapon's total damage allocated to slashing.
 * St = The percentage of the weapon's total damage allocated to stabbing.
-* CC = Critical Chance - Has a 1 in 'CC' chance to do 'CM' times more damage.
 * CM = Critical damage multiplier 
-* Pr = Percision. Higher = better aim and less missing on attack.
+* Rp = Riposte - Reaction strike damage multiplier. 
 *******************************************************************************/
     
-//      Key        Description       Min   Rg   Sp  Vnm Stn  CC,  Pr       Cr   Ch   Sl   St  CM
-{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 10,  25 },  { 1.0, 0.0, 0.0, 0.0, 60 }}}},
-{"Broad Sword", { " slashes at ", {{  75,  25, -20,  0,   0, 10,  0  },  { 0.0, 0.2, 0.5, 0.3, 3 }}}},
-{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0, 10,  5  },  { 0.2, 0.0, 0.7, 0.1, 3 }}}},
-{"Battle Axe",  { " chops at ",   {{  45, 110, -50,  0,   0,  4, -20 },  { 0.1, 0.7, 0.1, 0.0, 4 }}}},
-{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0, 10, -25 },  { 0.0, 0.0, 0.1, 0.9, 3 }}}},
-{"Mace",        { " swings at ",  {{  50,  40, -30,  0, 100, 10, -10 },  { 1.0, 0.0, 0.0, 0.0, 3 }}}},
-{"Morning Star",{ " swings at ",  {{  9999, 100, -30,  0, 100, 10, -15 },  { 0.6, 0.0, 0.0, 0.4, 3 }}}}
+//      Key        Description       Min   Rg   Sp  Vnm Stn  CC,  Pr       Cr   Ch   Sl   St  CM  Rp
+{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 10,  25 },  { 1.0, 0.0, 0.0, 0.0, 60,  0 }}}},
+{"Broad Sword", { " slashes at ", {{  75,  25, -20,  0,   0, 10,  0  },  { 0.0, 0.2, 0.5, 0.3,  3,  0 }}}},
+{"Katana",      { " slashes at ", {{  50,  50, -10,  0,   0, 10,  5  },  { 0.2, 0.0, 0.7, 0.1,  3,  0 }}}},
+{"Battle Axe",  { " chops at ",   {{  45, 110, -50,  0,   0,  4, -20 },  { 0.1, 0.7, 0.1, 0.0,  4,  0 }}}},
+{"Spear",       { " lunges at ",  {{  30,  25, -30,  0,   0, 10, -25 },  { 0.0, 0.0, 0.1, 0.9,  3,  0 }}}},
+{"Mace",        { " swings at ",  {{  50,  40, -30,  0, 100, 10, -10 },  { 1.0, 0.0, 0.0, 0.0,  3,  0 }}}},
+{"Rapier",      { " lunges at ",  {{  50,  40, -30,  0, 100, 10, -10 },  { 0.0, 0.0, 0.3, 0.7,  3, .6 }}}},
+{"Morning Star",{ " swings at ",  {{  9999, 100, -30,  0, 100, 10, -15 },{ 0.6, 0.0, 0.0, 0.4,  3,  0 }}}}
 
 };
 

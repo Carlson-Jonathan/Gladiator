@@ -38,6 +38,7 @@ public:
       this->criticalM =         weapons[weaponType].second.second[4];
       this->criticalChance =    weapons[weaponType].second.first[5];
       this->percision +=        weapons[weaponType].second.first[6];
+      this->riposte =           weapons[weaponType].second.second[5];
    }
 
    /*****************************************
@@ -59,6 +60,7 @@ public:
        this->criticalM =         newMonsterWeapon.second.second[8];
        this->criticalChance =    newMonsterWeapon.second.second[9];
        this->percision =         newMonsterWeapon.second.first[9];
+       this->riposte =           newMonsterWeapon.second.first[10];
    }
 
 
@@ -118,7 +120,8 @@ public:
       chop,
       slash,
       stab,
-      criticalM; // Critical hit multiplier.
+      criticalM, // Critical hit multiplier.
+      riposte;
 
    bool 
       burn = false,

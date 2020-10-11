@@ -62,7 +62,7 @@ public:
       essencePoints = 1000,
       initiative = 100,        // Higher is slower
       strength = 100,
-      isBleeding = 0,
+      isBleeding = 50,
       isHazardous,             // Returns damage to an attacker
       percision = 80,          // % chance to hit/miss
       evasion = 0;
@@ -72,7 +72,8 @@ public:
    bool 
       isDefending = false,
       isHero = false,
-      canRegenerate = false;
+      canRegenerate = false,
+      isDead = false;
 
    vector<string> monsters;
 

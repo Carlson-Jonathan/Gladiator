@@ -21,14 +21,14 @@ Character* nextAction     (vector<Character*> cp);
 void getDamageSum         (short damageTypes[], short block[]);
 void getPhysicalDamages   (Character & victim, Character & aggressor, short damageHpBpEp[]);
 void convertToHP_BP       (const Character & victim, short rawDamage[], short dT[]);
-bool applyDamage          (Character & victim, short rawDamage[]); 
+void applyDamage          (Character & victim, short rawDamage[]); 
 void determineAffliction  (const Character & aggressor, Character & victim, short damageTypes[]);
 bool applyBleeding        (Character & victim);
 void focus                (Character & character);
 void flee                 ();
-bool isDefeated           (short HP, short BP, short EP);
-bool receiveHazardDamage  (Character & aggressor, const Character & victim, short (&damageHpBpEp)[3]);
-short attackCharacter     (Character & aggressor, Character & victim, short (&damageHpBpEp)[3]);
+bool isDefeated           (Character & victim);
+void receiveHazardDamage  (Character & aggressor, const Character & victim, short (&damageHpBpEp)[3]);
+short attackCharacter     (Character & aggressor, const Character & victim, short (&damageHpBpEp)[3]);
 bool sorter               (Character* a, Character* b);
 bool isEndOfTurn          (vector<Character*> combatParticipants);
 vector<Character*> generateParticipantList(Character & player, short size, string newMonster);
@@ -133,18 +133,13 @@ void convertToHP_BP(const Character & victim, short rawDamage[], short dT[]) {
 }
 
 /*******************************************************************************
-* int applyDamage(Character, short[]) 
-* Applies the calculated rawDamage to the victim's health and determines if
-* the victim has been defeated.
+* void applyDamage(Character, short[]) 
+* Applies the calculated rawDamage to the victim's health.
 *******************************************************************************/
-bool applyDamage(Character & victim, short rawDamage[]) {
+void applyDamage(Character & victim, short rawDamage[]) {
    victim.setHitPoints(-rawDamage[0]);
    victim.setBloodPoints(-rawDamage[1]);
    victim.setEssencePoints(-rawDamage[2]);
-
-   if(isDefeated(victim.hitPoints, victim.bloodPoints, victim.essencePoints)) 
-      return true;
-   return false;
 }
 
 /*******************************************************************************
@@ -188,7 +183,7 @@ void determineAffliction(const Character & aggressor, Character & victim,
 }
 
 /*******************************************************************************
-* void applyBleeding(Character)
+* bool applyBleeding(Character)
 * Governs 1 round of character bleeding. Sets and reduces ongoing bleed effect.
 *******************************************************************************/
 bool applyBleeding(Character & victim) {
@@ -199,8 +194,7 @@ bool applyBleeding(Character & victim) {
       victim.bloodPoints = 0;
    
    bleedingMessage(victim);
-   if(isDefeated(victim.hitPoints, victim.bloodPoints, victim.essencePoints)) 
-      return true;
+   if(isDefeated(victim)) return true;
 
    victim.isBleeding -= bleedAmt - 2;
    if(victim.isBleeding < 0)
@@ -236,24 +230,27 @@ void flee() {
 * bool isDefeated(short, short, short)
 * Tells whether or not a character is dead.
 *******************************************************************************/
-bool isDefeated(short HP, short BP, short EP) {
-   return !(HP && BP && EP);
+bool isDefeated(Character & victim) {
+   if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
+      if(debugMode) cout << "This victim has been identified as dead!\n\n";
+      victim.isDead = true; 
+  }
+  return false;
 }
 
 /*******************************************************************************
-* bool receiveHazardDamage(Character, Character, short[])
+* void receiveHazardDamage(Character, Character, short[])
 * Calculates and applies reflective damage.
 *******************************************************************************/
-bool receiveHazardDamage(Character & aggressor, const Character & victim, 
+void receiveHazardDamage(Character & aggressor, const Character & victim, 
                          short (&damageHpBpEp)[3]) {
 
     for(auto &i : damageHpBpEp)
         i /= victim.isHazardous;
 
     hazardDamageMessage(aggressor, damageHpBpEp);
-    if(applyDamage(aggressor, damageHpBpEp)) return true;
-
-    return false;
+    applyDamage(aggressor, damageHpBpEp);
+    isDefeated(aggressor);
 }
 
 /*******************************************************************************
@@ -266,12 +263,12 @@ short attackCharacter(Character & aggressor, Character & victim,
    if(!missedAttack(aggressor, victim)) {
       getPhysicalDamages(victim, aggressor, damageHpBpEp);
       displayAttackMessage(victim, aggressor, damageHpBpEp);
-      if(applyDamage(victim, damageHpBpEp)) return 1;
+      applyDamage(victim, damageHpBpEp);
+      if(isDefeated(victim)) return 1;
       determineAffliction(aggressor, victim, aggressor.weapon->damageTypes);
 
       if(victim.isHazardous) 
-         if(receiveHazardDamage(aggressor, victim, damageHpBpEp))
-            return 2;
+      receiveHazardDamage(aggressor, victim, damageHpBpEp);
    }
    else
       missedAttackMessage(aggressor, victim);
@@ -361,7 +358,7 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
    for(int i = cpL.size() - 1; i >= 0; i--) {
       if(debugMode) cout << "Checking for defeat condition of cpL[" 
                          << i << "] : " << cpL[i]->name << "\n\n";
-      if(isDefeated(cpL[i]->hitPoints, cpL[i]->bloodPoints, cpL[i]->essencePoints)) {
+      if(cpL[i]->isDead) {
          if(debugMode) cout << "This object should be erased!\n"; 
          if(debugMode) cout << "The value of 'i' in this backwards loop is " 
                             << i << endl;
@@ -382,10 +379,6 @@ void killMonster(vector<Character*> & staticL, vector<string> & displL,
          if(debugMode) cout << "Object erased!" << endl;
          if(debugMode) cout << "Object has been destroyed! " 
                             << "All dangling pointers have been de-weaponized!\n";
-         if(debugMode) cout << "New cpL list:\n";
-         if(debugMode) for (auto i : staticL)
-            cout << i->name << endl;
-         if(debugMode) cout << "\n\n";
          if(debugMode) cout << "Monster has been murdered! The end.\n\n";
       }
       else
@@ -410,31 +403,66 @@ bool missedAttack(const Character & aggressor, const Character & victim) {
    return missed >= willMiss;
 }
 
+void riposte(const Character & aggressor, Character & victim) {
+   if(!victim.isHero)
+      cout << "The ";
+   cout << victim.name << " recoils and strikes back at ";
+   if(!victim.isHero)
+      cout << "the ";
+   cout << aggressor.name << "!\n\n";
+   short damageHpBpEp[3];
+   
+
+//    short died = attackCharacter(aggressor, victim, damageHpBpEp);
+//    if(died == 1) {                             // Victim killed aggressor
+//       if(!victim.isHero)
+//          killMonster(staticParticipantsList, listOfMonsters, combatParticipants, option); 
+//    if(!listOfMonsters.size()) {
+//    combatVictory(player, *monster);
+//    break;
+//    }
+// }
+// else if(died == 2) {            // Victim died while attacking
+// combatDefeat();
+// break;
+// }   
+}
+
+void applyRetaliationActions(const Character & aggressor, Character & victim) {
+
+   // Defending reactions
+   if(victim.isDefending) {
+      if(victim.weapon->riposte > 0) 
+         riposte(aggressor, victim);
 
 
 
-/*##############################################################################
-################################################################################
-###########################                        #############################
-#########################    Main Combat Function    ###########################
-###########################                        #############################
-################################################################################
-##############################################################################*/
+
+   }
+
+
+
+   // Other reactions
+
+}
+
+
+
+
+
+
+/*###  ####  ######################################################  ####  #####
+#####  ####  ###################                ###################  ####  #####
+#####  ####  ##############                          ##############  ####  #####
+#####  ####  ###########      Main Combat Function      ###########  ####  #####
+#####  ####  ##############                          ##############  ####  #####
+#####  ####  ###################                ###################  ####  #####
+#####  ####  ######################################################  ####  ###*/
 
 /*******************************************************************************
 * void combat(Character)
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
-*
-* I cant do it with unique pointers because when one pointer is deleted, it 
-* destroys the object. The only solution is to use shared_ptr...maybe?
-*
-* Because I am copying the pointer lists, deleting items in one list will 
-* destroy items in the other. However, if I generate 2 lists individually,
-* this will not happen.
-*
-* Nevermind, the above wont work because it would be creating duplicate
-* monsters on the heap.
 *******************************************************************************/
 void combat(Character & player, string newMonster, bool debug, short size) {
 
@@ -502,22 +530,28 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             else
                option = 1;                               // Only 1 monster left 
             
-            // Target specific monster
+            // Set monster target
             Character* monster = staticParticipantsList[option - 1];
 
-            died = attackCharacter(player, *monster, damageHpBpEp);
-            if(died == 1) {                             // Player killed monster
+            attackCharacter(player, *monster, damageHpBpEp);
+            if(monster->isDead) {                   // Player killed monster
                killMonster(staticParticipantsList, listOfMonsters, 
                            combatParticipants, option); 
+               cout << "Monster has been killed\n\n" << endl;
+
+               // Check for victory (all monsters dead)
                if(!listOfMonsters.size()) {
                   combatVictory(player, *monster);
                   break;
                }
             }
-            else if(died == 2) {                  // Player died while attacking
-               combatDefeat();
-               break;
-            }
+            // Player died while attacking
+            else if(player.isDead) { combatDefeat(); break; }
+
+            // Monster riposte goes here
+            // Set retaliation affliction
+            // Any other residual actions 
+
          }
          else if (option == 2) {
             focus(player);                                // Player is defending
@@ -531,14 +565,16 @@ void combat(Character & player, string newMonster, bool debug, short size) {
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
-         died = attackCharacter(*participant, player, damageHpBpEp);
-         if(died == 1) {                                // Monster killed player
+         attackCharacter(*participant, player, damageHpBpEp);
+         if(player.isDead) {                                // Monster killed player
             combatDefeat();
             break;
          }
-         else if(died == 2) {             // Monster died while attacking player
+         else if(participant->isDead) {
             killMonster(staticParticipantsList, listOfMonsters, 
                         combatParticipants, 1);
+
+            // Check for victory (all monsters dead)
             if(!listOfMonsters.size()) {
                   combatVictory(player, *participant);
                   break;
@@ -557,33 +593,27 @@ void combat(Character & player, string newMonster, bool debug, short size) {
       *************************************************************************/
       if(isEndOfTurn(combatParticipants)) {
          
-         // Reset running initiative
-         for(int i = combatParticipants.size() - 1; i >= 0; i--) {
+         // Reset running initiative and apply bleeding damage
+         for(short i = combatParticipants.size() - 1; i >= 0; i--) {
             combatParticipants[i]->runningInitiative -= 200;
       
-	          // If it is bleeding, hurt it. If it dies, remove the corpse.
 	          if(combatParticipants[i]->isBleeding) 
-	             if(applyBleeding(*combatParticipants[i])) {
-	         	      if(combatParticipants[i]->isHero) {
-	         	         combatDefeat();
-	         	         break;
-	                }
-	                else
-	                   killMonster(staticParticipantsList, listOfMonsters, 
-	                               combatParticipants, i + 1); 
-	             }
-	       }
+	             applyBleeding(*combatParticipants[i]);
+         }
+         
+         if(player.isDead) { combatDefeat(); break; } // Did they bleed to death?
 
-	          // if(executeEOTactions(combatParticipants)) {
-	          //    cout << "\tSomething just bled to death." << endl;
-	          //    break;
-	          // }
-      }   
-	    if(!listOfMonsters.size()) {
-         combatVictory(player, *participant);
-	       break;	
+         for(short i = combatParticipants.size() - 1; i >= 0; i--) 
+            if(combatParticipants[i]->isDead) 
+               killMonster(staticParticipantsList, listOfMonsters, combatParticipants, i); 
+
+	       if(!listOfMonsters.size()) {
+            combatVictory(player, *participant);
+	          break;	
+         }
       }
-   }
+   }    // End of combat loop
+
    if(debugMode) {
       cout << "\nDont forget to reset world affecting stats at the end of combat!" 
          << endl;
@@ -597,9 +627,19 @@ void combat(Character & player, string newMonster, bool debug, short size) {
 
 /*******************************************************************************
 * To do as of 10/08/2020:
-* Chop can inflict critical damage
 * Create a riposte ability and assign to rapier.
 * Create evasion ability and coresponding low HP penalty.
-* Create perscision stat.
+* Regeneration
 * Make 'defend' do something (increase damage (implements riposte?))
+*   Generate ability points when attacked the do super moves
+*      Hemorage - low direct damage, high bleed.
+*      Multi-strike - Hits multiple enemies or single enemy.
+*      Charm - Enemies attack eachother.
+*      Freeze - Enemy running initiative *= 3-6
+*      
+*
+* Misc Ides:
+*   Smoke bomb. Dissapear. Enemy stops attacking.
+*   Experience with individual weapon types allow training abilities which 
+*      can be used with skill points aquired from defending.
 *******************************************************************************/

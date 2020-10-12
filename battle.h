@@ -354,23 +354,23 @@ void Battle::killMonster() {
    
    if(debugMode) cout << "Calling for object removal from static list..." 
                       << endl;
-   if(debugMode) cout << "The value of option is " << option << endl;
+   if(debugMode) cout << "The value of target is " << target << endl;
    if(debugMode) cout << "Item being deleted is " 
-                      << staticParticipantsList[option - 1]->name << endl;
+                      << staticParticipantsList[target - 1]->name << endl;
    if(debugMode) cout << "Static list printout:" << endl;
    if(debugMode) for (auto i : staticParticipantsList)
       cout << i->name << endl;
    if(debugMode) cout << endl;
    if(debugMode) cout << "Object to be erased: " 
-                      << (*(staticParticipantsList.begin() + (option - 1)))->name << "\n\n";
+                      << (*(staticParticipantsList.begin() + (target - 1)))->name << "\n\n";
    if(debugMode) cout << "Nullifying pointer...\n";
 
-   staticParticipantsList[option - 1] = NULL;
+   staticParticipantsList[target - 1] = NULL;
 
    if(debugMode) cout << "Pointer nullified.\n";
    if(debugMode) cout << "Erasing pointer from list...\n";
 
-   staticParticipantsList.erase(staticParticipantsList.begin() + (option - 1));
+   staticParticipantsList.erase(staticParticipantsList.begin() + (target - 1));
 
    if(debugMode) cout << "Pointer erased!\n";
    if(debugMode) cout << "New static list of monsters:\n";
@@ -426,6 +426,9 @@ void Battle::killMonster() {
          if(debugMode) cout << "Object erased!" << endl;
          if(debugMode) cout << "Object has been destroyed! " 
                             << "All dangling pointers have been de-weaponized!\n";
+         cout << "New combatParticipants list:\n";
+         for(auto i : combatParticipants)
+            cout << i->name << endl;
          if(debugMode) cout << "Monster has been murdered! The end.\n\n";
       }
       else
@@ -433,7 +436,7 @@ void Battle::killMonster() {
    }
 
    if(debugMode)cout << "Erasing string from list of names..." << endl;
-   listOfMonsters.erase(listOfMonsters.begin() + (option - 1));
+   listOfMonsters.erase(listOfMonsters.begin() + (target - 1));
 }
 
 /*******************************************************************************

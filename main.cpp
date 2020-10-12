@@ -25,7 +25,7 @@ int main() {
    // combat(player, "Wolf", 0, 1);
 
    Battle battle;
-   battle.combat(player, "Cactopus", 1, 1);
+   battle.combat(player, "Random", 1, 3);
 
    cout << "\n\n>> End of Program. <<" << endl;
 

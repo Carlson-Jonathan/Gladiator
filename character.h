@@ -58,7 +58,7 @@ public:
       essencePoints = 1000,
       initiative = 100,        // Higher is slower
       strength = 100,
-      isBleeding = 50,
+      isBleeding = 0,
       isHazardous = 0,         // Returns damage to an attacker
       percision = 80,          // % chance to hit/miss
       evasion = 0;

@@ -71,9 +71,11 @@ public:
    ****************************************************************************/
    short setRandomDamageTypes() {
 
-      // srand(time(0));  // Commented out because already seeded in battle.h
       short baseDamage = rand() % rangeDamage + minDamage;
-      bool criticalStrike = false; 
+      if(!(baseDamage % criticalChance)) {
+         baseDamage *= criticalM;
+         isCritical = true;
+      }
       
       damageTypes[0] = ceil(baseDamage * crush);
       damageTypes[1] = ceil(baseDamage * chop);

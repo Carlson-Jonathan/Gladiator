@@ -24,8 +24,7 @@ int main() {
    //   Param 4 = Number of extra monsters per combat.
    // combat(player, "Wolf", 0, 1);
 
-   Battle battle;
-   battle.combat(player, "Random", 1, 3);
+   Battle battle(player, "Random", 0, 3);
 
    cout << "\n\n>> End of Program. <<" << endl;
 

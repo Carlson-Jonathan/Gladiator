@@ -3,7 +3,8 @@ compile
 makefile
 potentialCode.txt
 Element.doc
-'Flow Chart.docx'
+*.doc
+*.docx
 *.out
 *.out
 *.gch

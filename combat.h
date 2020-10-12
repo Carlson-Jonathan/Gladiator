@@ -23,7 +23,7 @@ void getPhysicalDamages   (Character & victim, Character & aggressor, short dama
 void convertToHP_BP       (const Character & victim, short rawDamage[], short dT[]);
 void applyDamage          (Character & victim, short rawDamage[]); 
 void determineAffliction  (const Character & aggressor, Character & victim, short damageTypes[]);
-bool applyBleeding        (Character & victim);
+void applyBleeding        (Character & victim);
 void focus                (Character & character);
 void flee                 ();
 bool isDefeated           (Character & victim);
@@ -186,7 +186,7 @@ void determineAffliction(const Character & aggressor, Character & victim,
 * bool applyBleeding(Character)
 * Governs 1 round of character bleeding. Sets and reduces ongoing bleed effect.
 *******************************************************************************/
-bool applyBleeding(Character & victim) {
+void applyBleeding(Character & victim) {
    short bleedAmt = victim.isBleeding / 10;
    
    victim.bloodPoints -= bleedAmt;
@@ -194,13 +194,10 @@ bool applyBleeding(Character & victim) {
       victim.bloodPoints = 0;
    
    bleedingMessage(victim);
-   if(isDefeated(victim)) return true;
 
    victim.isBleeding -= bleedAmt - 2;
    if(victim.isBleeding < 0)
       victim.isBleeding = 0;
-
-   return false;
 }
 
 /*******************************************************************************
@@ -403,19 +400,24 @@ bool missedAttack(const Character & aggressor, const Character & victim) {
    return missed >= willMiss;
 }
 
+
+
 void riposte(const Character & aggressor, Character & victim) {
+   
    if(!victim.isHero)
       cout << "The ";
    cout << victim.name << " recoils and strikes back at ";
    if(!victim.isHero)
       cout << "the ";
    cout << aggressor.name << "!\n\n";
+
    short damageHpBpEp[3];
    
+//    attackCharacter(aggressor, victim, damageHpBpEp);
 
-//    short died = attackCharacter(aggressor, victim, damageHpBpEp);
-//    if(died == 1) {                             // Victim killed aggressor
+//    if(aggressor.isDead) {                             // Victim killed aggressor
 //       if(!victim.isHero)
+         
 //          killMonster(staticParticipantsList, listOfMonsters, combatParticipants, option); 
 //    if(!listOfMonsters.size()) {
 //    combatVictory(player, *monster);
@@ -522,7 +524,7 @@ void combat(Character & player, string newMonster, bool debug, short size) {
          
          displayCharacterStats(staticParticipantsList, player, round++);
 
-         // Set player action
+         /******************* Setup ***********************/
          option = getUserInput({"Attack", "Defend", "Flee"});
          if (option == 1) {                                           // Attack
             if(listOfMonsters.size() > 1) 
@@ -533,11 +535,11 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             // Set monster target
             Character* monster = staticParticipantsList[option - 1];
 
+        /************** Apply Primary Attack **************/
             attackCharacter(player, *monster, damageHpBpEp);
             if(monster->isDead) {                   // Player killed monster
                killMonster(staticParticipantsList, listOfMonsters, 
                            combatParticipants, option); 
-               cout << "Monster has been killed\n\n" << endl;
 
                // Check for victory (all monsters dead)
                if(!listOfMonsters.size()) {
@@ -548,7 +550,11 @@ void combat(Character & player, string newMonster, bool debug, short size) {
             // Player died while attacking
             else if(player.isDead) { combatDefeat(); break; }
 
-            // Monster riposte goes here
+        /**************** Apply Retatliation **************/
+
+            applyRetaliationActions(player, *monster);
+
+        /*****************************/
             // Set retaliation affliction
             // Any other residual actions 
 

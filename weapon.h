@@ -21,8 +21,8 @@ public:
    /*****************************************
    * Player weapon constructor
    /****************************************/
-   Weapon() {}
-   ~Weapon() {cout << "\tThe " << name << " explodes into bits.\n";}
+   Weapon() { this->name = "NULL";}
+   ~Weapon() { cout << "\tThe weapon explodes into bits.\n"; }
    Weapon(string weaponType) {
       this->name =              weaponType;
       this->actionDescription = weapons[weaponType].first;
@@ -71,7 +71,7 @@ public:
    ****************************************************************************/
    short setRandomDamageTypes() {
 
-      srand(time(0));
+      // srand(time(0));  // Commented out because already seeded in battle.h
       short baseDamage = rand() % rangeDamage + minDamage;
       bool criticalStrike = false; 
       

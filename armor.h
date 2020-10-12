@@ -15,8 +15,8 @@ using namespace std;
 class Armor {
 public:
 
-   Armor() {}
-   ~Armor() {cout << "\tThe " << name << " explodes into bits.\n";}
+   Armor() { this->name = "NULL"; }
+   ~Armor() { cout << "\tThe armor explodes into bits.\n"; }
 
    /*****************************************
    * Player armor constructor
@@ -37,9 +37,8 @@ public:
    /*****************************************
    * Monsters' armor constructor
    /****************************************/
-   Armor(const pair<pair<vector<string>, vector<bool>>, pair<vector<short>, 
-         vector<float>>> & monsterArmor) {
-      this->name =  "armor";
+   Armor(const auto & monsterArmor) {
+      this->name =  "unholy shielding";
       this->crush = monsterArmor.second.second[4];
       this->chop =  monsterArmor.second.second[5];
       this->slash = monsterArmor.second.second[6];

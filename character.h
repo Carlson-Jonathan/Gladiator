@@ -26,10 +26,6 @@ public:
       if(!isHero)
          cout << "\tThe "; 
       cout << name << " drops dead.\n";
-      if(weapon != NULL) 
-         delete weapon;
-      if(weapon != NULL)
-         delete armor;
    }
    Character(string newMonster);
    Character(string name, bool hero);
@@ -63,7 +59,7 @@ public:
       initiative = 100,        // Higher is slower
       strength = 100,
       isBleeding = 50,
-      isHazardous,             // Returns damage to an attacker
+      isHazardous = 0,         // Returns damage to an attacker
       percision = 80,          // % chance to hit/miss
       evasion = 0;
 

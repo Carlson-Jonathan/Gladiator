@@ -40,6 +40,8 @@ Character::Character(string newMonster) {
 Character::Character(string name, bool hero) {
    this->name = name;
    this->isHero = hero;
+   this->weapon = new Weapon;
+   this->armor = new Armor;
 }
 
 /*******************************************************************************
@@ -70,13 +72,16 @@ void Character::setEssencePoints(short change) {
 }
 
 void Character::setWeapon(string weaponType) {
+  if(weapon != NULL) delete weapon;  
   weapon = new Weapon(weaponType);
   initiative += weapon->speed;
   runningInitiative = initiative;
 }
 
 void Character::setOffhand(string weaponType) {offhand = new Weapon(weaponType);}
+
 void Character::setArmor(string name) { 
+   if(armor != NULL) delete armor;
    armor = new Armor(name);
    this->evasion += armor->evade;
 }

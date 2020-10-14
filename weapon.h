@@ -74,12 +74,15 @@ public:
    * min/range damage range.
    ****************************************************************************/
    short setRandomDamageTypes() {
+      baseDamage = rand() % rangeDamage + minDamage;
 
-      short baseDamage = rand() % rangeDamage + minDamage;
       if(!(baseDamage % criticalChance)) {
          baseDamage *= criticalM;
          isCritical = true;
       }
+
+      if(isFatigued) 
+         baseDamage -= (baseDamage * basePenalty);
       
       damageTypes[0] = ceil(baseDamage * crush);
       damageTypes[1] = ceil(baseDamage * chop);
@@ -110,16 +113,18 @@ public:
 
    // Damage amount
    short 
-      minDamage,      // Minimum damage that will be inflicted.
-      rangeDamage,    // Range of damage starting with minDamage.
-      maxMulti,       // Some weapons may use multiple strikes 
-      speed,          // Adds to player's base initiative. 
-      venomous,       // Slows base initiative during combat.
-      canStun,        // Adds to running initiative during combat.
-      damageTypes[4], // Crush, Chop, Slash, Stab values
-      percision,      // Determines how likely an attack is to miss.
-      percisionBonus, // Stacks on percision when character is defending.
-      criticalChance, // The chance for a critical strike (1 in criticalC)
+      baseDamage,
+      minDamage,       // Minimum damage that will be inflicted.
+      rangeDamage,     // Range of damage starting with minDamage.
+      maxMulti,        // Some weapons may use multiple strikes 
+      speed,           // Adds to player's base initiative. 
+      venomous,        // Slows base initiative during combat.
+      canStun,         // Adds to running initiative during combat.
+      damageTypes[4],  // Crush, Chop, Slash, Stab values
+      percision,       // Determines how likely an attack is to miss.
+      percisionBonus,  // Stacks on percision when character is defending.
+      percisionModifier,//Changes percision amount for any given reason.
+      criticalChance,  // The chance for a critical strike (1 in criticalC)
       criticalBonus = 1;  // Multiplier on criticalChance when character is defending.
 
    // Damage Type
@@ -129,6 +134,7 @@ public:
       slash,
       stab,
       criticalM = 1, // Critical hit multiplier.
+      basePenalty = 1, // baseDamage reducer (multiplier) for 'dazed' condition.
       riposte;
 
    bool 
@@ -138,7 +144,8 @@ public:
       blind = false,
       isCold = false,
       canParry = false,
-      isCritical = false;
+      isCritical = false,
+      isFatigued = false;
 
    void displayStats() {
       cout << "Weapon: " << name << "\n"

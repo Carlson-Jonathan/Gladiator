@@ -52,7 +52,7 @@ public:
       name;
 
    short
-      maxHitPoints = 1000,
+      maxHitPoints = 3000,
       hitPoints = 1000,
       maxBloodPoints = 1000,
       bloodPoints = 1000,
@@ -62,7 +62,7 @@ public:
       strength = 100,
       isBleeding = 0,
       isHazardous = 0,         // Returns damage to an attacker
-      percision = 80, 
+      percision = 80,
       evasion = 0;
 
    unsigned short runningInitiative;

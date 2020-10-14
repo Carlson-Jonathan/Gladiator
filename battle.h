@@ -75,9 +75,11 @@ private:
    bool missedAttack         (const Character & aggressor, const Character & victim);
    void riposte              (Character & aggressor, Character & victim);
    void applyRetaliationActions(Character & aggressor, Character & victim);
-   void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
    bool burnTheBodies        ();
    void applyFatigue         (Character & victim);
+   void applyDazed           (Character & victim);
+   bool completeOption1(Character & activeCharacter, Character & targetCharacter);
+   void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
 };
 
    /***************************************
@@ -509,21 +511,59 @@ bool Battle::burnTheBodies() {
    return battleOver;
 }
 
-/*******************************************************************************
+/****************************************************************************
 * void applyFatigue(Character)
-* Checks for, any applies fatigue on the victim.
-*******************************************************************************/
+* If the character's BP falls below 2/3 maximum, reduces speed and damage. 
+****************************************************************************/
 void Battle::applyFatigue(Character & victim) {
    if(victim.bloodPoints < victim.maxBloodPoints * 0.66) {
-      short additionalInit = 
-      (victim.maxBloodPoints * 0.66 - victim.bloodPoints) / 4;
+      short difference = (victim.maxBloodPoints * 0.66 - victim.bloodPoints),
+      additionalInit = difference / 4;
       victim.runningInitiative += additionalInit;
+      
+      victim.weapon->basePenalty = 
+      ((victim.maxBloodPoints * 0.66) - difference) / 
+      (victim.maxBloodPoints * 0.66);
       fatigueMessage(victim, additionalInit);
    } 
 }
 
+/****************************************************************************
+* void applyDazed(Character)
+* If the character's BP falls below 2/3 maximum, reduces aim and evade.
+****************************************************************************/
+void Battle::applyDazed(Character & victim) {
+   if(victim.hitPoints < victim.maxHitPoints * 0.66) {
+      short difference = (victim.maxHitPoints * 0.66 - victim.hitPoints); 
+      victim.armor->evadePenalty = 
+      ((victim.maxHitPoints * 0.66) - difference) / 
+      (victim.maxHitPoints * 0.66);
+      victim.evasion *= victim.armor->evadePenalty;
+      dazedMessage(victim, 21, (short)((1 - victim.armor->evadePenalty) * 100));
+   }
+}
 
+/*******************************************************************************
+* void completeOption1()
+* Groups all function calls for player option 1 - 'attack'. This includes
+* attacking a target, applying hazardous reflective damage conditions, 
+* applying retaliation actions, applying afflictions, and all the while 
+* checking for defeat and victory conditions that would end the combat.
+*******************************************************************************/
+bool Battle::completeOption1(Character & activeCharacter, Character & targetCharacter) {
+   attackCharacter(activeCharacter, targetCharacter);
+   if(burnTheBodies()) return 1;
 
+   applyRetaliationActions(activeCharacter, targetCharacter);
+   if(burnTheBodies()) return 1;
+
+   if(activeCharacter.isDefending) {
+      activeCharacter.isDefending = false;
+      activeCharacter.removeDefendBonuses();
+   }
+
+   return 0;
+}
 
 
 
@@ -579,17 +619,8 @@ void Battle::combat(Character & player, string newMonster,
       *                     Turn Ending Action Block
       * Code in this block will be executed after any turn, player or monster
       *************************************************************************/
-      
-
-      // Apply Fatigue condition
       applyFatigue(*participant);
-     //  if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
-  	  //    short additionalInit = 
-     //        (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
-     //     participant->runningInitiative += additionalInit;
-  	  //    fatigueMessage(*participant, additionalInit);
-  	  // } 
-
+      applyDazed(*participant);
       // Apply Daized Condition here (low HP = poor evasion and percision)
       
       /*************************************************************************
@@ -607,38 +638,7 @@ void Battle::combat(Character & player, string newMonster,
             else
                target = 1;                               // Only 1 monster left 
             
-            // Set monster target
-            monster = staticParticipantsList[target - 1];
-
-            /************** Apply Primary Attack **************/
-            attackCharacter(player, *monster);
-            if(burnTheBodies()) break;
-            // if(monster->isDead) {                   // Player killed monster
-            //    killMonster(); 
-
-            //    // Player died while attacking
-            //    if(player.isDead) { combatDefeat(); break; }
-
-            //    // Check for victory (all monsters dead)
-            //    if(!listOfMonsters.size()) {
-            //       combatVictory(player, *monster);
-            //       break;
-            //    }
-            // }
-
-            /**************** Apply Retatliation **************/
-
-            applyRetaliationActions(player, *monster);
-            if(burnTheBodies()) break;
-
-            if(participant->isDefending) {
-               participant->isDefending = false;
-               participant->removeDefendBonuses();
-            }
-
-            /*****************************/
-            // Set retaliation affliction
-            // Any other residual actions 
+            if(completeOption1(player, *staticParticipantsList[target - 1])) break;
 
          } // end if(option == 1)
          else if (option == 2) {
@@ -649,39 +649,12 @@ void Battle::combat(Character & player, string newMonster,
             break;
          }
 
-      } // end participant == player
+      } 
       else {
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
-         attackCharacter(*participant, player);
-         if(burnTheBodies()) break;
-
-         // if(player.isDead) {                                // Monster killed player
-         //    combatDefeat();
-         //    break;
-         // }
-         // else if(participant->isDead) {
-         //    killMonster();
-
-         //    // Check for victory (all monsters dead)
-         //    if(!listOfMonsters.size()) {
-         //       combatVictory(player, *participant);
-         //          break;
-         //    }
-         // }
-
-         applyRetaliationActions(*participant, player);
-         if(burnTheBodies()) break;
-
-         // Set retaliation against monster attack
-         // Set retaliation afliction against monster
-         // Set residual actions
-
-         if(participant->isDefending) { 
-             participant->removeDefendBonuses();
-             participant->isDefending = false;
-         }
+         if(completeOption1(*participant, player)) break;
       }
 
       /*************************************************************************
@@ -701,22 +674,6 @@ void Battle::combat(Character & player, string newMonster,
          
          if(debugMode) cout << "Applying bleed deaths:\n\n";
          if(burnTheBodies()) break;
-
-         // for(short i = combatParticipants.size() - 1; i >= 0; i--)  {
-         //    target = i; // Helps determine who to kill if bleeds to death.
-         //    burnTheBodies(); 
-         //    if(battleOver) break;            
-            // if(combatParticipants[i]->isDead) {
-            //    killMonster();
-            //    break; 
-            // }
-         // }
-
-         // if(!listOfMonsters.size()) {
-         //    combatVictory(player, *participant);
-         //    if(debugMode) cout << player.name << "'s " << player.weapon->name << " is in scope.";
-	        //    break;	
-         // }
       }
    }    // End of combat loop
 
@@ -735,10 +692,15 @@ void Battle::combat(Character & player, string newMonster,
 // Bugs to fix:
 //    None known at present.
 
+// Refactors:
+//   Change percisionBonuse and any bonuses for defending to "modifiers".
+//   Remove penalty functions from character.cpp
+
 // Currenlty working on:
+//   Dazed condition
 
 /*******************************************************************************
-* To do as of 10/08/2020:
+* To do as of 10/14/2020:
 * Create evasion ability and coresponding low HP penalty.
 * Regeneration
 *   Generate ability points when attacked the do super moves
@@ -746,6 +708,8 @@ void Battle::combat(Character & player, string newMonster,
 *      Multi-strike - Hits multiple enemies or single enemy.
 *      Charm - Enemies attack eachother.
 *      Freeze - Enemy running initiative *= 3-6
+*   Implement multi-hero gameplay.
+*   Allow monsters and heros to combine skills for additional/new effects.
 *      
 *
 * Misc Ides:
@@ -755,6 +719,7 @@ void Battle::combat(Character & player, string newMonster,
 *   High bleed, low damage weapon.
 *   Excalibur. Omni-beast. (Have all affliction attributes)
 *   Insta-death weapon/ability.
+*   Equipment durability is the same as attack/defense power.
 *
 *
 * Test Checklist:

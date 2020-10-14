@@ -314,9 +314,20 @@ void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]) {
 * Displays message if character BP < 2/3 max.
 *******************************************************************************/
 void fatigueMessage(const Character & victim, short init) {
-  string message = "\t" + victim.name + " is fatigued from loss of blood. (+" +
-  to_string(init) + " slow)\n\n";
-  writeMessage(message);
+   string message = "\t" + victim.name + " is fatigued from loss of blood.\n\t\t\t+" +
+   to_string(init) + " slow\n\t\t\t-" + to_string((int)((1 - victim.weapon->basePenalty) * 100)) + 
+   "% damage\n\n";
+   writeMessage(message);
+}
+
+/*******************************************************************************
+* void dazedMessage
+* Displays message if character HP < 2/3 max.
+*******************************************************************************/
+void dazedMessage(const Character & victim, short aim, short evade) {
+   string message = "\t" + victim.name + " is dazed from blunt trauma.\n\t\t\t-" +
+   to_string(aim) + "% percision\n\t\t\t-" + to_string(evade) + "% evade\n\n";
+   writeMessage(message);
 }
 
 /*******************************************************************************
@@ -358,7 +369,7 @@ void defendingMessage(const Character & character) {
    message += character.name + 
    " raises their guard and prepares for the next attack.\n";
    message += "\t\t\tPercision +" + to_string(character.weapon->percisionBonus) +
-   "\n\t\t\tDefence +" + to_string(ceil(character.armor->defendBonus)) + "\n\t\t\t" +
+   "\n\t\t\tDefence +" + to_string(character.armor->defendBonus) + "\n\t\t\t" +
    "Evasion +" + to_string(character.armor->evadeBonus) + 
    "\n\t\t\t+New affliction immunity" + "\n\t\t\tCritical Chance +" + 
    to_string(character.weapon->criticalBonus);

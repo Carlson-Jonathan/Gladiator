@@ -9,13 +9,17 @@
 #include <iostream>
 #include "battle.h"
 
-
-int main() {
-
+Character createCharacter() {
    cout << "\tName your hero: ";
    string name;
    getline(cin, name);
    Character player(name, true);
+   return player;
+}
+
+int main() {
+
+   Character player = createCharacter();
 
    //   Param 1 = create player object.
    //   Param 2 = type of monster. 

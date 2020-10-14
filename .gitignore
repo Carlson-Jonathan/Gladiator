@@ -1,0 +1,13 @@
+clean
+compile
+makefile
+potentialCode.txt
+Element.doc
+*.doc
+*.docx
+*.out
+*.out
+*.gch
+Art/
+requirements.docx
+.replit

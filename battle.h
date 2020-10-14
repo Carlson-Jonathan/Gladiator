@@ -70,8 +70,8 @@ private:
    vector<Character*> generateParticipantList(Character & player);
    void killMonster          ();
    bool missedAttack         (const Character & aggressor, const Character & victim);
-   void applyRetaliationActions(const Character & aggressor, Character & victim);
-   void riposte(const Character & aggressor, Character & victim);
+   void applyRetaliationActions(Character & aggressor, Character & victim);
+   void riposte(Character & aggressor, Character & victim);
    void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
 };
 
@@ -250,9 +250,17 @@ void Battle::applyBleeding(Character & victim) {
 * Sets the player's defend status to true.
 *******************************************************************************/
 void Battle::focus(Character & character) {
-   character.isDefending = true;
-   cout << "\t" << character.name 
-        << " raises their guard and plans their next strike.\n" << endl;
+   if(!character.isDefending) {
+      character.isDefending = true;
+      character.applyDefendBonuses();
+      defendingMessage(character);
+   }
+   else
+      cout << character.name << " continues to stand guard.\n\n"; 
+
+   // if(debugMode) cout << "Debug focus:" << endl;
+   // if(debugMode) displayCharacterStats(staticParticipantsList, player, round++);
+
    // Potential uses:        
    // Increases damage on next strike (allows for criticals?).
    // Increases chance to apply affliction on next strike.
@@ -450,18 +458,12 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
 * void riposte
 * Under construction...
 *******************************************************************************/
-void Battle::riposte(const Character & aggressor, Character & victim) {
+void Battle::riposte(Character & aggressor, Character & victim) {
    
-   if(!victim.isHero)
-      cout << "The ";
-   cout << victim.name << " recoils and strikes back at ";
-   if(!victim.isHero)
-      cout << "the ";
-   cout << aggressor.name << "!\n\n";
+   riposteMessage(victim, aggressor);
+   attackCharacter(victim, aggressor);
 
-   short damageHpBpEp[3];
-   
-   // attackCharacter(aggressor, victim);
+
 
   //  if(aggressor.isDead) {                             // Victim killed aggressor
   //     if(!victim.isHero)
@@ -482,7 +484,7 @@ void Battle::riposte(const Character & aggressor, Character & victim) {
 * void applyRetaliationActions()
 * Under construction...
 *******************************************************************************/
-void Battle::applyRetaliationActions(const Character & aggressor, Character & victim) {
+void Battle::applyRetaliationActions(Character & aggressor, Character & victim) {
 
    // Defending reactions
    if(victim.isDefending) {
@@ -542,7 +544,6 @@ void Battle::combat(Character & player, string newMonster,
    /******************************* Combat Loop ********************************/
    while(true) {
       participant = nextAction();
-      if(participant->isDefending) participant->isDefending = false;
 
       /*************************************************************************
       *                     Turn Ending Action Block
@@ -579,6 +580,7 @@ void Battle::combat(Character & player, string newMonster,
 
             /************** Apply Primary Attack **************/
             attackCharacter(player, *monster);
+
             if(monster->isDead) {                   // Player killed monster
                killMonster(); 
 
@@ -592,13 +594,17 @@ void Battle::combat(Character & player, string newMonster,
                }
             }
 
-         /**************** Apply Retatliation **************/
+            /**************** Apply Retatliation **************/
 
-         applyRetaliationActions(player, *monster);
+            applyRetaliationActions(player, *monster);
+            if(participant->isDefending) {
+               participant->isDefending = false;
+               participant->removeDefendBonuses();
+            }
 
-         /*****************************/
-         // Set retaliation affliction
-         // Any other residual actions 
+            /*****************************/
+            // Set retaliation affliction
+            // Any other residual actions 
 
          } // end if(option == 1)
          else if (option == 2) {
@@ -630,9 +636,14 @@ void Battle::combat(Character & player, string newMonster,
             }
          }
 
+         applyRetaliationActions(*participant, player);
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
          // Set residual actions
+         if(participant->isDefending) { 
+             participant->removeDefendBonuses();
+             participant->isDefending = false;
+         }
       }
 
       /*************************************************************************
@@ -682,6 +693,11 @@ void Battle::combat(Character & player, string newMonster,
 
 // Bugs to fix:
 //    None known at present.
+
+// Currenlty working on:
+//   riposte
+//   defend/focus
+//      Set class functions for 'applyDefendBonuses()' and 'removeDefendBonuses()'
 
 /*******************************************************************************
 * To do as of 10/08/2020:

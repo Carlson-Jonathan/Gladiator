@@ -225,7 +225,8 @@ void selectWeapon(Character & player) {
 	    "Mace",
 	    "Morning Star",
 	    "Katana",
-	    "Fists"};
+	    "Fists",
+        "Rapier"};
 	short selection = getUserInput(wep);
 
     player.setWeapon(wep[selection - 1]);
@@ -329,6 +330,42 @@ void missedAttackMessage(const Character & aggressor, const Character & victim) 
    message += aggressor.name + aggressor.weapon->actionDescription + victim.name +
    " but misses!\n\n";
    writeMessage(message);
+}
+
+/*******************************************************************************
+* riposte(Character, Character)
+* Displays riposte message.
+*******************************************************************************/
+void riposteMessage(const Character & victim, const Character & aggressor) {
+   string message = "\t";
+   if(!victim.isHero)
+      message += "The ";
+   message += victim.name + " recoils and strikes back at ";
+   if(!victim.isHero)
+      message += "the ";
+   message += aggressor.name + "!\n\n";
+   writeMessage(message);
+}
+
+/*******************************************************************************
+* void defendingMessage(Character)
+* Displays defend message.
+*******************************************************************************/
+void defendingMessage(const Character & character) {
+    string message = "";
+       if(!character.isHero)
+      message += "The ";
+   message += character.name + 
+   " raises their guard and prepares for the next attack.\n";
+   message += "\t\t\tPercision +" + to_string(character.weapon->percisionBonus) +
+   "\n\t\t\tDefence +" + to_string(ceil(character.armor->defendBonus)) + "\n\t\t\t" +
+   "Evasion +" + to_string(character.armor->evadeBonus) + 
+   "\n\t\t\t+New affliction immunity" + "\n\t\t\tCritical Chance +" + 
+   to_string(character.weapon->criticalBonus);
+   if(character.weapon->riposte)
+      message += "\n\t\t\t+Riposte";
+   message += "\n\n"; 
+   writeMessage(message); 
 }
 
 /******************************************************************************/

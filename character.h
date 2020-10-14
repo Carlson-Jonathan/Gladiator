@@ -41,6 +41,8 @@ public:
    // Functions
    void displayStats();
    void generateMonstersList();
+   void applyDefendBonuses();
+   void removeDefendBonuses();
 
    bool operator < (const Character & other) const {
      return runningInitiative < other.runningInitiative;
@@ -60,7 +62,7 @@ public:
       strength = 100,
       isBleeding = 0,
       isHazardous = 0,         // Returns damage to an attacker
-      percision = 80,          // % chance to hit/miss
+      percision = 80, 
       evasion = 0;
 
    unsigned short runningInitiative;

@@ -7,7 +7,6 @@
 #ifndef MAIN_CPP
 #define MAIN_CPP
 #include <iostream>
-// #include "combat.h"
 #include "battle.h"
 
 
@@ -22,9 +21,7 @@ int main() {
    //   Param 2 = type of monster. 
    //   Param 3 = toggles debug mode.
    //   Param 4 = Number of extra monsters per combat.
-   // combat(player, "Wolf", 0, 1);
-
-   Battle battle(player, "Random", 0, 3);
+   {Battle battle(player, "Random", 0, 3);}
 
    cout << "\n\n>> End of Program. <<" << endl;
 

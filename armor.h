@@ -20,7 +20,7 @@ public:
 
    /*****************************************
    * Player armor constructor
-   /****************************************/
+   *****************************************/
    Armor(string name) {
       this->name =         name;
       this->weight =       armor[name].second.first[0];
@@ -31,18 +31,22 @@ public:
       this->slash =        armor[name].second.second[2];
       this->stab =         armor[name].second.second[3];
       this->evade =        armor[name].second.first[3];
+      this->evadeBonus =   armor[name].second.first[4];
+      this->defendBonus =  armor[name].second.second[4];
       setDamageReduce();
    }
 
    /*****************************************
    * Monsters' armor constructor
-   /****************************************/
+   *****************************************/
    Armor(const auto & monsterArmor) {
-      this->name =  "unholy shielding";
-      this->crush = monsterArmor.second.second[4];
-      this->chop =  monsterArmor.second.second[5];
-      this->slash = monsterArmor.second.second[6];
-      this->stab =  monsterArmor.second.second[7];
+      this->name =         "unholy shielding";
+      this->crush =        monsterArmor.second.second[4];
+      this->chop =         monsterArmor.second.second[5];
+      this->slash =        monsterArmor.second.second[6];
+      this->stab =         monsterArmor.second.second[7];
+      this->evadeBonus =   monsterArmor.second.first[13];
+      this->defendBonus =  monsterArmor.second.second[11];
       setDamageReduce();
    }
 
@@ -62,7 +66,8 @@ public:
       weight = 0, // Affects turn speed
       volume = 0,
       defencePower = 100,
-      evade;
+      evade = 0,
+      evadeBonus;
       
    // The percentage of damage reduction to be applied [crush, chop, slash, stab]
    short damageReduce[4];
@@ -72,7 +77,8 @@ public:
       crush,
       chop,
       slash,
-      stab;
+      stab,
+      defendBonus = 1; // Multiply this by the defence power.
 
    // Elemental Defence Values
    float 

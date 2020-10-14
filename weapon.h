@@ -39,6 +39,8 @@ public:
       this->criticalChance =    weapons[weaponType].second.first[5];
       this->percision +=        weapons[weaponType].second.first[6];
       this->riposte =           weapons[weaponType].second.second[5];
+      this->percisionBonus =    weapons[weaponType].second.first[7];
+      this->criticalBonus =     weapons[weaponType].second.first[8];
    }
 
    /*****************************************
@@ -61,6 +63,8 @@ public:
        this->criticalChance =    newMonsterWeapon.second.second[9];
        this->percision =         newMonsterWeapon.second.first[9];
        this->riposte =           newMonsterWeapon.second.first[10];
+       this->percisionBonus =    newMonsterWeapon.second.first[11];
+       this->criticalBonus =     newMonsterWeapon.second.first[12];
    }
 
 
@@ -88,7 +92,7 @@ public:
    /****************************************************************************
    * void setCriticalDamage()
    * If the base damage is divisible by 'criticalChance', the all damage types
-   * are multiplied by 'criticalM'.
+   * are multiplied by 'critical multiplier'.
    ****************************************************************************/
    void setCriticalDamage(short baseDamage) {
       if(!(baseDamage % criticalChance)) {
@@ -114,7 +118,9 @@ public:
       canStun,        // Adds to running initiative during combat.
       damageTypes[4], // Crush, Chop, Slash, Stab values
       percision,      // Determines how likely an attack is to miss.
-      criticalChance; // The chance for a critical strike (1 in criticalC)
+      percisionBonus, // Stacks on percision when character is defending.
+      criticalChance, // The chance for a critical strike (1 in criticalC)
+      criticalBonus = 1;  // Multiplier on criticalChance when character is defending.
 
    // Damage Type
    float 
@@ -122,7 +128,7 @@ public:
       chop,
       slash,
       stab,
-      criticalM, // Critical hit multiplier.
+      criticalM = 1, // Critical hit multiplier.
       riposte;
 
    bool 

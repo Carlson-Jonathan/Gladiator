@@ -22,22 +22,25 @@ std::vector<bool>>, std::pair<std::vector<short>, std::vector<float>>>>
 armor {
 
 /******************************** Glossary *************************************
-*   Wt  = Weight of armor. Affects initiative.
-*   Vol = Volume of armor. Even light equipment can be cumbersome.
-*   DP  = Defence Power. Determines overall effectiveness of armor.
-*   Cr  = Defence against crushing.
-*   Ch  = Defence against chopping.
-*   Sl  = Defence against slashing.
-*   St  = Defence against stabbing.
+* Wt = Weight of armor. Affects initiative.
+* Vol = Volume of armor. Even light equipment can be cumbersome.
+* DP = Defence Power. Determines overall effectiveness of armor.
+* Cr = Defence against crushing.
+* Ch = Defence against chopping.
+* Sl = Defence against slashing.
+* St = Defence against stabbing.
+* Ev = Armor's evasion.
+* Eb = Evade bonus applied when character is defending.
+* Db = Defence bonus when character is defending. Multiply defencePower by this.
 *******************************************************************************/ 
 //             Placeholders
-//           strings   bools           Shorts                Floats
-//  Key                             Wt  Vol  DP  Ev       Cr   Ch   Sl   St   
-{"Padding", {{{ "" },  { 0 }},  {{ 100, 200, 100,  20 },  { 0.7, 0.2, 0.1, 0.0 }}}},
-{"Leather", {{{ "" },  { 0 }},  {{ 100, 200, 100,  30 },  { 0.2, 0.3, 0.3, 0.2 }}}},
-{"Ring",    {{{ "" },  { 0 }},  {{ 100, 200, 100,  10 },  { 0.3, 0.3, 0.3, 0.1 }}}},
-{"Chain",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -10 },  { 0.1, 0.1, 0.6, 0.2 }}}},
-{"Scale",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -15 },  { 0.1, 0.1, 0.3, 0.5 }}}},
-{"Plate",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -20 },  { 0.3, 0.3, 0.2, 0.2 }}}}}; 
+//           strings   bools               Shorts                       Floats
+//  Key                             Wt  Vol  DP    Ev  Eb       Cr   Ch   Sl   St  Db
+{"Padding", {{{ "" },  { 0 }},  {{ 100, 200, 100,  20, 20 },  { 0.7, 0.2, 0.1, 0.0,  50 }}}},
+{"Leather", {{{ "" },  { 0 }},  {{ 100, 200, 100,  30, 30 },  { 0.2, 0.3, 0.3, 0.2,  60 }}}},
+{"Ring",    {{{ "" },  { 0 }},  {{ 100, 200, 100,  10, 20 },  { 0.3, 0.3, 0.3, 0.1,  70 }}}},
+{"Chain",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -10, 10 },  { 0.1, 0.1, 0.6, 0.2,  80 }}}},
+{"Scale",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -15, 10 },  { 0.1, 0.1, 0.3, 0.5,  90 }}}},
+{"Plate",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -20,  5 },  { 0.3, 0.3, 0.2, 0.2, 100 }}}}}; 
 
 #endif // ARMORS_CPP

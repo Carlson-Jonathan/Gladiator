@@ -106,3 +106,25 @@ void Character::displayStats() {
        << "Essence Points:\t" << essencePoints << "\n\n";
 }
 
+/****************************************************************************
+* void applyDefendBonuses()
+* Takes the bonus values granted to characters when defending, and applies
+* them to their weapons, armor and character stats;
+****************************************************************************/
+void Character::applyDefendBonuses() {
+   weapon->criticalChance /= weapon->criticalBonus;
+   this->percision += weapon->percisionBonus;
+   this->evasion += armor->evadeBonus;
+   armor->defencePower += armor->defendBonus;
+}
+
+/****************************************************************************
+* void removeDefendBonuses()
+* Removes all bonuses granted by defending.
+****************************************************************************/
+void Character::removeDefendBonuses() {
+   weapon->criticalChance *= 2;
+   this->percision -= weapon->percisionBonus;
+   this->evasion -= armor->evadeBonus;
+   armor->defencePower -= armor->defendBonus;
+}

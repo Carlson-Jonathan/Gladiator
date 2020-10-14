@@ -22,7 +22,7 @@ public:
    * Player weapon constructor
    /****************************************/
    Weapon() { this->name = "NULL";}
-   ~Weapon() { cout << "\tThe weapon explodes into bits.\n"; }
+   ~Weapon() { /*cout << "\tThe weapon explodes into bits.\n";*/ }
    Weapon(string weaponType) {
       this->name =              weaponType;
       this->actionDescription = weapons[weaponType].first;

@@ -24,7 +24,7 @@ using namespace std;
 short getUserInput          (const vector<string> options);
 string writeMessage         (const string message);
 void writeMessageScroll     (const string message);
-void combatVictory          (const Character & player, const Character & monster);
+void combatVictory          (const Character & player);
 void combatDefeat           ();
 void displayAttackMessage   (const Character & victim, const Character & aggressor, const short damage[]);
 void displayCharacterStats  (const Character & player, const Character & monster, const short round);
@@ -103,7 +103,7 @@ void writeMessageScroll(const string message) {
 * combatVictory
 * Displays victory message at the end of combat. 
 *******************************************************************************/
-void combatVictory(const Character & player, const Character & monster) {
+void combatVictory(const Character & player) {
    
    string message = "\t";
    message += "All monsters have been defeated!"; 
@@ -136,7 +136,7 @@ void combatVictory(const Character & player, const Character & monster) {
 * Displays defeat message at the end of combat. 
 *******************************************************************************/
 void combatDefeat() {
-	writeMessage("Y O U   H A V E   B E E N   D E F E A T E D !");
+	writeMessage("Y O U   H A V E   B E E N   D E F E A T E D !\n\n");
 }
 
 /*******************************************************************************

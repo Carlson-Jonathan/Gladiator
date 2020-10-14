@@ -26,7 +26,10 @@ private:
    /***************************************
    * Private variables
    ***************************************/
-   bool debugMode;
+   bool 
+      debugMode,
+      battleOver = false;
+
    short 
       died,
       option,
@@ -70,9 +73,11 @@ private:
    vector<Character*> generateParticipantList(Character & player);
    void killMonster          ();
    bool missedAttack         (const Character & aggressor, const Character & victim);
+   void riposte              (Character & aggressor, Character & victim);
    void applyRetaliationActions(Character & aggressor, Character & victim);
-   void riposte(Character & aggressor, Character & victim);
    void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
+   bool burnTheBodies        ();
+   void applyFatigue         (Character & victim);
 };
 
    /***************************************
@@ -455,34 +460,17 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
 }
 
 /*******************************************************************************
-* void riposte
-* Under construction...
+* void riposte(Character, Character)
+* Victim attacks aggressor.
 *******************************************************************************/
 void Battle::riposte(Character & aggressor, Character & victim) {
-   
    riposteMessage(victim, aggressor);
    attackCharacter(victim, aggressor);
-
-
-
-  //  if(aggressor.isDead) {                             // Victim killed aggressor
-  //     if(!victim.isHero)
-         
-  //        killMonster(staticParticipantsList, listOfMonsters, combatParticipants, option); 
-  //  if(!listOfMonsters.size()) {
-  //  combatVictory(player, *monster);
-  //  break;
-  //  }
-  // }
-  // else if(died == 2) {            // Victim died while attacking
-  // combatDefeat();
-  // break;
-  // }   
 }
 
 /*******************************************************************************
-* void applyRetaliationActions()
-* Under construction...
+* void applyRetaliationActions(Character, Character)
+* Contains the calls to retaliatory functions.
 *******************************************************************************/
 void Battle::applyRetaliationActions(Character & aggressor, Character & victim) {
 
@@ -491,8 +479,50 @@ void Battle::applyRetaliationActions(Character & aggressor, Character & victim) 
       if(victim.weapon->riposte > 0) 
          riposte(aggressor, victim);
    }
+
    // Other reactions
 }
+
+/*******************************************************************************
+* void burnTheBodies()
+* Scan the combat participants list. If any participant is dead, invokes either
+* kill monster or defeat.
+*******************************************************************************/
+bool Battle::burnTheBodies() {
+   bool corpseExists = false;
+   for(auto i: combatParticipants)
+      if(i->isDead) {
+      	  corpseExists = true;
+          if(i->isHero) {
+             battleOver = true;
+             combatDefeat();
+             return 1;
+          }
+      }   
+
+   if(corpseExists) killMonster();
+
+   if(!listOfMonsters.size()) {
+      combatVictory(player);
+      battleOver = true;
+   }
+   return battleOver;
+}
+
+/*******************************************************************************
+* void applyFatigue(Character)
+* Checks for, any applies fatigue on the victim.
+*******************************************************************************/
+void Battle::applyFatigue(Character & victim) {
+   if(victim.bloodPoints < victim.maxBloodPoints * 0.66) {
+      short additionalInit = 
+      (victim.maxBloodPoints * 0.66 - victim.bloodPoints) / 4;
+      victim.runningInitiative += additionalInit;
+      fatigueMessage(victim, additionalInit);
+   } 
+}
+
+
 
 
 
@@ -550,13 +580,15 @@ void Battle::combat(Character & player, string newMonster,
       * Code in this block will be executed after any turn, player or monster
       *************************************************************************/
       
+
       // Apply Fatigue condition
-      if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
-  	     short additionalInit = 
-            (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
-         participant->runningInitiative += additionalInit;
-  	     fatigueMessage(*participant, additionalInit);
-  	  } 
+      applyFatigue(*participant);
+     //  if(participant->bloodPoints < participant->maxBloodPoints * 0.66) {
+  	  //    short additionalInit = 
+     //        (participant->maxBloodPoints * 0.66 - participant->bloodPoints) / 4;
+     //     participant->runningInitiative += additionalInit;
+  	  //    fatigueMessage(*participant, additionalInit);
+  	  // } 
 
       // Apply Daized Condition here (low HP = poor evasion and percision)
       
@@ -580,23 +612,25 @@ void Battle::combat(Character & player, string newMonster,
 
             /************** Apply Primary Attack **************/
             attackCharacter(player, *monster);
+            if(burnTheBodies()) break;
+            // if(monster->isDead) {                   // Player killed monster
+            //    killMonster(); 
 
-            if(monster->isDead) {                   // Player killed monster
-               killMonster(); 
+            //    // Player died while attacking
+            //    if(player.isDead) { combatDefeat(); break; }
 
-               // Player died while attacking
-               if(player.isDead) { combatDefeat(); break; }
-
-               // Check for victory (all monsters dead)
-               if(!listOfMonsters.size()) {
-                  combatVictory(player, *monster);
-                  break;
-               }
-            }
+            //    // Check for victory (all monsters dead)
+            //    if(!listOfMonsters.size()) {
+            //       combatVictory(player, *monster);
+            //       break;
+            //    }
+            // }
 
             /**************** Apply Retatliation **************/
 
             applyRetaliationActions(player, *monster);
+            if(burnTheBodies()) break;
+
             if(participant->isDefending) {
                participant->isDefending = false;
                participant->removeDefendBonuses();
@@ -621,25 +655,29 @@ void Battle::combat(Character & player, string newMonster,
          *                        Monster's Action Block
          **********************************************************************/
          attackCharacter(*participant, player);
-         
-         if(player.isDead) {                                // Monster killed player
-            combatDefeat();
-            break;
-         }
-         else if(participant->isDead) {
-            killMonster();
+         if(burnTheBodies()) break;
 
-            // Check for victory (all monsters dead)
-            if(!listOfMonsters.size()) {
-               combatVictory(player, *participant);
-                  break;
-            }
-         }
+         // if(player.isDead) {                                // Monster killed player
+         //    combatDefeat();
+         //    break;
+         // }
+         // else if(participant->isDead) {
+         //    killMonster();
+
+         //    // Check for victory (all monsters dead)
+         //    if(!listOfMonsters.size()) {
+         //       combatVictory(player, *participant);
+         //          break;
+         //    }
+         // }
 
          applyRetaliationActions(*participant, player);
+         if(burnTheBodies()) break;
+
          // Set retaliation against monster attack
          // Set retaliation afliction against monster
          // Set residual actions
+
          if(participant->isDefending) { 
              participant->removeDefendBonuses();
              participant->isDefending = false;
@@ -661,21 +699,24 @@ void Battle::combat(Character & player, string newMonster,
 	           applyBleeding(*combatParticipants[i]);
          }
          
-         if(player.isDead) { combatDefeat(); break; } // Did they bleed to death?
+         if(debugMode) cout << "Applying bleed deaths:\n\n";
+         if(burnTheBodies()) break;
 
-         for(short i = combatParticipants.size() - 1; i >= 0; i--)  {
-            target = i; // Helps determine who to kill if bleeds to death.
-            if(combatParticipants[i]->isDead) {
-               killMonster();
-               break; 
-            }
-         }
+         // for(short i = combatParticipants.size() - 1; i >= 0; i--)  {
+         //    target = i; // Helps determine who to kill if bleeds to death.
+         //    burnTheBodies(); 
+         //    if(battleOver) break;            
+            // if(combatParticipants[i]->isDead) {
+            //    killMonster();
+            //    break; 
+            // }
+         // }
 
-         if(!listOfMonsters.size()) {
-            combatVictory(player, *participant);
-            if(debugMode) cout << player.name << "'s " << player.weapon->name << " is in scope.";
-	           break;	
-         }
+         // if(!listOfMonsters.size()) {
+         //    combatVictory(player, *participant);
+         //    if(debugMode) cout << player.name << "'s " << player.weapon->name << " is in scope.";
+	        //    break;	
+         // }
       }
    }    // End of combat loop
 
@@ -695,16 +736,11 @@ void Battle::combat(Character & player, string newMonster,
 //    None known at present.
 
 // Currenlty working on:
-//   riposte
-//   defend/focus
-//      Set class functions for 'applyDefendBonuses()' and 'removeDefendBonuses()'
 
 /*******************************************************************************
 * To do as of 10/08/2020:
-* Create a riposte ability and assign to rapier.
 * Create evasion ability and coresponding low HP penalty.
 * Regeneration
-* Make 'defend' do something (increase damage (implements riposte?))
 *   Generate ability points when attacked the do super moves
 *      Hemorage - low direct damage, high bleed.
 *      Multi-strike - Hits multiple enemies or single enemy.
@@ -716,4 +752,22 @@ void Battle::combat(Character & player, string newMonster,
 *   Smoke bomb. Dissapear. Enemy stops attacking.
 *   Experience with individual weapon types allow training abilities which 
 *      can be used with skill points aquired from defending.
+*   High bleed, low damage weapon.
+*   Excalibur. Omni-beast. (Have all affliction attributes)
+*   Insta-death weapon/ability.
+*
+*
+* Test Checklist:
+*    Regular attack deaths.
+*    Monsters and player can bleed to death with no crashes.
+*    Simultaneous character deaths cause no crashing.
+*    Hazard damage death.
+*    Riposte death.
+*    Damage amounts are correct
+*    Bleed amounts are correct
+*    Defence reduces correctly.
+*    Percision/Evade calculates and executes correctly.
+*    Critical damage is correct. Chance % is correct.
+*    
+*
 *******************************************************************************/

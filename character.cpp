@@ -42,6 +42,7 @@ Character::Character(string name, bool hero) {
    this->isHero = hero;
    this->weapon = new Weapon;
    this->armor = new Armor;
+   this->runningInitiative = initiative;
 }
 
 /*******************************************************************************
@@ -75,16 +76,18 @@ void Character::setWeapon(string weaponType) {
   if(weapon != NULL) delete weapon;  
   weapon = new Weapon(weaponType);
   initiative += weapon->speed;
-  runningInitiative = initiative;
   precision += weapon->precision;
 }
 
-void Character::setOffhand(string weaponType) {offhand = new Weapon(weaponType);}
+void Character::setOffhand(string weaponType) { // Unused
+    offhand = new Weapon(weaponType);
+}
 
 void Character::setArmor(string name) { 
    if(armor != NULL) delete armor;
    armor = new Armor(name);
    this->evasion += armor->evade;
+   this->initiative += armor->speed;
 }
 
 /*******************************************************************************
@@ -94,38 +97,4 @@ void Character::setArmor(string name) {
 void Character::generateMonstersList() {
       for(auto & i : monster)
          monsters.push_back(i.first);
-}
-
-/*******************************************************************************
-* void displayStats()
-* Used mostly for testing purposes. Shows Character object's stats.
-*******************************************************************************/
-void Character::displayStats() {
-  cout << name << " stats:\n"
-       << "Hit Points:\t"     << hitPoints     << "\n"
-       << "Blood Points\t"    << bloodPoints   << "\n"
-       << "Essence Points:\t" << essencePoints << "\n\n";
-}
-
-/****************************************************************************
-* void applyDefendBonuses()
-* Takes the bonus values granted to characters when defending, and applies
-* them to their weapons, armor and character stats;
-****************************************************************************/
-void Character::applyDefendBonuses() {
-   weapon->criticalChance /= weapon->criticalBonus;
-   this->precision += weapon->precisionBonus;
-   this->evasion += armor->evadeBonus;
-   armor->defencePower += armor->defendBonus;
-}
-
-/****************************************************************************
-* void removeDefendBonuses()
-* Removes all bonuses granted by defending.
-****************************************************************************/
-void Character::removeDefendBonuses() {
-   weapon->criticalChance *= 2;
-   this->precision -= weapon->precisionBonus;
-   this->evasion -= armor->evadeBonus;
-   armor->defencePower -= armor->defendBonus;
 }

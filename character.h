@@ -52,9 +52,9 @@ public:
       name;
 
    short
-      maxHitPoints = 3000,
+      maxHitPoints = 1000,
       hitPoints = 1000,
-      maxBloodPoints = 3000,
+      maxBloodPoints = 1000,
       bloodPoints = 1000,
       maxEssencePoints = 1000,
       essencePoints = 1000,
@@ -65,7 +65,7 @@ public:
       initiativePenalty = 0,
       evasion = 0,
       evasionPenalty = 0,
-      precision = 80,
+      precision = 90,
       precisionPenalty = 0;   
 
    unsigned short runningInitiative;

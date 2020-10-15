@@ -66,9 +66,9 @@ public:
    short 
       weight = 0, // Affects turn speed
       volume = 0,
-      defencePower = 100,
+      defencePower = 0,
       evade = 0,
-      evadeBonus,
+      evadeBonus = 0,
       defendBonus = 1, // Multiply this by the defence power.
       speed = 0;
       

@@ -41,6 +41,7 @@ public:
       this->riposte =           weapons[weaponType].second.second[5];
       this->precisionBonus =    weapons[weaponType].second.first[7];
       this->criticalBonus =     weapons[weaponType].second.first[8];
+      this->isVenomous =        weapons[weaponType].second.first[3];
    }
 
    /*****************************************
@@ -57,7 +58,7 @@ public:
        this->slash =             newMonsterWeapon.second.second[2];
        this->stab =              newMonsterWeapon.second.second[3];
        this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
-       this->venomous =          newMonsterWeapon.second.first[6];
+       this->isVenomous =        newMonsterWeapon.second.first[6];
        this->canStun =           newMonsterWeapon.second.first[7];
        this->criticalM =         newMonsterWeapon.second.second[8];
        this->criticalChance =    newMonsterWeapon.second.second[9];
@@ -115,7 +116,7 @@ public:
       rangeDamage,     // Range of damage starting with minDamage.
       maxMulti,        // Some weapons may use multiple strikes 
       speed,           // Adds to player's base initiative. 
-      venomous,        // Slows base initiative during combat.
+      isVenomous,      // Slows base initiative during combat.
       canStun,         // Adds to running initiative during combat.
       damageTypes[4],  // Crush, Chop, Slash, Stab values
       precision,       // Determines how likely an attack is to miss.

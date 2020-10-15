@@ -34,8 +34,11 @@ void bleedingMessage        (const Character & victim);
 void displayStats           (const Character & character);
 void stunMessage            (const Character & aggressor, const Character & victim);
 void hazardDamageMessage    (const Character & aggressor, short damageHpBpEp[]);
-void fatigueMessage         (const Character & victim, short init);
+void fatigueMessage         (const Character & victim,    short init);
 void missedAttackMessage    (const Character & aggressor, const Character & victim);
+void riposteMessage         (const Character & victim,    const Character & aggressor);
+void defendingMessage       (const Character & character);
+
 /*******************************************************************************
 * void getUserInput(vector<string>)
 * Aquires and validates user input. Parameter is a list of options.
@@ -208,13 +211,13 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
       cout << setw(12) << i->name << setw(10) << right << setw(10) << right
            << i->hitPoints << setw(10) << right << i->bloodPoints << setw(10)
            << right << i->essencePoints << setw(10) << right 
-           << i->runningInitiative << setw(10) << mPrecision << setw(10)
+           << i->initiative << setw(10) << mPrecision << setw(10)
            << mEvasion;
       if(i != listOfMonsters.back()) 
          cout << endl;
    }
 
-   cout << "\n======================================" 
+   cout << "\n=======================================" 
         << "========================================\n"; 
 }
 
@@ -244,7 +247,14 @@ void selectWeapon(Character & player) {
 *******************************************************************************/
 void selectArmor(Character & player) {
 
-	vector<string> arm = {"Padding", "Leather", "Ring", "Chain", "Scale", "Plate"};
+	vector<string> arm = {"Naked",
+                          "Fighting Gi",
+                          "Pads", 
+                          "Leather", 
+                          "Ring", 
+                          "Chain", 
+                          "Scale", 
+                          "Plate"};
 	short selection = getUserInput(arm);
     player.setArmor(arm[selection - 1]);
 }
@@ -369,9 +379,9 @@ void riposteMessage(const Character & victim, const Character & aggressor) {
 * Displays defend message.
 *******************************************************************************/
 void defendingMessage(const Character & character) {
-    string message = "";
-       if(!character.isHero)
-      message += "The ";
+   string message = "";
+      if(!character.isHero)
+         message += "The ";
    message += character.name + 
    " raises their guard and prepares for the next attack.\n";
    message += "\t\t\tPrecision +" + to_string(character.weapon->precisionBonus) +

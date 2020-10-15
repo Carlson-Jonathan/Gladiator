@@ -78,6 +78,8 @@ private:
    bool burnTheBodies        ();
    void applyFatigue         (Character & victim);
    void applyDazed           (Character & victim);
+   void applyDefendBonuses   (Character & character);
+   void removeDefendBonuses  (Character & character);
    bool completeOption1(Character & activeCharacter, Character & targetCharacter);
    void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
 };
@@ -114,6 +116,7 @@ Character* Battle::nextAction() {
 * type as a percentage.
 *******************************************************************************/
 void Battle::getDamageSum(const Character & victim) {
+   victim.armor->setDamageReduce();
    for(short i = 0; i < 4; i++) {
       damageTypes[i] *= (1.0 - ((float)victim.armor->damageReduce[i] / 100));
       if(damageTypes[i] < 0)
@@ -131,7 +134,7 @@ void Battle::getPhysicalDamages(Character & victim, Character & aggressor) {
 
    aggressor.weapon->setRandomDamageTypes();
 
-   if(debugMode) cout << "Base Damage: " << aggressor.weapon->baseDamage;
+   if(debugMode) cout << "Base Damage: " << aggressor.weapon->baseDamage << endl;
    if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
    if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
                       << " | Ch: " 
@@ -221,8 +224,8 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
          }
 
       // Slows base initiative by venom stat
-      if(wep->venomous) {
-         victim.initiative += wep->venomous;   
+      if(wep->isVenomous) {
+         victim.initiative += wep->isVenomous;   
          cout << victim.name << "'s movement is slowed by the " << aggressor.name 
               << "'s attack!\n\n";
       }
@@ -260,7 +263,7 @@ void Battle::applyBleeding(Character & victim) {
 void Battle::focus(Character & character) {
    if(!character.isDefending) {
       character.isDefending = true;
-      character.applyDefendBonuses();
+      applyDefendBonuses(character);
       defendingMessage(character);
    }
    else
@@ -458,7 +461,7 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
    willMiss = aggressor.precision - victim.evasion + victim.evasionPenalty -
    aggressor.precisionPenalty;
    missed = rand() % 100;
-   if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy: \n\t\t\t" 
+   if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy (left > right = miss): \n\t\t\t" 
    	                  << missed << " | " << willMiss << "\n\n";
    return missed >= willMiss;
 }
@@ -555,7 +558,29 @@ void Battle::applyDazed(Character & victim) {
       victim.evasionPenalty = 0;
       victim.precisionPenalty = 0;
    }
+}
 
+/****************************************************************************
+* void applyDefendBonuses(Character)
+* Takes the bonus values granted to characters when defending, and applies
+* them to their weapons, armor and character stats;
+****************************************************************************/
+void Battle::applyDefendBonuses(Character & character) {
+   character.weapon->criticalChance /= character.weapon->criticalBonus;
+   character.precision += character.weapon->precisionBonus;
+   character.evasion += character.armor->evadeBonus;
+   character.armor->defencePower += character.armor->defendBonus;
+}
+
+/****************************************************************************
+* void removeDefendBonuses(Character)
+* Removes all bonuses granted by defending.
+****************************************************************************/
+void Battle::removeDefendBonuses(Character & character) {
+   character.weapon->criticalChance *= character.weapon->criticalBonus;
+   character.precision -= character.weapon->precisionBonus;
+   character.evasion -= character.armor->evadeBonus;
+   character.armor->defencePower -= character.armor->defendBonus;
 }
 
 /*******************************************************************************
@@ -574,7 +599,7 @@ bool Battle::completeOption1(Character & activeCharacter, Character & targetChar
 
    if(activeCharacter.isDefending) {
       activeCharacter.isDefending = false;
-      activeCharacter.removeDefendBonuses();
+      removeDefendBonuses(activeCharacter);
    }
 
    return 0;
@@ -607,8 +632,6 @@ void Battle::combat(Character & player, string newMonster,
    this->player = player;
 
    srand(time(0));                   // Seeds sudo random number generator
-
-   player.initiative = 100 + player.weapon->speed; // Sets default initiative
 
    // Monster lists
    combatParticipants = generateParticipantList(player);
@@ -707,14 +730,11 @@ void Battle::combat(Character & player, string newMonster,
 //    None known at present.
 
 // Refactors:
-//   Change precisionBonuse and any bonuses for defending to "modifiers".
 
 // Currenlty working on:
-//   Dazed condition
 
 /*******************************************************************************
 * To do as of 10/14/2020:
-* Create evasion ability and coresponding low HP penalty.
 * Regeneration
 *   Generate ability points when attacked the do super moves
 *      Hemorage - low direct damage, high bleed.

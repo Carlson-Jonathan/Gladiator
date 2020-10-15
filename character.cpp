@@ -28,7 +28,7 @@ Character::Character(string newMonster) {
    essencePoints =             maxEssencePoints;
 
    weapon =                    new Weapon(monster[newMonster]);
-   this->percision =           weapon->percision;
+   this->precision =           weapon->precision;
 
    armor =                     new Armor(monster[newMonster]);
    this->evasion =             monster[newMonster].second.first[10];
@@ -76,6 +76,7 @@ void Character::setWeapon(string weaponType) {
   weapon = new Weapon(weaponType);
   initiative += weapon->speed;
   runningInitiative = initiative;
+  precision += weapon->precision;
 }
 
 void Character::setOffhand(string weaponType) {offhand = new Weapon(weaponType);}
@@ -113,7 +114,7 @@ void Character::displayStats() {
 ****************************************************************************/
 void Character::applyDefendBonuses() {
    weapon->criticalChance /= weapon->criticalBonus;
-   this->percision += weapon->percisionBonus;
+   this->precision += weapon->precisionBonus;
    this->evasion += armor->evadeBonus;
    armor->defencePower += armor->defendBonus;
 }
@@ -124,7 +125,7 @@ void Character::applyDefendBonuses() {
 ****************************************************************************/
 void Character::removeDefendBonuses() {
    weapon->criticalChance *= 2;
-   this->percision -= weapon->percisionBonus;
+   this->precision -= weapon->precisionBonus;
    this->evasion -= armor->evadeBonus;
    armor->defencePower -= armor->defendBonus;
 }

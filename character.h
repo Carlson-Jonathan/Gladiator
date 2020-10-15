@@ -54,16 +54,19 @@ public:
    short
       maxHitPoints = 3000,
       hitPoints = 1000,
-      maxBloodPoints = 1000,
+      maxBloodPoints = 3000,
       bloodPoints = 1000,
       maxEssencePoints = 1000,
       essencePoints = 1000,
-      initiative = 100,        // Higher is slower
       strength = 100,
       isBleeding = 0,
-      isHazardous = 0,         // Returns damage to an attacker
-      percision = 80,
-      evasion = 0;
+      isHazardous = 0,          // Returns damage to an attacker
+      initiative = 100,         // Higher is slower
+      initiativePenalty = 0,
+      evasion = 0,
+      evasionPenalty = 0,
+      precision = 80,
+      precisionPenalty = 0;   
 
    unsigned short runningInitiative;
 

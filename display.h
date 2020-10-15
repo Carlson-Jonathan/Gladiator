@@ -187,6 +187,10 @@ void displayAttackMessage(const Character & victim,
 *******************************************************************************/
 void displayCharacterStats(const vector<Character*> & listOfMonsters, 
                            const Character & player, const short round) { 
+   
+   short pEvasion = player.evasion - player.evasionPenalty, mEvasion;
+   short pPrecision = player.precision - player.precisionPenalty, mPrecision;
+
    cout << "================================ Combat Turn " << round 
         << " ===============================\n";
    cout << setw(12) << "Name:" << setw(10) << right << "HP:" << setw(10) 
@@ -194,16 +198,18 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
         << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
    cout << setw(12) << right << player.name << setw(10) << player.hitPoints
         << setw(10) << player.bloodPoints << setw(10) << player.essencePoints
-        << setw(10) << player.initiative << setw(10) << player.percision 
-        << setw(10) << player.evasion << endl;
+        << setw(10) << player.initiative << setw(10) << pPrecision 
+        << setw(10) << pEvasion << endl;
    cout << 
    "       -----------------------------------------------------------------\n";
    for(auto i : listOfMonsters) {
+      mEvasion = i->evasion - i->evasionPenalty;
+      mPrecision = i->precision - i->precisionPenalty;
       cout << setw(12) << i->name << setw(10) << right << setw(10) << right
            << i->hitPoints << setw(10) << right << i->bloodPoints << setw(10)
            << right << i->essencePoints << setw(10) << right 
-           << i->runningInitiative << setw(10) << i->percision << setw(10)
-           << i->evasion;
+           << i->runningInitiative << setw(10) << mPrecision << setw(10)
+           << mEvasion;
       if(i != listOfMonsters.back()) 
          cout << endl;
    }
@@ -315,8 +321,8 @@ void hazardDamageMessage(const Character & aggressor, short damageHpBpEp[]) {
 *******************************************************************************/
 void fatigueMessage(const Character & victim, short init) {
    string message = "\t" + victim.name + " is fatigued from loss of blood.\n\t\t\t+" +
-   to_string(init) + " slow\n\t\t\t-" + to_string((int)((1 - victim.weapon->basePenalty) * 100)) + 
-   "% damage\n\n";
+   to_string(init) + " slow\n\t\t\t-" + to_string((short)((1 - 
+   	victim.weapon->basePenalty) * 100)) + "% damage\n\n";
    writeMessage(message);
 }
 
@@ -326,13 +332,13 @@ void fatigueMessage(const Character & victim, short init) {
 *******************************************************************************/
 void dazedMessage(const Character & victim, short aim, short evade) {
    string message = "\t" + victim.name + " is dazed from blunt trauma.\n\t\t\t-" +
-   to_string(aim) + "% percision\n\t\t\t-" + to_string(evade) + "% evade\n\n";
+   to_string(aim) + " precision\n\t\t\t-" + to_string(evade) + " evasion\n\n";
    writeMessage(message);
 }
 
 /*******************************************************************************
 * void missedAttackMessage(const Character&, const Character&)
-* Displays when attacker's percision is less than random+defender's evasion.
+* Displays when attacker's precision is less than random+defender's evasion.
 *******************************************************************************/
 void missedAttackMessage(const Character & aggressor, const Character & victim) {
    string message = "\t";
@@ -368,7 +374,7 @@ void defendingMessage(const Character & character) {
       message += "The ";
    message += character.name + 
    " raises their guard and prepares for the next attack.\n";
-   message += "\t\t\tPercision +" + to_string(character.weapon->percisionBonus) +
+   message += "\t\t\tPrecision +" + to_string(character.weapon->precisionBonus) +
    "\n\t\t\tDefence +" + to_string(character.armor->defendBonus) + "\n\t\t\t" +
    "Evasion +" + to_string(character.armor->evadeBonus) + 
    "\n\t\t\t+New affliction immunity" + "\n\t\t\tCritical Chance +" + 

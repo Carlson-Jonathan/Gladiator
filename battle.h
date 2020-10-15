@@ -131,6 +131,7 @@ void Battle::getPhysicalDamages(Character & victim, Character & aggressor) {
 
    aggressor.weapon->setRandomDamageTypes();
 
+   if(debugMode) cout << "Base Damage: " << aggressor.weapon->baseDamage;
    if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
    if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
                       << " | Ch: " 
@@ -451,10 +452,11 @@ void Battle::killMonster() {
 /*******************************************************************************
 * bool missedAttack(Character, Character)
 * Generates a random number. If that number is higher than the aggressor's
-* percision minus the victim's evasion, the attack fails.
+* precision minus the victim's evasion, the attack fails.
 *******************************************************************************/
 bool Battle::missedAttack(const Character & aggressor, const Character & victim) {
-   willMiss = aggressor.percision - victim.evasion;
+   willMiss = aggressor.precision - victim.evasion + victim.evasionPenalty -
+   aggressor.precisionPenalty;
    missed = rand() % 100;
    if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy: \n\t\t\t" 
    	                  << missed << " | " << willMiss << "\n\n";
@@ -516,16 +518,21 @@ bool Battle::burnTheBodies() {
 * If the character's BP falls below 2/3 maximum, reduces speed and damage. 
 ****************************************************************************/
 void Battle::applyFatigue(Character & victim) {
-   if(victim.bloodPoints < victim.maxBloodPoints * 0.66) {
-      short difference = (victim.maxBloodPoints * 0.66 - victim.bloodPoints),
-      additionalInit = difference / 4;
+
+   short limit = victim.maxBloodPoints * 0.66, difference, additionalInit;
+
+   if(victim.bloodPoints < limit) {
+      difference = (limit - victim.bloodPoints);
+
+      additionalInit = (float)difference / (float)limit * 200.0;
       victim.runningInitiative += additionalInit;
       
-      victim.weapon->basePenalty = 
-      ((victim.maxBloodPoints * 0.66) - difference) / 
-      (victim.maxBloodPoints * 0.66);
+      victim.weapon->basePenalty = 1 - ((float)difference / (float)limit / 2);
+
       fatigueMessage(victim, additionalInit);
    } 
+   else
+   	  victim.weapon->basePenalty = 1;
 }
 
 /****************************************************************************
@@ -533,14 +540,22 @@ void Battle::applyFatigue(Character & victim) {
 * If the character's BP falls below 2/3 maximum, reduces aim and evade.
 ****************************************************************************/
 void Battle::applyDazed(Character & victim) {
-   if(victim.hitPoints < victim.maxHitPoints * 0.66) {
-      short difference = (victim.maxHitPoints * 0.66 - victim.hitPoints); 
-      victim.armor->evadePenalty = 
-      ((victim.maxHitPoints * 0.66) - difference) / 
-      (victim.maxHitPoints * 0.66);
-      victim.evasion *= victim.armor->evadePenalty;
-      dazedMessage(victim, 21, (short)((1 - victim.armor->evadePenalty) * 100));
+
+   short limit = victim.maxHitPoints * 0.66;
+
+   if(victim.hitPoints < limit) {
+      short difference = (limit - victim.hitPoints); 
+      
+      victim.evasionPenalty   = (float)difference / (float)limit * 50.0;
+      victim.precisionPenalty = (float)difference / (float)limit * 50.0;
+
+      dazedMessage(victim, victim.precisionPenalty, victim.evasionPenalty);
    }
+   else {
+      victim.evasionPenalty = 0;
+      victim.precisionPenalty = 0;
+   }
+
 }
 
 /*******************************************************************************
@@ -619,14 +634,13 @@ void Battle::combat(Character & player, string newMonster,
       *                     Turn Ending Action Block
       * Code in this block will be executed after any turn, player or monster
       *************************************************************************/
-      applyFatigue(*participant);
-      applyDazed(*participant);
-      // Apply Daized Condition here (low HP = poor evasion and percision)
+      applyFatigue(*participant);        // Apply Modifiers (No refactor needed)
+      applyDazed(*participant);          // Apply Modifiers
       
       /*************************************************************************
       *                        Player's Action Block
       *************************************************************************/
-      if(participant->name == player.name) {        
+      if(participant->name == player.name) {  
          displayCharacterStats(staticParticipantsList, player, round++);
          
          /******************* Setup ***********************/
@@ -693,8 +707,7 @@ void Battle::combat(Character & player, string newMonster,
 //    None known at present.
 
 // Refactors:
-//   Change percisionBonuse and any bonuses for defending to "modifiers".
-//   Remove penalty functions from character.cpp
+//   Change precisionBonuse and any bonuses for defending to "modifiers".
 
 // Currenlty working on:
 //   Dazed condition
@@ -731,7 +744,7 @@ void Battle::combat(Character & player, string newMonster,
 *    Damage amounts are correct
 *    Bleed amounts are correct
 *    Defence reduces correctly.
-*    Percision/Evade calculates and executes correctly.
+*    Precision/Evade calculates and executes correctly.
 *    Critical damage is correct. Chance % is correct.
 *    
 *

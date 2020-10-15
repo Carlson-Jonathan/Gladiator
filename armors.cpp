@@ -25,22 +25,23 @@ armor {
 * Wt = Weight of armor. Affects initiative.
 * Vol = Volume of armor. Even light equipment can be cumbersome.
 * DP = Defence Power. Determines overall effectiveness of armor.
+* Ev = Armor's evasion.
+* Eb = Evade bonus applied when character is defending.
+* Db = Defence bonus when character is defending. Multiply defencePower by this.
+* Sp = Speed modifier. Add this to base initiative.
 * Cr = Defence against crushing.
 * Ch = Defence against chopping.
 * Sl = Defence against slashing.
 * St = Defence against stabbing.
-* Ev = Armor's evasion.
-* Eb = Evade bonus applied when character is defending.
-* Db = Defence bonus when character is defending. Multiply defencePower by this.
 *******************************************************************************/ 
 //             Placeholders
 //           strings   bools               Shorts                       Floats
-//  Key                             Wt  Vol  DP    Ev  Eb  Db       Cr   Ch   Sl   St
-{"Padding", {{{ "" },  { 0 }},  {{ 100, 200, 100,  20, 20, 50 },  { 0.7, 0.2, 0.1, 0.0 }}}},
-{"Leather", {{{ "" },  { 0 }},  {{ 100, 200, 100,  30, 30, 60 },  { 0.2, 0.3, 0.3, 0.2 }}}},
-{"Ring",    {{{ "" },  { 0 }},  {{ 100, 200, 100,  10, 20, 70 },  { 0.3, 0.3, 0.3, 0.1 }}}},
-{"Chain",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -10, 10, 80 },  { 0.1, 0.1, 0.6, 0.2 }}}},
-{"Scale",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -15, 10, 90 },  { 0.1, 0.1, 0.3, 0.5 }}}},
-{"Plate",   {{{ "" },  { 0 }},  {{ 100, 200, 100, -20,  5, 100},  { 0.3, 0.3, 0.2, 0.2 }}}}}; 
+//  Key                             Wt  Vol  DP    Ev  Eb  Db   Sp       Cr   Ch   Sl   St
+{"Padding", {{{ "" },  { 0 }},  {{  70, 200, 100,  20, 20, 50, -10 },  { 0.7, 0.2, 0.1, 0.0 }}}},
+{"Leather", {{{ "" },  { 0 }},  {{  50, 200, 100,  30, 30, 60, -20 },  { 0.2, 0.3, 0.3, 0.2 }}}},
+{"Ring",    {{{ "" },  { 0 }},  {{  75, 200, 100,  10, 20, 70,   0 },  { 0.3, 0.3, 0.3, 0.1 }}}},
+{"Chain",   {{{ "" },  { 0 }},  {{ 125, 200, 100, -10, 10, 80,  10 },  { 0.1, 0.1, 0.6, 0.2 }}}},
+{"Scale",   {{{ "" },  { 0 }},  {{ 150, 200, 100, -15, 10, 90,  20 },  { 0.1, 0.1, 0.3, 0.5 }}}},
+{"Plate",   {{{ "" },  { 0 }},  {{ 200, 200, 100, -20,  5, 100, 30 },  { 0.3, 0.3, 0.2, 0.2 }}}}}; 
 
 #endif // ARMORS_CPP

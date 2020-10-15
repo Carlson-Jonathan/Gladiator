@@ -33,6 +33,7 @@ public:
       this->evade =        armor[name].second.first[3];
       this->evadeBonus =   armor[name].second.first[4];
       this->defendBonus =  armor[name].second.first[5];
+      this->speed =        armor[name].second.first[6];
       setDamageReduce();
    }
 
@@ -68,7 +69,8 @@ public:
       defencePower = 100,
       evade = 0,
       evadeBonus,
-      defendBonus = 1; // Multiply this by the defence power.
+      defendBonus = 1, // Multiply this by the defence power.
+      speed = 0;
       
    // The percentage of damage reduction to be applied [crush, chop, slash, stab]
    short damageReduce[4];
@@ -78,8 +80,7 @@ public:
       crush,
       chop,
       slash,
-      stab,
-      evadePenalty = 1;
+      stab;
 
    // Elemental Defence Values
    float 

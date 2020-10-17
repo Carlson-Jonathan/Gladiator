@@ -48,6 +48,7 @@ public:
       this->stab =         monsterArmor.second.second[7];
       this->evadeBonus =   monsterArmor.second.first[13];
       this->defendBonus =  monsterArmor.second.second[11];
+      this->defencePower = monsterArmor.second.first[14];
       setDamageReduce();
    }
 

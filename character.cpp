@@ -32,6 +32,7 @@ Character::Character(string newMonster) {
 
    armor =                     new Armor(monster[newMonster]);
    this->evasion =             monster[newMonster].second.first[10];
+   this->regeneration =        monster[newMonster].second.first[15];
 }
 
 /*****************************************
@@ -72,6 +73,12 @@ void Character::setEssencePoints(short change) {
       essencePoints = maxEssencePoints;	
 }
 
+void Character::setIsBleeding(short clot) {
+   isBleeding -= (isBleeding / 10) - clot;
+   if(isBleeding < 0)
+      isBleeding = 0;
+}
+
 void Character::setWeapon(string weaponType) {
   if(weapon != NULL) delete weapon;  
   weapon = new Weapon(weaponType);
@@ -88,6 +95,7 @@ void Character::setArmor(string name) {
    armor = new Armor(name);
    this->evasion += armor->evade;
    this->initiative += armor->speed;
+   this->regeneration = armor->regeneration;
 }
 
 /*******************************************************************************

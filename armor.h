@@ -34,6 +34,7 @@ public:
       this->evadeBonus =   armor[name].second.first[4];
       this->defendBonus =  armor[name].second.first[5];
       this->speed =        armor[name].second.first[6];
+      this->regeneration = armor[name].second.first[7];
       setDamageReduce();
    }
 
@@ -71,7 +72,8 @@ public:
       evade = 0,
       evadeBonus = 0,
       defendBonus = 1, // Multiply this by the defence power.
-      speed = 0;
+      speed = 0,
+      regeneration = 0;
       
    // The percentage of damage reduction to be applied [crush, chop, slash, stab]
    short damageReduce[4];

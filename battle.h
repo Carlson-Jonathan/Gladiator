@@ -63,6 +63,7 @@ private:
    void applyDamage          (Character & victim); 
    void determineAffliction  (const Character & aggressor, Character & victim);
    void applyBleeding        (Character & victim);
+   void applyRegeneration    (Character & character);
    void focus                (Character & character);
    void flee                 ();
    bool isDefeated           (Character & victim);
@@ -242,18 +243,23 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
 * Governs 1 round of character bleeding. Sets and reduces ongoing bleed effect.
 *******************************************************************************/
 void Battle::applyBleeding(Character & victim) {
-   short bleedAmt = victim.isBleeding / 10;
    
-   victim.setBloodPoints(-bleedAmt);
-   if(victim.bloodPoints < 0)
-      victim.bloodPoints = 0;
+   victim.setBloodPoints(-(victim.isBleeding / 10));
    
    bleedingMessage(victim);
    isDefeated(victim);
 
-   victim.isBleeding -= bleedAmt - 2;
-   if(victim.isBleeding < 0)
-      victim.isBleeding = 0;
+   victim.setIsBleeding(-2);
+}
+
+/*******************************************************************************
+* bool applyRegeneration(Character)
+* Governs 1 round of character regeneration.
+*******************************************************************************/
+void Battle::applyRegeneration(Character & character) {
+   character.setBloodPoints(character.regeneration);
+   if(character.bloodPoints < character.maxBloodPoints - character.regeneration)
+      regenerationMessage(character);
 }
 
 /*******************************************************************************
@@ -268,9 +274,6 @@ void Battle::focus(Character & character) {
    }
    else
       cout << character.name << " continues to stand guard.\n\n"; 
-
-   // if(debugMode) cout << "Debug focus:" << endl;
-   // if(debugMode) displayCharacterStats(staticParticipantsList, player, round++);
 
    // Potential uses:        
    // Increases damage on next strike (allows for criticals?).
@@ -566,7 +569,7 @@ void Battle::applyDazed(Character & victim) {
 * them to their weapons, armor and character stats;
 ****************************************************************************/
 void Battle::applyDefendBonuses(Character & character) {
-   character.weapon->criticalChance /= character.weapon->criticalBonus;
+   character.weapon->criticalChance -= character.weapon->criticalBonus;
    character.precision += character.weapon->precisionBonus;
    character.evasion += character.armor->evadeBonus;
    character.armor->defencePower += character.armor->defendBonus;
@@ -577,7 +580,7 @@ void Battle::applyDefendBonuses(Character & character) {
 * Removes all bonuses granted by defending.
 ****************************************************************************/
 void Battle::removeDefendBonuses(Character & character) {
-   character.weapon->criticalChance *= character.weapon->criticalBonus;
+   character.weapon->criticalChance += character.weapon->criticalBonus;
    character.precision -= character.weapon->precisionBonus;
    character.evasion -= character.armor->evadeBonus;
    character.armor->defencePower -= character.armor->defendBonus;
@@ -691,7 +694,10 @@ void Battle::combat(Character & player, string newMonster,
          /**********************************************************************
          *                        Monster's Action Block
          **********************************************************************/
-         if(completeOption1(*participant, player)) break;
+         if((rand() % 10) > 7)
+            focus(*participant);
+         else
+            if(completeOption1(*participant, player)) break;
       }
 
       /*************************************************************************
@@ -707,6 +713,9 @@ void Battle::combat(Character & player, string newMonster,
       
 	        if(combatParticipants[i]->isBleeding) 
 	           applyBleeding(*combatParticipants[i]);
+
+            if(combatParticipants[i]->regeneration)
+               applyRegeneration(*combatParticipants[i]);
          }
          
          if(debugMode) cout << "Applying bleed deaths:\n\n";

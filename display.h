@@ -38,6 +38,7 @@ void fatigueMessage         (const Character & victim,    short init);
 void missedAttackMessage    (const Character & aggressor, const Character & victim);
 void riposteMessage         (const Character & victim,    const Character & aggressor);
 void defendingMessage       (const Character & character);
+void regenerationMessage    (const Character & character);
 
 /*******************************************************************************
 * void getUserInput(vector<string>)
@@ -253,7 +254,7 @@ void selectArmor(Character & player) {
                           "Leather", 
                           "Ring", 
                           "Chain", 
-                          "Scale", 
+                          "Blood Scale", 
                           "Plate"};
 	short selection = getUserInput(arm);
     player.setArmor(arm[selection - 1]);
@@ -393,6 +394,15 @@ void defendingMessage(const Character & character) {
       message += "\n\t\t\t+Riposte";
    message += "\n\n"; 
    writeMessage(message); 
+}
+
+void regenerationMessage(const Character & character) {
+    string message = "\t";
+    if(!character.isHero)
+         message += "The ";
+    message += character.name + " feels revitalized and gains " + 
+    to_string(character.regeneration) + " blood points!\n\n";
+    writeMessage(message);
 }
 
 /******************************************************************************/

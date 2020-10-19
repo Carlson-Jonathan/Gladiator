@@ -43,6 +43,7 @@ public:
    void generateMonstersList();
    void applyDefendBonuses();
    void removeDefendBonuses();
+   void setIsBleeding(short clot);
 
    bool operator < (const Character & other) const {
      return runningInitiative < other.runningInitiative;
@@ -66,14 +67,14 @@ public:
       evasion = 0,
       evasionPenalty = 0,
       precision = 90,
-      precisionPenalty = 0;   
+      precisionPenalty = 0,
+      regeneration = 0;  
 
    unsigned short runningInitiative;
 
    bool 
       isDefending = false,
       isHero = false,
-      canRegenerate = false,
       isDead = false;
 
    vector<string> monsters;

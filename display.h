@@ -31,7 +31,7 @@ void displayCharacterStats  (const Character & player, const Character & monster
 void selectWeapon           (Character & player);   // To be deleted
 void selectArmor            (Character & player);    // To be deleted
 void bleedingMessage        (const Character & victim);
-void displayStats           (const Character & character);
+void displayStats           (const vector<Character> & heroes);
 void stunMessage            (const Character & aggressor, const Character & victim);
 void hazardDamageMessage    (const Character & aggressor, short damageHpBpEp[]);
 void fatigueMessage         (const Character & victim,    short init);
@@ -190,23 +190,27 @@ void displayAttackMessage(const Character & victim,
 * Prints characters' in rows.
 *******************************************************************************/
 void displayCharacterStats(const vector<Character*> & listOfMonsters, 
-                           const Character & player, const short round) { 
+                           const vector<Character> & heroes, const short round) { 
    
-   short pEvasion = player.evasion - player.evasionPenalty, mEvasion;
-   short pPrecision = player.precision - player.precisionPenalty, mPrecision;
+   short pEvasion, mEvasion, pPrecision, mPrecision;
 
    cout << "================================ Combat Turn " << round 
         << " ===============================\n";
+
    cout << setw(12) << "Name:" << setw(10) << right << "HP:" << setw(10) 
         << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
         << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
-   cout << setw(12) << right << player.name << setw(10) << player.hitPoints
-        << setw(10) << player.bloodPoints << setw(10) << player.essencePoints
-        << setw(10) << player.initiative << setw(10) << pPrecision 
-        << setw(10) << pEvasion << endl;
+   for(const auto & i : heroes) {      
+      pEvasion = i.evasion - i.evasionPenalty;
+      pPrecision = i.precision - i.precisionPenalty;
+      cout << setw(12) << right << i.name << setw(10) << i.hitPoints
+           << setw(10) << i.bloodPoints << setw(10) << i.essencePoints
+           << setw(10) << i.initiative << setw(10) << pPrecision 
+           << setw(10) << pEvasion << endl;
+   }
    cout << 
    "       -----------------------------------------------------------------\n";
-   for(auto i : listOfMonsters) {
+   for(const auto & i : listOfMonsters) {
       mEvasion = i->evasion - i->evasionPenalty;
       mPrecision = i->precision - i->precisionPenalty;
       cout << setw(12) << i->name << setw(10) << right << setw(10) << right
@@ -226,8 +230,9 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
 * void selectWeapon(Character)
 * Temporary function that sets the players weapon for testing purposes.
 *******************************************************************************/
-void selectWeapon(Character & player) {
+void selectWeapon(Character & hero) {
 
+    cout << "Select weapon for " << hero.name << endl;
 	vector<string> wep = 
 	   {"Broad Sword", 
 	    "Battle Axe", 
@@ -239,15 +244,16 @@ void selectWeapon(Character & player) {
         "Rapier"};
 	short selection = getUserInput(wep);
 
-    player.setWeapon(wep[selection - 1]);
+    hero.setWeapon(wep[selection - 1]);
 }
 
 /*******************************************************************************
 * void selectWeapon(Character)
 * Temporary function that sets the players armor for testing purposes.
 *******************************************************************************/
-void selectArmor(Character & player) {
+void selectArmor(Character & hero) {
 
+    cout << "Select armor for " << hero.name << endl;
 	vector<string> arm = {"Naked",
                           "Fighting Gi",
                           "Pads", 
@@ -257,7 +263,7 @@ void selectArmor(Character & player) {
                           "Blood Scale", 
                           "Plate"};
 	short selection = getUserInput(arm);
-    player.setArmor(arm[selection - 1]);
+    hero.setArmor(arm[selection - 1]);
 }
 
 /*******************************************************************************
@@ -279,30 +285,33 @@ void bleedingMessage(const Character & victim) {
 }
 
 /*******************************************************************************
-* void displayStats(Character)
+* void displayStats(vector<Character>)
 * Displays character statistics. Used for testing.
 *******************************************************************************/
-void displayStats(const Character & character) {
-   short min = character.weapon->minDamage;
-   short range = character.weapon->rangeDamage;
-   cout << "***** " << character.name << "'s Stats *****\n"
-        << "Weapon:\t\t" << character.weapon->name << "\n"
-        << "Damage:\t\t" << min << " - " 
-        << (min + range) << "\n"
-        << "Crush:\t\t" << character.weapon->crush << "\n"
-        << "Chop:\t\t"  << character.weapon->chop  << "\n"
-        << "Slash:\t\t" << character.weapon->slash << "\n"
-        << "Stab:\t\t"  << character.weapon->stab  << "\n"
-        << "Initiative:\t" << character.initiative << "\n"
-        << "Armor:\t\t" << character.armor->name << "\n"
-        << "Weight:\t\t" << character.armor->weight  << "\n"
-        << "Volume:\t\t" << character.armor->volume << "\n"
-        << "Defence Power:\t" << character.armor->defencePower << "\n"
-        << "Crush:\t\t" << character.armor->crush << "\n"
-        << "Chop:\t\t" << character.armor->chop << "\n"
-        << "Slash:\t\t" << character.armor->slash << "\n"
-        << "Stab:\t\t" << character.armor->stab << "\n"
-        << "Weapon Speed:\t" << character.weapon->speed << "\n\n";
+void displayStats(const vector<Character> & heroes) {
+   short min, range;
+   for(const auto & i : heroes) {
+      min = i.weapon->minDamage;
+      range = i.weapon->rangeDamage;
+      cout << "***** " << i.name << "'s Stats *****\n"
+           << "Weapon:\t\t" << i.weapon->name << "\n"
+           << "Damage:\t\t" << min << " - " 
+           << (min + range) << "\n"
+           << "Crush:\t\t" << i.weapon->crush << "\n"
+           << "Chop:\t\t"  << i.weapon->chop  << "\n"
+           << "Slash:\t\t" << i.weapon->slash << "\n"
+           << "Stab:\t\t"  << i.weapon->stab  << "\n"
+           << "Initiative:\t" << i.initiative << "\n"
+           << "Armor:\t\t" << i.armor->name << "\n"
+           << "Weight:\t\t" << i.armor->weight  << "\n"
+           << "Volume:\t\t" << i.armor->volume << "\n"
+           << "Defence Power:\t" << i.armor->defencePower << "\n"
+           << "Crush:\t\t" << i.armor->crush << "\n"
+           << "Chop:\t\t" << i.armor->chop << "\n"
+           << "Slash:\t\t" << i.armor->slash << "\n"
+           << "Stab:\t\t" << i.armor->stab << "\n"
+           << "Weapon Speed:\t" << i.weapon->speed << "\n\n";
+   }
 }
 
 /*******************************************************************************

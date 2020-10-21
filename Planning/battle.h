@@ -17,8 +17,8 @@ class Battle {
 
 public:
    Battle() {}
-   Battle(vector<Character> & heroes, string newMonster, bool debugMode, short groupSize) {
-      combat(heroes, newMonster, debugMode, groupSize);
+   Battle(Character & player, string newMonster, bool debugMode, short groupSize) {
+      combat(player, newMonster, debugMode, groupSize);
    }
 
 
@@ -44,11 +44,11 @@ private:
 
    string newMonster;
 
+   Character player;
    Character* monster = NULL;
    Character* participant = NULL;
 
 
-   vector<Character> heroes;
    vector<string> listOfMonsters;
    vector<Character*> combatParticipants;
    vector<Character*> staticParticipantsList;
@@ -71,7 +71,7 @@ private:
    short attackCharacter     (Character & aggressor, Character & victim);
    static bool sorter        (Character* a, Character* b);
    bool isEndOfTurn          ();
-   vector<Character*> generateParticipantList(vector<Character> & heroes);
+   vector<Character*> generateParticipantList(Character & player);
    void killMonster          ();
    bool missedAttack         (const Character & aggressor, const Character & victim);
    void riposte              (Character & aggressor, Character & victim);
@@ -81,8 +81,8 @@ private:
    void applyDazed           (Character & victim);
    void applyDefendBonuses   (Character & character);
    void removeDefendBonuses  (Character & character);
-   bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
-   void combat               (vector<Character> & heroes, string newMonster, bool debugMode, short groupSize);
+   bool completeOption1(Character & activeCharacter, Character & targetCharacter);
+   void combat               (Character & player, string newMonster, bool debugMode, short groupSize);
 };
 
    /***************************************
@@ -99,7 +99,7 @@ Character* Battle::nextAction() {
    sort(combatParticipants.begin(), combatParticipants.end(), sorter);
    if(debugMode) {
       cout << "\t\t\tInitiatives | Running Initiatives" << endl; 
-      for(const auto & i : combatParticipants) {
+      for(auto i : combatParticipants) {
          cout.width(40);
          cout << right << i->name << ": " << i->initiative 
               << " | " << i->runningInitiative << endl;
@@ -308,7 +308,7 @@ bool Battle::isDefeated(Character & victim) {
 *******************************************************************************/
 void Battle::receiveHazardDamage(Character & aggressor, const Character & victim) {
 
-    for(auto & i : damageHpBpEp)
+    for(auto &i : damageHpBpEp)
         i /= victim.isHazardous;
 
     hazardDamageMessage(aggressor, damageHpBpEp);
@@ -322,9 +322,9 @@ void Battle::receiveHazardDamage(Character & aggressor, const Character & victim
 *******************************************************************************/
 short Battle::attackCharacter(Character & aggressor, Character & victim) {
 
-   if(!missedAttack(aggressor, victim)) {
-      getPhysicalDamages(victim, aggressor);
-      displayAttackMessage(victim, aggressor, damageHpBpEp);
+   if(!missedAttack(aggressor, victim)) {                                           // Do once if attacking[0]
+      getPhysicalDamages(victim, aggressor);                                        // Do once if attacking[0]
+      displayAttackMessage(victim, aggressor, damageHpBpEp);                        // Do while attacking[1]
       applyDamage(victim);
       if(isDefeated(victim)) return 1;
       determineAffliction(aggressor, victim);
@@ -353,7 +353,7 @@ bool Battle::sorter(Character* a = NULL, Character* b = NULL) {return  (*a < *b)
 *******************************************************************************/
 // If all participant's running initiative's exceed 200, the round is over.
 bool Battle::isEndOfTurn() {
-   for(const auto & i : combatParticipants)
+   for(auto i : combatParticipants)
       if(i->runningInitiative <= 200)
          return false;
    return true;
@@ -364,18 +364,13 @@ bool Battle::isEndOfTurn() {
 * Creates a vector of object pointers. Includes the player(s) and generates 
 * 'size' number of random new monster objects to include. 
 *******************************************************************************/
-vector<Character*> Battle::generateParticipantList(vector<Character> & heroes) {
-   
-   for(auto & i : heroes) {
-       Character* hero = &i;
-       combatParticipants.push_back(hero);
-   }
-   
+vector<Character*> Battle::generateParticipantList(Character & player) {
+   combatParticipants.push_back(&player);
    for(short i = 0; i < groupSize; i++) {
       participant = new Character(newMonster);
       combatParticipants.push_back(participant);
+      monster = participant;
    }
-
    return combatParticipants;
 }
 
@@ -392,12 +387,12 @@ void Battle::killMonster() {
    for(short i = staticParticipantsList.size() - 1; i >= 0; i--) {
       if(staticParticipantsList[i]->isDead) {
                 if(debugMode)cout << "Erasing string from list of names.\nBefore: " << endl;
-                if(debugMode) for(const auto & i : listOfMonsters)
+                if(debugMode) for(auto i : listOfMonsters)
                    cout << i << ", ";
                 if(debugMode) cout << endl;
          listOfMonsters.erase(listOfMonsters.begin() + (i));
                 if(debugMode) cout << "After: ";
-                if(debugMode) for(const auto & i : listOfMonsters)
+                if(debugMode) for(auto i : listOfMonsters)
                    cout << i << ", ";
                 if(debugMode) cout << endl;
                 if(debugMode) cout << "Calling for object removal from static list..."  << endl;
@@ -451,7 +446,7 @@ void Battle::killMonster() {
                     if(debugMode) cout << "Object erased!" << endl;
                     if(debugMode) cout << "Object has been destroyed! " << "All dangling pointers have been de-weaponized!\n";
                     if(debugMode) cout << "New combatParticipants list:\n";
-                    if(debugMode) for(const auto & i : combatParticipants) cout << i->name << endl;
+                    if(debugMode) for(auto i : combatParticipants) cout << i->name << endl;
                     if(debugMode) cout << "Monster has been murdered! The end.\n\n";
       }
       else
@@ -505,7 +500,7 @@ void Battle::applyRetaliationActions(Character & aggressor, Character & victim) 
 *******************************************************************************/
 bool Battle::burnTheBodies() {
    bool corpseExists = false;
-   for(const auto & i: combatParticipants)
+   for(auto i: combatParticipants)
       if(i->isDead) {
       	  corpseExists = true;
           if(i->isHero) {
@@ -518,7 +513,7 @@ bool Battle::burnTheBodies() {
    if(corpseExists) killMonster();
 
    if(!listOfMonsters.size()) {
-      combatVictory(heroes[0]);
+      combatVictory(player);
       battleOver = true;
    }
    return battleOver;
@@ -630,76 +625,76 @@ bool Battle::completeOption1(Character & activeCharacter, Character & targetChar
 * Houses the primary combat loop. Brings all other functions together to form
 * a combat sequence.
 *******************************************************************************/
-void Battle::combat(vector<Character> & heroes, string newMonster, 
-                    bool debugMode, short groupSize) {
 
-   // General Setup
+                                                                                    // if new battle, do this once:
+                                                                                
+void Battle::combat(Character & player, string newMonster,                      
+                    bool debugMode, short groupSize) {                          
+                                                                                
+   // General Setup                                                             
    this->debugMode = debugMode; 
    this->groupSize = groupSize;
    this->newMonster = newMonster;
-   this->heroes = heroes;
+   this->player = player;
 
    srand(time(0));                   // Seeds sudo random number generator
 
    // Monster lists
-   combatParticipants = generateParticipantList(heroes);
+   combatParticipants = generateParticipantList(player);
    staticParticipantsList = combatParticipants;
-   for(const auto & i : staticParticipantsList)
-   if(debugMode) cout << "Participants list includes " << i->name << endl;
+   
+   staticParticipantsList[0] = NULL;
+   staticParticipantsList.erase(staticParticipantsList.begin());
 
-   for (short i = 0; i < heroes.size(); i++) {
-   if(debugMode)   cout << "Nullifying pointer " << i << endl; 
-    //   staticParticipantsList[i] = NULL;
-      if(debugMode) cout << "Erasing list item " << i << " from list, which is " << (*(staticParticipantsList.begin()))->name << endl;
-      staticParticipantsList.erase(staticParticipantsList.begin());
-   }
-
-   for(auto & i : heroes) {
-      // Temporaries. Don't use these later. display.h changes character objects.
-      selectWeapon(i);
-      selectArmor(i);
-   }
-   if(debugMode) displayStats(heroes);
-
-
-   for(const auto & i : staticParticipantsList)
+   for(auto i : staticParticipantsList)
       listOfMonsters.push_back(i->name);
+   
+   // Temporaries. Don't use these later. display.h changes character objects.
+   selectWeapon(player);
+   selectArmor(player);
+
+   if(debugMode) displayStats(player);                                          
+
+                                                                                    // TurnBegin[0] = true                                                                                
+                                                                                    // loopAction[1] = false                                                                                
+                                                                                    // loopAction[2] = false                                                                                
 
    /******************************* Combat Loop ********************************/
-   while(true) {
-      participant = nextAction();
+   while(true) {                                                                    
+      participant = nextAction();                                                   // Do once if Turn[0]
 
-      /*************************************************************************
+      /*************************************************************************             
       *                     Turn Ending Action Block
       * Code in this block will be executed after any turn, player or monster
       *************************************************************************/
-      applyFatigue(*participant);        // Apply Modifiers (No refactor needed)
-      applyDazed(*participant);          // Apply Modifiers
+      applyFatigue(*participant);        // Apply Modifiers (No refactor needed)    // Do once if TurnBegin[0]
+      applyDazed(*participant);          // Apply Modifiers                         // Do once if TurnBegin[0]
       
       /*************************************************************************
-      *                        Player's Action Block
+      *                        Player's Action Block                                // TurnBegin[0] = false
       *************************************************************************/
-      if(participant->isHero) {  
-         displayCharacterStats(staticParticipantsList, heroes, round++);
+      if(participant->name == player.name) {                                        // if ... heroAction[0] = true
+         displayCharacterStats(staticParticipantsList, player, round++);            // Repeat while heroAction[0] (Draw stats window)
          
          /******************* Setup ***********************/
-         option = getUserInput({"Attack", "Defend", "Flee"});
-
-         if (option == 1) {                                           // Attack
-            if(listOfMonsters.size() > 1) 
-               target = getUserInput(listOfMonsters);           // Attack what?
-            else
-               target = 1;                               // Only 1 monster left 
-            
-            if(completeOption1(*participant, *staticParticipantsList[target - 1])) break;
-
-         } // end if(option == 1)
-         else if (option == 2) {
-            focus(*participant);                                // Player is defending
-         }
-         else if(option == 3) {
-            flee();                                           // Player retreats
-            break;
+         option = getUserInput({"Attack", "Defend", "Flee"});                       // Repeat while heroAction[0] (Menu animation)
+                                                                                    // loopAction[2] = true
+         if (option == 1) {                                           // Attack     // Do while loopAction[2], all attack[]s = true
+            if(listOfMonsters.size() > 1)                                                               
+               target = getUserInput(listOfMonsters);           // Attack what?     // Repeat while loopAction[2] (Menu animation)
+            else                                                                    // loopAction[]                    
+               target = 1;                               // Only 1 monster left                         
+                                                                                    // loopAction[1 & 2] = false, loopAction[3] = true
+            if(completeOption1(player, *staticParticipantsList[target - 1]))        // Do while loopAction[3]                    
+               break;                                                                                   
+                                                                                                        
+         }                                                                                              
+         else if (option == 2) {                                                                        
+            focus(player);                                // Player is defending                        
+         }                                                                                              
+         else if(option == 3) {                                                                         
+            flee();                                           // Player retreats                        
+            break;                                                                                      
          }
 
       } 
@@ -709,11 +704,8 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
          **********************************************************************/
          if((rand() % 10) > 7)
             focus(*participant);
-         else {
-            
-            if(completeOption1(*participant, heroes[rand() % heroes.size()])) 
-               break;
-         }
+         else
+            if(completeOption1(*participant, player)) break;
       }
 
       /*************************************************************************
@@ -742,7 +734,7 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
    if(debugMode) {
       cout << "\nDont forget to reset world affecting stats at the end of combat!" 
            << endl;
-    //   displayStats(player);
+      displayStats(player);
    }    
 
 /******************************************************************************/

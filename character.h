@@ -8,9 +8,9 @@
 #define CHARACTER_H
 #include <iostream>
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <stdio.h>  // random
+#include <stdlib.h> // random
+#include <time.h>   // random
 #include <cstdlib>  // sleep
 #include <unistd.h> // sleep
 #include <memory> // shared pointers

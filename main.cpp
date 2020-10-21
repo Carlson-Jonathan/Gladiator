@@ -7,25 +7,31 @@
 #ifndef MAIN_CPP
 #define MAIN_CPP
 #include <iostream>
+#include <vector>
 #include "battle.h"
 
-Character createCharacter() {
-   cout << "\tName your hero: ";
-   string name;
-   getline(cin, name);
-   Character player(name, true);
-   return player;
+vector<Character> createCharacters(short numHeroes) {
+   vector<Character> heroes;
+   for(short i = 0; i < numHeroes; i++) {
+      cout << "\tName your hero(s): ";
+      string name;
+      getline(cin, name);
+      Character hero(name, true);
+      heroes.push_back(hero);
+   }
+
+   return heroes;
 }
 
 int main() {
 
-   Character player = createCharacter();
+   vector<Character> heroes = createCharacters(3);
 
    //   Param 1 = create player object.
    //   Param 2 = type of monster. 
    //   Param 3 = toggles debug mode.
    //   Param 4 = Number of extra monsters per combat.
-   {Battle battle(player, "Omnibeast", 0, 1);}
+   {Battle battle(heroes, "Random", 0, 4);}
 
    cout << "\n\n>> End of Program. <<" << endl;
 

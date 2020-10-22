@@ -83,6 +83,8 @@ private:
    void applyDefendBonuses   (Character & character);
    void removeDefendBonuses  (Character & character);
    bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
+   bool applyCharacterAction (Character* character);
+   void getCharacterAction   (Character* character);
    void combat               (vector<Character> & heroes, string newMonster, bool debugMode, short numMonsters);
 };
 
@@ -329,7 +331,6 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
       displayAttackMessage(victim, aggressor, damageHpBpEp);
       applyDamage(victim);
       if(isDefeated(victim)) return 1;
-      cout << "If you are dead, YOU SHALL NOT PASS! *********************\n";
       determineAffliction(aggressor, victim);
 
       if(victim.isHazardous) 
@@ -592,6 +593,61 @@ bool Battle::completeOption1(Character & activeCharacter, Character & targetChar
    return 0;
 }
 
+/*******************************************************************************
+* void applyCharacterAction() 
+* Uses the 'option' variable to make a selection for a turn action.
+*******************************************************************************/
+bool Battle::applyCharacterAction(Character* character) {
+   if(option == 1) {
+      if(character->isHero) {
+         if(completeOption1(*character, *monsterParticipants[target - 1])) 
+            return 1;
+      }
+      else {
+         if(completeOption1(*character, *heroParticipants[rand() % heroParticipants.size()])) 
+            return 1;
+      }
+   }
+   else if (option == 2) {
+      focus(*character);                                // Player is defending
+   }
+   else if(option == 3) {
+      flee();                                           // Player retreats
+      return 1;
+   }
+   return 0;
+}
+
+/*******************************************************************************
+* void getCharacterAction() 
+* Sets the option and target variables to the user's selection.
+*******************************************************************************/
+void Battle::getCharacterAction(Character* character) {
+
+   short randNum;
+
+   // Get action for hero character 
+   if(character->isHero) {
+      displayCharacterStats(monsterParticipants, heroParticipants, round++);
+      option = getUserInput({"Attack", "Defend", "Flee"});
+      if (option == 1)                                           // Attack
+         if(listOfMonsters.size() > 1) 
+            target = getUserInput(listOfMonsters);           // Attack what?
+       else
+           target = 1;                 // Auto attack if only 1 monster left 
+   }
+
+   // Get action for monster AI 
+   else {
+      randNum = rand() % 10;
+      if(randNum > 7)
+         option = 2;
+      else
+         option = 1;
+   }
+}
+
+
 
 
 /*###  ####  ######################################################  ####  #####
@@ -640,45 +696,10 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
       applyDazed(*participant);          // Apply Modifiers
       
       /*************************************************************************
-      *                        Player's Action Block
+      *                        Character's Action Block
       *************************************************************************/
-      if(participant->isHero) {  
-         displayCharacterStats(monsterParticipants, heroParticipants, round++);
-         
-         /******************* Setup ***********************/
-         option = getUserInput({"Attack", "Defend", "Flee"});
-
-         if (option == 1) {                                           // Attack
-            if(listOfMonsters.size() > 1) 
-               target = getUserInput(listOfMonsters);           // Attack what?
-            else
-               target = 1;                               // Only 1 monster left 
-            
-            if(completeOption1(*participant, *monsterParticipants[target - 1])) break;
-
-         } // end if(option == 1)
-         else if (option == 2) {
-            focus(*participant);                                // Player is defending
-         }
-         else if(option == 3) {
-            flee();                                           // Player retreats
-            break;
-         }
-
-      } 
-      else {
-         /**********************************************************************
-         *                        Monster's Action Block
-         **********************************************************************/
-         if((rand() % 10) > 7)
-            focus(*participant);
-         else {
-            
-            if(completeOption1(*participant, *heroParticipants[rand() % 
-            	                             heroParticipants.size()])) 
-               break;
-         }
-      }
+      getCharacterAction(participant);
+      if(applyCharacterAction(participant)) break;
 
       /*************************************************************************
       *                     Round Ending Action Block
@@ -716,10 +737,11 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
 #endif // BATTLE_H
 
 // Bugs to fix:
-//    Individual hero deaths instead of party defeat
+//    Individual hero deaths not being displayed when they die.
 //    Get rid of isSharp and isBlunt and just have a short determine bleed/stun
 
 // Refactors:
+//    Move combat() setup stuff to constructor
 
 // Currenlty working on:
 

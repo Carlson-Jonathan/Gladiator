@@ -190,7 +190,7 @@ void displayAttackMessage(const Character & victim,
 * Prints characters' in rows.
 *******************************************************************************/
 void displayCharacterStats(const vector<Character*> & listOfMonsters, 
-                           const vector<Character> & heroes, const short round) { 
+                           const vector<Character*> & heroes, const short round) { 
    
    short pEvasion, mEvasion, pPrecision, mPrecision;
 
@@ -201,11 +201,11 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
         << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
         << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
    for(const auto & i : heroes) {      
-      pEvasion = i.evasion - i.evasionPenalty;
-      pPrecision = i.precision - i.precisionPenalty;
-      cout << setw(12) << right << i.name << setw(10) << i.hitPoints
-           << setw(10) << i.bloodPoints << setw(10) << i.essencePoints
-           << setw(10) << i.initiative << setw(10) << pPrecision 
+      pEvasion = i->evasion - i->evasionPenalty;
+      pPrecision = i->precision - i->precisionPenalty;
+      cout << setw(12) << right << i->name << setw(10) << i->hitPoints
+           << setw(10) << i->bloodPoints << setw(10) << i->essencePoints
+           << setw(10) << i->initiative << setw(10) << pPrecision 
            << setw(10) << pEvasion << endl;
    }
    cout << 

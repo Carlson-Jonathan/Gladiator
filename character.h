@@ -54,9 +54,9 @@ public:
 
    short
       maxHitPoints = 1000,
-      hitPoints = 1000,
+      hitPoints = 100,
       maxBloodPoints = 1000,
-      bloodPoints = 1000,
+      bloodPoints = 100,
       maxEssencePoints = 1000,
       essencePoints = 1000,
       strength = 100,

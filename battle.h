@@ -18,7 +18,20 @@ class Battle {
 public:
    Battle() {}
    Battle(vector<Character> & heroes, string newMonster, bool debugMode, short numMonsters) {
-      combat(heroes, newMonster, debugMode, numMonsters);
+      this->debugMode = debugMode; 
+      this->numMonsters = numMonsters;
+      this->newMonster = newMonster;
+      this->heroes = heroes;
+         
+      srand(time(0));       
+      generateParticipantLists();
+
+      for(auto & i : heroes) {
+         selectWeapon(i);
+         selectArmor(i);
+      }
+
+      combat();
    }
 
 
@@ -85,7 +98,7 @@ private:
    bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
-   void combat               (vector<Character> & heroes, string newMonster, bool debugMode, short numMonsters);
+   void combat               ();
 };
 
    /***************************************
@@ -469,7 +482,7 @@ void Battle::applyRetaliationActions(Character & aggressor, Character & victim) 
          riposte(aggressor, victim);
    }
 
-   // Other reactions
+   // Other reactions go here.
 }
 
 /*******************************************************************************
@@ -656,55 +669,38 @@ void Battle::getCharacterAction(Character* character) {
 #####  ####  ###########      Main Combat Function      ###########  ####  #####
 #####  ####  ##############                          ##############  ####  #####
 #####  ####  ###################                ###################  ####  #####
-#####  ####  ######################################################  ####  ###*/
-
-
-
-/*******************************************************************************
-* void combat(Character)
+#####  ####  ######################################################  ####  #####
+*
+* void combat()
 * Houses the primary combat loop. Brings all other functions together to form
-* a combat sequence.
+* a combat sequence. Only stops when it hits a 'break' statement.
+*
 *******************************************************************************/
-void Battle::combat(vector<Character> & heroes, string newMonster, 
-                    bool debugMode, short numMonsters) {
+void Battle::combat() {
 
-   // General Setup
-   this->debugMode = debugMode; 
-   this->numMonsters = numMonsters;
-   this->newMonster = newMonster;
-   this->heroes = heroes;
-
-   srand(time(0));       
-   generateParticipantLists();
-
-   for(auto & i : heroes) {
-      selectWeapon(i);
-      selectArmor(i);
-   }
-
-   if(debugMode) displayStats(heroes);
-
-   /******************************* Combat Loop ********************************/
    while(true) {
+
+      // Determines who's turn it is based on the lowest running initiative. 
       participant = nextAction();
 
       /*************************************************************************
-      *                     Turn Ending Action Block
-      * Code in this block will be executed after any turn, player or monster
+      *                        Turn Ending Action Block
+      * Code in this block will be executed after any turn, hero's or monster's.
       *************************************************************************/
-      applyFatigue(*participant);        // Apply Modifiers (No refactor needed)
-      applyDazed(*participant);          // Apply Modifiers
+      applyFatigue(*participant);      
+      applyDazed(*participant);         
       
       /*************************************************************************
-      *                        Character's Action Block
+      *                    Characters' Primary Action Block
       *************************************************************************/
       getCharacterAction(participant);
       if(applyCharacterAction(participant)) break;
 
       /*************************************************************************
-      *                     Round Ending Action Block
-      * This block is called after 200 time units (initiative) has passed.
-      * Afflictions such as bleeding should be placed in this block of code.
+      *                       Round Ending Action Block
+      * This block is called after 200 time units (running initiative) has 
+      * passed for all combat participants. Round-based afflictions such as 
+      * bleeding should be placed in this block of code.
       *************************************************************************/
       if(isEndOfTurn()) {
          
@@ -719,25 +715,21 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
                applyRegeneration(*allCombatParticipants[i]);
          }
          
-         if(debugMode) cout << "Applying bleed deaths:\n\n";
          if(burnTheBodies()) break;
       }
-   }    // End of combat loop
+   }   
 
    if(debugMode) {
       cout << "\nDont forget to reset world affecting stats at the end of combat!" 
            << endl;
-    //   displayStats(player);
    }    
-
-/******************************************************************************/
-
 }
-
 #endif // BATTLE_H
 
+
+
 // Bugs to fix:
-//    Individual hero deaths not being displayed when they die.
+//    Individual hero deaths messages not being displayed when they die.
 //    Get rid of isSharp and isBlunt and just have a short determine bleed/stun
 
 // Refactors:
@@ -746,7 +738,7 @@ void Battle::combat(vector<Character> & heroes, string newMonster,
 // Currenlty working on:
 
 /*******************************************************************************
-* To do as of 10/14/2020:
+* To do as of 10/22/2020:
 * Regeneration
 *   Generate ability points when attacked the do super moves
 *      Hemorage - low direct damage, high bleed.

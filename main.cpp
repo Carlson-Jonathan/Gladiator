@@ -19,6 +19,7 @@ vector<Character> createCharacters(short numHeroes) {
       Character hero(name, true);
       heroes.push_back(hero);
    }
+   cout << endl;
 
    return heroes;
 }

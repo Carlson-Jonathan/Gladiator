@@ -299,6 +299,7 @@ bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
       if(debugMode) cout << "This victim has been identified as dead!\n\n";
       victim.isDead = true; 
+      return true;
   }
   return false;
 }
@@ -328,6 +329,7 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
       displayAttackMessage(victim, aggressor, damageHpBpEp);
       applyDamage(victim);
       if(isDefeated(victim)) return 1;
+      cout << "If you are dead, YOU SHALL NOT PASS! *********************\n";
       determineAffliction(aggressor, victim);
 
       if(victim.isHazardous) 
@@ -413,7 +415,7 @@ void Battle::killCharacter() {
    for(short i = allCombatParticipants.size() - 1; i >= 0; i--) {
       if(allCombatParticipants[i]->isDead) {
          if(allCombatParticipants[i]->isHero) {
-         	cout << allCombatParticipants[i]->name << " is dead and gets erased!\n\n";
+         	if(debugMode) cout << allCombatParticipants[i]->name << " is dead and gets erased!\n\n";
             allCombatParticipants[i] = NULL;
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
          }
@@ -476,15 +478,21 @@ void Battle::applyRetaliationActions(Character & aggressor, Character & victim) 
 *******************************************************************************/
 bool Battle::burnTheBodies() {
    bool corpseExists = false;
-   for(const auto & i: allCombatParticipants)
-      if(i->isDead) {
+   short deathCount = 0;
+   for(const auto & i: allCombatParticipants) {
+      if(i->isDead) 
       	  corpseExists = true;
-          // if(i->isHero) {
-          //    battleOver = true;
-          //    combatDefeat();
-          //    return 1;
-          // }
-      }   
+   }
+
+   for(const auto i : heroParticipants) {
+      if(i->isDead)
+         deathCount++;
+      if(deathCount == heroParticipants.size()) {
+         combatDefeat();
+         battleOver = true;
+         return 1;
+      }
+   }
 
    if(corpseExists) killCharacter();
 

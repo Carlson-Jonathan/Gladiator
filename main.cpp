@@ -19,6 +19,7 @@ vector<Character> createCharacters(short numHeroes) {
       Character hero(name, true);
       heroes.push_back(hero);
    }
+   cout << endl;
 
    return heroes;
 }
@@ -31,7 +32,7 @@ int main() {
    //   Param 2 = type of monster. 
    //   Param 3 = toggles debug mode.
    //   Param 4 = Number of extra monsters per combat.
-   {Battle battle(heroes, "Random", 0, 4);}
+   {Battle battle(heroes, "Random", 0, 3);}
 
    cout << "\n\n>> End of Program. <<" << endl;
 

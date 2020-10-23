@@ -28,7 +28,7 @@ void combatVictory          (const Character & player);
 void combatDefeat           ();
 void displayAttackMessage   (const Character & victim, const Character & aggressor, const short damage[]);
 void displayCharacterStats  (const Character & player, const Character & monster, const short round);
-void selectWeapon           (Character & player);   // To be deleted
+void selectWeapon           (Character & player);    // To be deleted
 void selectArmor            (Character & player);    // To be deleted
 void bleedingMessage        (const Character & victim);
 void displayStats           (const vector<Character> & heroes);
@@ -74,7 +74,7 @@ string writeMessage(const string message) {
 	for(char i : message) {
 		cout << i;
 		cout.flush();
-		usleep(10000);
+		usleep(1000);
 	}
 	return "\t";
 }
@@ -96,10 +96,10 @@ void writeMessageScroll(const string message) {
       while(getline(ss,to,'\n')) {
          cout << to << endl;
          cout.flush();
-         usleep(50000);
+         usleep(5000);
       }
    
-   usleep(700000);
+   usleep(70000);
 }
 
 
@@ -190,7 +190,7 @@ void displayAttackMessage(const Character & victim,
 * Prints characters' in rows.
 *******************************************************************************/
 void displayCharacterStats(const vector<Character*> & listOfMonsters, 
-                           const vector<Character> & heroes, const short round) { 
+                           const vector<Character*> & heroes, const short round) { 
    
    short pEvasion, mEvasion, pPrecision, mPrecision;
 
@@ -201,11 +201,11 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
         << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
         << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
    for(const auto & i : heroes) {      
-      pEvasion = i.evasion - i.evasionPenalty;
-      pPrecision = i.precision - i.precisionPenalty;
-      cout << setw(12) << right << i.name << setw(10) << i.hitPoints
-           << setw(10) << i.bloodPoints << setw(10) << i.essencePoints
-           << setw(10) << i.initiative << setw(10) << pPrecision 
+      pEvasion = i->evasion - i->evasionPenalty;
+      pPrecision = i->precision - i->precisionPenalty;
+      cout << setw(12) << right << i->name << setw(10) << i->hitPoints
+           << setw(10) << i->bloodPoints << setw(10) << i->essencePoints
+           << setw(10) << i->initiative << setw(10) << pPrecision 
            << setw(10) << pEvasion << endl;
    }
    cout << 
@@ -232,7 +232,7 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
 *******************************************************************************/
 void selectWeapon(Character & hero) {
 
-    cout << "Select weapon for " << hero.name << endl;
+    cout << "\n\tSelect weapon for " << hero.name << ".\n";
 	vector<string> wep = 
 	   {"Broad Sword", 
 	    "Battle Axe", 
@@ -248,12 +248,12 @@ void selectWeapon(Character & hero) {
 }
 
 /*******************************************************************************
-* void selectWeapon(Character)
+* void selectArmor(Character)
 * Temporary function that sets the players armor for testing purposes.
 *******************************************************************************/
 void selectArmor(Character & hero) {
 
-    cout << "Select armor for " << hero.name << endl;
+    cout << "\tSelect armor for " << hero.name << endl;
 	vector<string> arm = {"Naked",
                           "Fighting Gi",
                           "Pads", 
@@ -280,7 +280,7 @@ void bleedingMessage(const Character & victim) {
    else
    	  message += "their "; 
    message += "wounds\n\tand takes " + 
-   to_string(victim.isBleeding / 10) + " blood point damage!\n\n";
+   to_string(victim.isBleeding) + " blood point damage!\n\n";
    writeMessage(message); 
 }
 
@@ -405,6 +405,10 @@ void defendingMessage(const Character & character) {
    writeMessage(message); 
 }
 
+/*******************************************************************************
+* void regenerationMessage(Character)
+* Used for trolls or any character that has the regeneration ability.
+*******************************************************************************/
 void regenerationMessage(const Character & character) {
     string message = "\t";
     if(!character.isHero)

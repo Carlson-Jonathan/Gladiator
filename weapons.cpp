@@ -30,6 +30,7 @@ std::vector<float>>>> weapons = {
 * Pr = Percision. Higher = better aim and less missing on attack.
 * Pb = Percision bonus. Add this to player percision when isDefending().
 * Cb = Critical bonus. Divide CC by this to increase chance to land critical.
+* Sh = Sharp. The amount of base bleeding this weapon causes.
 * Cr = The percentage of the weapon's total damage allocated to crushing.
 * Ch = The percentage of the weapon's total damage allocated to chopping.
 * Sl = The percentage of the weapon's total damage allocated to slashing.
@@ -38,15 +39,15 @@ std::vector<float>>>> weapons = {
 * Rp = Riposte - Reaction strike damage multiplier. 
 *******************************************************************************/
 
-//      Key        Description       Min   Rg   Sp  Vnm Stn  CC,  Pr  Pb, Cb      Cr   Ch   Sl   St  CM  Rp
-{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 10,  50, 30, 5 },  { 1.0, 0.0, 0.0, 0.0, 20,  0 }}}},
-{"Broad Sword", { " slashes at ", {{  75,  25,   0,  0,   0,  8,   0, 40, 4 },  { 0.0, 0.2, 0.5, 0.3,  3,  0 }}}},
-{"Katana",      { " slashes at ", {{  50,  50, -20,  0,   0,  9,  20, 30, 4 },  { 0.2, 0.0, 0.7, 0.1,  3, .5 }}}},
-{"Battle Axe",  { " chops at ",   {{  10, 290,  50,  0,   0,  4, -20, 30, 2 },  { 0.1, 0.8, 0.1, 0.0,  4,  0 }}}},
-{"Spear",       { " lunges at ",  {{  30,  25, -30, 20,   0, 10, -15, 45, 5 },  { 0.0, 0.0, 0.1, 0.9,  3,  0 }}}},
-{"Mace",        { " swings at ",  {{  50,  40,  20,  0, 200,  7, -10, 25, 3 },  { 1.0, 0.0, 0.0, 0.0,  3,  0 }}}},
-{"Rapier",      { " lunges at ",  {{  20,  20, -30,  0,   0, 10,  15, 40, 5 },  { 0.0, 0.0, 0.3, 0.7,  3, .7 }}}},
-{"Morning Star",{ " swings at ",  {{ 100,  50,  40,  0, 120,  6, -15, 35, 3 },  { 0.6, 0.0, 0.0, 0.4,  3,  0 }}}}
+//      Key        Description       Min   Rg   Sp  Vnm Stn  CC,  Pr  Pb, Cb Sh     Cr   Ch   Sl   St  CM  Rp
+{"Fists",       { " punches ",    {{   5,  10, -50,  0,   0, 10,  50, 30, 5,  0 },  { 1.0, 0.0, 0.0, 0.0, 20,  0 }}}},
+{"Broad Sword", { " slashes at ", {{  75,  25,   0,  0,   0,  8,   0, 40, 4, 10 },  { 0.0, 0.2, 0.5, 0.3,  3,  0 }}}},
+{"Katana",      { " slashes at ", {{  50,  50, -20,  0,   0,  9,  20, 30, 4, 10 },  { 0.2, 0.0, 0.7, 0.1,  3, .5 }}}},
+{"Battle Axe",  { " chops at ",   {{  10, 290,  50,  0,   0,  4, -20, 30, 2,  5 },  { 0.1, 0.8, 0.1, 0.0,  4,  0 }}}},
+{"Spear",       { " lunges at ",  {{  30,  25, -30, 20,   0, 10, -15, 45, 5, 20 },  { 0.0, 0.0, 0.1, 0.9,  3,  0 }}}},
+{"Mace",        { " swings at ",  {{  50,  40,  20,  0, 200,  7, -10, 25, 3,  0 },  { 1.0, 0.0, 0.0, 0.0,  3,  0 }}}},
+{"Rapier",      { " lunges at ",  {{  20,  20, -30,  0,   0, 10,  15, 40, 5,  7 },  { 0.0, 0.0, 0.3, 0.7,  3, .7 }}}},
+{"Morning Star",{ " swings at ",  {{ 100,  50,  40,  0, 120,  6, -15, 35, 3,  5 },  { 0.6, 0.0, 0.0, 0.4,  3,  0 }}}}
 
 };
 

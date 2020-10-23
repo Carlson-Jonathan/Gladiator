@@ -85,6 +85,7 @@ private:
    short attackCharacter     (Character & aggressor, Character & victim);
    static bool sorter        (Character* a, Character* b);
    bool isEndOfTurn          ();
+   bool endOfTurnActions     ();
    void generateParticipantLists();
    void killCharacter          ();
    bool missedAttack         (const Character & aggressor, const Character & victim);
@@ -227,10 +228,8 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
    if(!victim.isDefending) {
 
       // Sets a bleeding affliction 
-      if(wep->isSharp) {
-         victim.isBleeding += ceil(damageTypes[3] * 0.2 + damageTypes[2] * 
-         0.1) * 10;
-      }
+      if(wep->isSharp) 
+         victim.isBleeding += aggressor.weapon->isSharp;
       
       // Sets a stun affliction (skips the victim's next turn).
       if(wep->canStun)
@@ -243,7 +242,7 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       // Slows base initiative by venom stat
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
-         cout << victim.name << "'s movement is slowed by the " << aggressor.name 
+         cout << "\t" << victim.name << "'s movement is slowed by the " << aggressor.name 
               << "'s attack!\n\n";
       }
 
@@ -260,8 +259,8 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
 *******************************************************************************/
 void Battle::applyBleeding(Character & victim) {
    
-   victim.setBloodPoints(-(victim.isBleeding / 10));
-   
+   victim.setBloodPoints(-victim.isBleeding);
+
    bleedingMessage(victim);
    isDefeated(victim);
 
@@ -312,7 +311,10 @@ void Battle::flee() {
 *******************************************************************************/
 bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
-      if(debugMode) cout << "This victim has been identified as dead!\n\n";
+      cout << "\t";
+      if(!victim.isHero)
+         cout << "The ";
+      cout << victim.name << " falls lifeless to the ground.\n\n"; 
       victim.isDead = true; 
       return true;
   }
@@ -368,12 +370,35 @@ bool Battle::sorter(Character* a = NULL, Character* b = NULL) {return  (*a < *b)
 * The end of a combat round is marked when all characters have exceeded 200
 * running initiative units. 
 *******************************************************************************/
-// If all participant's running initiative's exceed 200, the round is over.
 bool Battle::isEndOfTurn() {
    for(const auto & i : allCombatParticipants)
       if(i->runningInitiative <= 200)
          return false;
    return true;
+}
+
+/*******************************************************************************
+* void endofTurnActions()
+* Groups and executes all actions that should happen at the end of each combat
+* round. isEndOfTurn() dictates the length of a combat round. Actions include:
+*    - Reducing running initiative of all characters by 200.
+*    - Applying bleed damage to all characters afflicted.
+*    - To be determined...
+*******************************************************************************/
+bool Battle::endOfTurnActions() {
+   for(short i = allCombatParticipants.size() - 1; i >= 0; i--) {
+      allCombatParticipants[i]->runningInitiative -= 200;
+      
+      if(allCombatParticipants[i]->isBleeding) 
+         applyBleeding(*allCombatParticipants[i]);
+
+      if(allCombatParticipants[i]->regeneration)
+         applyRegeneration(*allCombatParticipants[i]);
+   }
+         
+   if(burnTheBodies()) return 1;
+
+   return 0;
 }
 
 /*******************************************************************************
@@ -399,12 +424,9 @@ void Battle::generateParticipantLists() {
 
 /*******************************************************************************
 * void killCharacter()
-* Yes, I know it looks like a mess. I had to educate myself on preventing 
-* memory leaks and dangling pointers, so I made a mess of "cout"s. I am leaving
-* them here in debug mode just in case.
-*
-* This function kills a monster. It removes it from both vectors of pointers, 
-* nullifies the said pointers, and deletes (destroys) the monster object.  
+* This function kills a character. It removes it from both vectors of pointers, 
+* nullifies the said pointers, and, if it is a monster object, deletes 
+* (destroys) the object.  
 *******************************************************************************/
 void Battle::killCharacter() {
 
@@ -642,6 +664,7 @@ void Battle::getCharacterAction(Character* character) {
    // Get action for hero character 
    if(character->isHero) {
       displayCharacterStats(monsterParticipants, heroParticipants, round++);
+      cout << "\t>>> " << character->name << "'s Turn <<<\n";
       option = getUserInput({"Attack", "Defend", "Flee"});
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) 
@@ -698,47 +721,33 @@ void Battle::combat() {
 
       /*************************************************************************
       *                       Round Ending Action Block
-      * This block is called after 200 time units (running initiative) has 
-      * passed for all combat participants. Round-based afflictions such as 
-      * bleeding should be placed in this block of code.
+      * A round ends after each character exceeds 200 running initiative.
       *************************************************************************/
-      if(isEndOfTurn()) {
-         
-         // Reset running initiative and apply bleeding damage
-         for(short i = allCombatParticipants.size() - 1; i >= 0; i--) {
-            allCombatParticipants[i]->runningInitiative -= 200;
-      
-	        if(allCombatParticipants[i]->isBleeding) 
-	           applyBleeding(*allCombatParticipants[i]);
-
-            if(allCombatParticipants[i]->regeneration)
-               applyRegeneration(*allCombatParticipants[i]);
-         }
-         
-         if(burnTheBodies()) break;
-      }
+      if(isEndOfTurn()) 
+         if(endOfTurnActions()) break;           
    }   
 
-   if(debugMode) {
+   if(debugMode) 
       cout << "\nDont forget to reset world affecting stats at the end of combat!" 
            << endl;
-   }    
+      
 }
 #endif // BATTLE_H
 
 
 
 // Bugs to fix:
-//    Individual hero deaths messages not being displayed when they die.
-//    Get rid of isSharp and isBlunt and just have a short determine bleed/stun
+//   Segmentation fault - Critical strike on cactapus with battle axe (monster 2)
+//   Wolf caused 24k bleed damage.
+//   Wolves cause floating point exception.
 
 // Refactors:
-//    Move combat() setup stuff to constructor
 
 // Currenlty working on:
+//   Implementing SFML game platform.
 
 /*******************************************************************************
-* To do as of 10/22/2020:
+* To do:
 * Regeneration
 *   Generate ability points when attacked the do super moves
 *      Hemorage - low direct damage, high bleed.
@@ -747,14 +756,17 @@ void Battle::combat() {
 *      Freeze - Enemy running initiative *= 3-6
 *   Implement multi-hero gameplay.
 *   Allow monsters and heros to combine skills for additional/new effects.
+*   Character stats 
+*      strength - More health, damage, resistance to stun/dazed
+*      agility  - More initiative, evasion, resistance to fatigue
+*      dexterity - More percision, critical chance, resist fatigue
 *      
 *
 * Misc Ides:
 *   Smoke bomb. Dissapear. Enemy stops attacking.
 *   Experience with individual weapon types allow training abilities which 
 *      can be used with skill points aquired from defending.
-*   High bleed, low damage weapon.
-*   Excalibur. Omni-beast. (Have all affliction attributes)
+*   Excalibur. (Has all affliction attributes)
 *   Insta-death weapon/ability.
 *   Equipment durability is the same as attack/defense power.
 *

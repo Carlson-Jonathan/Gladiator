@@ -34,7 +34,7 @@ public:
       this->stab =              weapons[weaponType].second.second[3];
       this->speed =             weapons[weaponType].second.first[2];
       this->canStun =           weapons[weaponType].second.first[4];
-      this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
+      this->isSharp =           weapons[weaponType].second.first[9];
       this->criticalM =         weapons[weaponType].second.second[4];
       this->criticalChance =    weapons[weaponType].second.first[5];
       this->precision =         weapons[weaponType].second.first[6];
@@ -57,13 +57,13 @@ public:
        this->chop =              newMonsterWeapon.second.second[1];
        this->slash =             newMonsterWeapon.second.second[2];
        this->stab =              newMonsterWeapon.second.second[3];
-       this->isSharp =           ((stab >= 0.4) || (slash >= 0.5));
+       this->isSharp =           newMonsterWeapon.second.first[16];
        this->isVenomous =        newMonsterWeapon.second.first[6];
        this->canStun =           newMonsterWeapon.second.first[7];
        this->criticalM =         newMonsterWeapon.second.second[8];
-       this->criticalChance =    newMonsterWeapon.second.second[9];
+       this->criticalChance =    newMonsterWeapon.second.first[17];
        this->precision =         newMonsterWeapon.second.first[9];
-       this->riposte =           newMonsterWeapon.second.first[10];
+       this->riposte =           newMonsterWeapon.second.second[9];
        this->precisionBonus =    newMonsterWeapon.second.first[11];
        this->criticalBonus =     newMonsterWeapon.second.first[12];
    }
@@ -76,7 +76,6 @@ public:
    ****************************************************************************/
    void setRandomDamageTypes() {
       baseDamage = rand() % rangeDamage + minDamage;
-
       if(!(baseDamage % criticalChance)) {
          baseDamage *= criticalM;
          isCritical = true;
@@ -122,7 +121,8 @@ public:
       precision,       // Determines how likely an attack is to miss.
       precisionBonus,  // Stacks on precision when character is defending.
       criticalChance,  // The chance for a critical strike (1 in criticalC)
-      criticalBonus = 1;  // Multiplier on criticalChance when character is defending.
+      criticalBonus = 1,  // Multiplier on criticalChance when character is defending.
+      isSharp = 0;     // Bleed
 
    // Damage Type
    float 
@@ -136,8 +136,6 @@ public:
 
    bool 
       burn = false,
-      isSharp = false,     // Bleed
-      isBlunt = false,     // Stun
       blind = false,
       isCold = false,
       canParry = false,

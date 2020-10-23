@@ -26,7 +26,7 @@ public:
       srand(time(0));       
       generateParticipantLists();
 
-      for(auto & i : heroes) {
+      for(auto & i : this->heroes) {
          selectWeapon(i);
          selectArmor(i);
       }
@@ -737,9 +737,7 @@ void Battle::combat() {
 
 
 // Bugs to fix:
-//   Segmentation fault - Critical strike on cactapus with battle axe (monster 2)
-//   Wolf caused 24k bleed damage.
-//   Wolves cause floating point exception.
+//   Wolves still cause floating point exception? Maybe?
 
 // Refactors:
 
@@ -769,6 +767,12 @@ void Battle::combat() {
 *   Excalibur. (Has all affliction attributes)
 *   Insta-death weapon/ability.
 *   Equipment durability is the same as attack/defense power.
+*   Flee only affects 1 character.
+*   Elemental magics options: Execute, channel
+*       Execute casts directly whatever affect it Has
+*       Channel creates an interactable sphere the other casters can channel into
+*       to create new spells. On subequent turns, execute performs the spell.
+*       Weapons fighters can interact with channels to receive enchants, etc;
 *
 *
 * Test Checklist:

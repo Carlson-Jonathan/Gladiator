@@ -74,9 +74,10 @@ public:
    * Generates random short damage values for crush/chop/slash/stab based on the
    * min/range damage range.
    ****************************************************************************/
-   void setRandomDamageTypes() {
+   void setRandomDamageTypes(bool debugMode) {
       baseDamage = rand() % rangeDamage + minDamage;
-      if(!(baseDamage % criticalChance)) {
+      short crit = rand() % 10;
+      if(crit < criticalChance) { // This causes floating point exception?
          baseDamage *= criticalM;
          isCritical = true;
       }

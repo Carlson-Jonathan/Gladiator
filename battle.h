@@ -22,15 +22,13 @@ public:
       this->numMonsters = numMonsters;
       this->newMonster = newMonster;
       this->heroes = heroes;
-         
-      srand(time(0));       
-      generateParticipantLists();
-
       for(auto & i : this->heroes) {
          selectWeapon(i);
          selectArmor(i);
       }
-
+         
+      srand(time(0));       
+      generateParticipantLists();
       combat();
    }
 
@@ -114,17 +112,9 @@ private:
 *******************************************************************************/
 Character* Battle::nextAction() {
    sort(allCombatParticipants.begin(), allCombatParticipants.end(), sorter);
-   if(debugMode) {
-      cout << "\t\t\tInitiatives | Running Initiatives" << endl; 
-      for(const auto & i : allCombatParticipants) {
-         cout.width(40);
-         cout << right << i->name << ": " << i->initiative 
-              << " | " << i->runningInitiative << endl;
-      }
-      cout << endl;    
-   }
-    allCombatParticipants[0]->runningInitiative += allCombatParticipants[0]->initiative;
-    return allCombatParticipants[0];
+   if(debugMode) displayInitiatives(allCombatParticipants);
+   allCombatParticipants[0]->runningInitiative += allCombatParticipants[0]->initiative;
+   return allCombatParticipants[0];
 }
 
 /*******************************************************************************
@@ -150,23 +140,11 @@ void Battle::getDamageSum(const Character & victim) {
 *******************************************************************************/
 void Battle::getPhysicalDamages(Character & victim, Character & aggressor) {
 
-   aggressor.weapon->setRandomDamageTypes();
-
-   if(debugMode) cout << "Base Damage: " << aggressor.weapon->baseDamage << endl;
-   if(debugMode) cout << "\t\t\t" << aggressor.name << " damage Types:" << endl;
-   if(debugMode) cout << "\t\t\t" << "Cr: " << aggressor.weapon->damageTypes[0] 
-                      << " | Ch: " 
-                      << aggressor.weapon->damageTypes[1]  << " | Sl: " 
-                      << aggressor.weapon->damageTypes[2]  << " | St: " 
-                      << aggressor.weapon->damageTypes [3] << "\n\n";
-
-   if(debugMode) cout << "\t\t\t" << victim.name 
-                      << " armor block values based on defence power: " 
-                      << victim.armor->defencePower << endl;
-   if(debugMode) cout << "\t\t\tCrush: " << victim.armor->damageReduce[0] 
-                      << " | Chop: "  << victim.armor->damageReduce[1] 
-                      << " | Slash: " << victim.armor->damageReduce[2] 
-                      << " | Stab: "  << victim.armor->damageReduce[3] << "\n\n";
+   aggressor.weapon->setRandomDamageTypes(debugMode);
+   if(debugMode) {
+      displayRawDamageAmounts(aggressor);
+      displayArmorValues(victim);
+   }
 
    for(short i = 0; i < 4; i++) {
       damageTypes[i] = aggressor.weapon->damageTypes[i];
@@ -174,19 +152,10 @@ void Battle::getPhysicalDamages(Character & victim, Character & aggressor) {
    }
 
    getDamageSum(victim);
-   if(debugMode) cout << "\t\t\t" << aggressor.name << " modified Damage Types:"
-                      << endl;
-   if(debugMode) cout << "\t\t\tCr: " << damageTypes[0] 
-                      << " | Ch: " 
-                      << damageTypes[1] << " | Sl: " 
-                      << damageTypes[2] << " | St: " 
-                      << damageTypes[3] << "\n\n";
+   if(debugMode) displayModifiedDamage(aggressor, damageTypes);
 
    convertToHP_BP(victim, damageTypes);
-   if(debugMode) cout << "\t\t\t" << "Raw Damage using modified types:" << endl;
-   if(debugMode) cout << "\t\t\tHP: " << damageHpBpEp[0] << " | BP: "
-                      << damageHpBpEp[1] << " | EP: " << damageHpBpEp[2] 
-                      << "\n\n";
+   if(debugMode) displayHP_BP_EPdamage(damageHpBpEp);
 }
 
 /*******************************************************************************
@@ -242,8 +211,7 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       // Slows base initiative by venom stat
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
-         cout << "\t" << victim.name << "'s movement is slowed by the " << aggressor.name 
-              << "'s attack!\n\n";
+         slowMessage(aggressor, victim);
       }
 
    // Set additional afflictions
@@ -282,13 +250,9 @@ void Battle::applyRegeneration(Character & character) {
 * Sets the player's defend status to true.
 *******************************************************************************/
 void Battle::focus(Character & character) {
-   if(!character.isDefending) {
-      character.isDefending = true;
-      applyDefendBonuses(character);
-      defendingMessage(character);
-   }
-   else
-      cout << character.name << " continues to stand guard.\n\n"; 
+   defendingMessage(character);
+   character.isDefending = true;
+   applyDefendBonuses(character);
 
    // Potential uses:        
    // Increases damage on next strike (allows for criticals?).
@@ -301,8 +265,7 @@ void Battle::focus(Character & character) {
 * Will house the flee function. All it does right now is end the combat.
 ******************************************************************************/
 void Battle::flee() {
-   // Based on yours and the monster's health
-   cout << "\tYou run away screaming like a little girl!" << endl;
+   fleeCombatMessage();
 }
 
 /*******************************************************************************
@@ -311,14 +274,11 @@ void Battle::flee() {
 *******************************************************************************/
 bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
-      cout << "\t";
-      if(!victim.isHero)
-         cout << "The ";
-      cout << victim.name << " falls lifeless to the ground.\n\n"; 
+      characterDiedMessage(victim); 
       victim.isDead = true; 
       return true;
-  }
-  return false;
+   }
+   return false;
 }
 
 /*******************************************************************************
@@ -451,7 +411,6 @@ void Battle::killCharacter() {
    for(short i = allCombatParticipants.size() - 1; i >= 0; i--) {
       if(allCombatParticipants[i]->isDead) {
          if(allCombatParticipants[i]->isHero) {
-         	if(debugMode) cout << allCombatParticipants[i]->name << " is dead and gets erased!\n\n";
             allCombatParticipants[i] = NULL;
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
          }
@@ -478,8 +437,7 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
    willMiss = aggressor.precision - victim.evasion + victim.evasionPenalty -
    aggressor.precisionPenalty;
    missed = rand() % 100;
-   if(debugMode) cout << "\t\t\t" << aggressor.name << "'s accuracy (left > right = miss): \n\t\t\t" 
-   	                  << missed << " | " << willMiss << "\n\n";
+   if(debugMode) displayAccuracy(aggressor, missed, willMiss);
    return missed >= willMiss;
 }
 
@@ -589,7 +547,7 @@ void Battle::applyDazed(Character & victim) {
 * them to their weapons, armor and character stats;
 ****************************************************************************/
 void Battle::applyDefendBonuses(Character & character) {
-   character.weapon->criticalChance -= character.weapon->criticalBonus;
+   character.weapon->criticalChance += character.weapon->criticalBonus;
    character.precision += character.weapon->precisionBonus;
    character.evasion += character.armor->evadeBonus;
    character.armor->defencePower += character.armor->defendBonus;
@@ -600,7 +558,7 @@ void Battle::applyDefendBonuses(Character & character) {
 * Removes all bonuses granted by defending.
 ****************************************************************************/
 void Battle::removeDefendBonuses(Character & character) {
-   character.weapon->criticalChance += character.weapon->criticalBonus;
+   character.weapon->criticalChance -= character.weapon->criticalBonus;
    character.precision -= character.weapon->precisionBonus;
    character.evasion -= character.armor->evadeBonus;
    character.armor->defencePower -= character.armor->defendBonus;
@@ -664,7 +622,7 @@ void Battle::getCharacterAction(Character* character) {
    // Get action for hero character 
    if(character->isHero) {
       displayCharacterStats(monsterParticipants, heroParticipants, round++);
-      cout << "\t>>> " << character->name << "'s Turn <<<\n";
+      showWhosTurn(*participant);
       option = getUserInput({"Attack", "Defend", "Flee"});
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) 
@@ -737,7 +695,7 @@ void Battle::combat() {
 
 
 // Bugs to fix:
-//   Wolves still cause floating point exception? Maybe?
+
 
 // Refactors:
 

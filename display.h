@@ -39,7 +39,16 @@ void missedAttackMessage    (const Character & aggressor, const Character & vict
 void riposteMessage         (const Character & victim,    const Character & aggressor);
 void defendingMessage       (const Character & character);
 void regenerationMessage    (const Character & character);
-
+void displayInitiatives     (const vector<Character*> allCombatParticipants);
+void displayArmorValues     (const Character & character);
+void displayModifiedDamage  (const Character & character, const short damageTypes[4]);
+void displayHP_BP_EPdamage  (const short damageHpBpEp[3]);
+void slowMessage            (const Character & aggressor, const Character & victim);
+void fleeCombatMessage      ();
+void characterDiedMessage   (const Character & victim);
+void displayAccuracy        (const Character & aggressor, short missed, short willMiss);
+void showWhosTurn           (const Character & character);
+ 
 /*******************************************************************************
 * void getUserInput(vector<string>)
 * Aquires and validates user input. Parameter is a list of options.
@@ -390,19 +399,28 @@ void riposteMessage(const Character & victim, const Character & aggressor) {
 *******************************************************************************/
 void defendingMessage(const Character & character) {
    string message = "";
+   if(!character.isDefending) {
+         if(!character.isHero)
+            message += "The ";
+      message += character.name +   
+      " raises their guard and prepares for the next attack.\n";
+      message += "\t\t\tPrecision +" + to_string(character.weapon->precisionBonus) +
+      "\n\t\t\tDefence +" + to_string(character.armor->defendBonus) + "\n\t\t\t" +
+      "Evasion +" + to_string(character.armor->evadeBonus) + 
+      "\n\t\t\t+New affliction immunity" + "\n\t\t\tCritical Chance +" + 
+      to_string(character.weapon->criticalBonus);
+      if(character.weapon->riposte)
+         message += "\n\t\t\t+Riposte";
+      message += "\n\n"; 
+      writeMessage(message); 
+   }
+   else {
       if(!character.isHero)
          message += "The ";
-   message += character.name + 
-   " raises their guard and prepares for the next attack.\n";
-   message += "\t\t\tPrecision +" + to_string(character.weapon->precisionBonus) +
-   "\n\t\t\tDefence +" + to_string(character.armor->defendBonus) + "\n\t\t\t" +
-   "Evasion +" + to_string(character.armor->evadeBonus) + 
-   "\n\t\t\t+New affliction immunity" + "\n\t\t\tCritical Chance +" + 
-   to_string(character.weapon->criticalBonus);
-   if(character.weapon->riposte)
-      message += "\n\t\t\t+Riposte";
-   message += "\n\n"; 
-   writeMessage(message); 
+      message += character.name + " continues to stand guard.\n\n"; 
+      writeMessage(message);
+   }
+
 }
 
 /*******************************************************************************
@@ -418,6 +436,118 @@ void regenerationMessage(const Character & character) {
     writeMessage(message);
 }
 
+/*******************************************************************************
+* void displayInitiatives(vector<Character*>) 
+* A debugging function to display initiative and running initiative of all 
+* combat participants. May potentially be used to create a turn timer bar
+* because the information is sorted.
+*******************************************************************************/
+void displayInitiatives (const vector<Character*> allCombatParticipants) {
+   cout << "\t\t\tInitiatives | Running Initiatives" << endl; 
+   for(const auto & i : allCombatParticipants) {
+      cout.width(40);
+      cout << right << i->name << ": " << i->initiative 
+           << " | " << i->runningInitiative << endl;
+   }
+   cout << endl;    
+}
+
+/*******************************************************************************
+* void displayRawDamageAmounts(Character character)
+* Displays the aggressor's raw damage (HP/BP/EP) before the victim's armor
+* values are considered.
+*******************************************************************************/
+void displayRawDamageAmounts(const Character & character) {
+   cout << "\t\t\tBase Damage: " << character.weapon->baseDamage << endl;
+   cout << "\t\t\t" << character.name << " damage Types:" << endl;
+   cout << "\t\t\t" << "Cr: " << character.weapon->damageTypes[0] 
+                    << " | Ch: " 
+                    << character.weapon->damageTypes[1]  << " | Sl: " 
+                    << character.weapon->damageTypes[2]  << " | St: " 
+                    << character.weapon->damageTypes [3] << "\n\n";     
+}
+
+/*******************************************************************************
+* void displayArmorValues(Character character)
+* Displays the avictims's armor values.
+*******************************************************************************/
+void displayArmorValues(const Character & character) {
+   cout << "\t\t\t" << character.name 
+                    << " armor block values based on defence power: " 
+                    << character.armor->defencePower << endl;
+   cout << "\t\t\tCrush: " << character.armor->damageReduce[0] 
+                    << " | Chop: "  << character.armor->damageReduce[1] 
+                    << " | Slash: " << character.armor->damageReduce[2] 
+                    << " | Stab: "  << character.armor->damageReduce[3] << "\n\n";
+}
+
+/*******************************************************************************
+* void displayModifiedDamage(Character character)
+* Displays the avictims's armor values.
+*******************************************************************************/
+void displayModifiedDamage(const Character & character, const short damageTypes[4]) {
+   cout << "\t\t\t" << character.name << " modified Damage Types:" << endl;
+   cout << "\t\t\tCr: " << damageTypes[0] << " | Ch: " << damageTypes[1] 
+        << " | Sl: "    << damageTypes[2] << " | St: " << damageTypes[3] 
+        << "\n\n";
+}
+
+/*******************************************************************************
+* void displayHP_BP_EPdamage(Character character)
+* Displays the total damage inflicted to each health type.
+*******************************************************************************/
+void displayHP_BP_EPdamage(const short damageHpBpEp[3]) {
+   cout << "\t\t\t" << "Raw Damage using modified types:" << endl;
+   cout << "\t\t\tHP: " << damageHpBpEp[0] << " | BP: " << damageHpBpEp[1] 
+        << " | EP: " << damageHpBpEp[2] << "\n\n";  
+}
+
+/*******************************************************************************
+* void slowMessage(Character, Character)
+* Displays message if a character is afflicted by a slowing attack.
+*******************************************************************************/
+void slowMessage(const Character & aggressor, const Character & victim) {
+   cout << "\t" << victim.name << "'s movement is slowed by the " 
+        << aggressor.name << "'s attack!\n\n";
+}
+
+/*******************************************************************************
+* void fleeCombatMessage()
+* Displays the message for retreating.
+*******************************************************************************/
+void fleeCombatMessage() {
+   cout << "\t\tYou run away screaming like a little girl!\n\n";
+}
+
+/*******************************************************************************
+* void characterDiedMessage(Character)
+* Displays message when any character dies.
+*******************************************************************************/
+void characterDiedMessage(const Character & victim) {
+   cout << "\t";
+       if(!victim.isHero)
+          cout << "The ";
+       cout << victim.name << " falls lifeless to the ground.\n\n"; 
+}
+
+/*******************************************************************************
+* void displayAccuracy(Character)
+* Debugging function that displays the character's accuracy vs chance to hit.
+*******************************************************************************/
+void displayAccuracy(const Character & aggressor, short missed, short willMiss) {
+   cout << "\t\t\t" << aggressor.name 
+        << "'s accuracy (left > right = miss): \n\t\t\t" << missed << " | " 
+        << willMiss << "\n\n";
+}
+
 /******************************************************************************/
+
+/*******************************************************************************
+* void showNextCharacterTurn(Character) 
+* Displays the next character's turn.
+*******************************************************************************/
+void showWhosTurn(const Character & character) {
+   cout << "\t>>> " << character.name << "'s Turn <<<\n";
+}
 
 #endif // DISPLAY_H

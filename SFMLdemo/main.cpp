@@ -11,15 +11,15 @@ using namespace std;
 int main()
 {
 
-	short screenWidth = 850;
-	short screenHeight = 600;
+	short screenWidth = 1400;
+	short screenHeight = 900;
 
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML Examples");
     sf::Music music;
 	sf::Text text;
 	sf::Font font; 
-	sf::Texture texture;
-	sf::Sprite sprite;
+	sf::Texture dragonTex;
+	sf::Clock clock;
 	window.setFramerateLimit(60);
 
 	// Used for animations
@@ -28,18 +28,21 @@ int main()
 
 
 	// Images
-	if (!texture.loadFromFile("jon2.png")) cout << "unable to load image" << endl;
-	sprite.setTexture(texture);
+	if (!dragonTex.loadFromFile("dragon.png")) cout << "unable to load image" << endl;
+	sf::IntRect dragonSourceSprite(0, 161, 191, 161);
+ 	sf::Sprite sprite(dragonTex, dragonSourceSprite);
+
+
 
 	// Shapes
     sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    shape.setFillColor(sf::Color::Yellow);
 
 
     // Fonts and text
 	if (!font.loadFromFile("Fonts/Sweet Maple.otf")) cout << "Font not found" <<	endl; 
 	text.setFont(font); 
-	text.setString("Holy crap SFML is easy to use!");
+	text.setString("SFML Examples by Jonathan Carlson");
 	text.setCharacterSize(48); 
 	text.setFillColor(sf::Color::Yellow);
 	// text.setStyle(sf::Text::Bold | sf::Text::Underlined);
@@ -51,6 +54,7 @@ int main()
 	music.play();
 
 
+
 	text.setPosition(sf::Vector2f(screenWidth / 4, 0));
 	//center text
 	sf::FloatRect textRect = text.getLocalBounds();
@@ -59,7 +63,7 @@ int main()
 	text.setPosition(sf::Vector2f(screenWidth / 2, 100));
 
 
-	shape.setPosition(sf::Vector2f(screenWidth / 2, screenHeight / 2));
+	shape.setPosition(sf::Vector2f(screenWidth / 2 - 100.f, screenHeight / 2 - 100.f));
 	float a = 0, b = 0;
     
     while (window.isOpen())
@@ -71,19 +75,48 @@ int main()
                 window.close();
         }
 
-        window.clear();
+        window.clear(sf::Color(102, 255, 255));
         /**********************************************************************/
         // All stuff gets drawn between these lines
 
 		sprite.setPosition(sf::Vector2f(x, y));
-        window.draw(shape);
-		window.draw(sprite);
-		window.draw(text);
 
-		if(x >= screenWidth - 300) a = -4;
-		if(x <= 0) a = 4;
-		if(y >= screenHeight - 316) b = -4;
-		if(y <= 0) b = 4;
+        window.draw(shape);
+		window.draw(text);
+		window.draw(sprite);
+
+		if(clock.getElapsedTime().asSeconds() > 0.2f) {
+			
+			if(dragonSourceSprite.left == 382) 
+				dragonSourceSprite.left = 0;
+			else
+				dragonSourceSprite.left += 191;
+
+			sprite.setTextureRect(dragonSourceSprite);
+			clock.restart();
+
+		}
+
+
+		if(x >= screenWidth - 191) {
+			dragonSourceSprite.top = 483;
+			a = -4;
+		}
+
+		if(x <= 0) {
+			dragonSourceSprite.top = 161;
+			a = 4;
+		}
+
+		if(y >= screenHeight - 161) {
+			b = -2;
+			dragonSourceSprite.top = 0;
+		}
+
+		if(y <= 0) {
+			b = 2;
+			dragonSourceSprite.top = 322;
+		}
 
 
 		x += a;

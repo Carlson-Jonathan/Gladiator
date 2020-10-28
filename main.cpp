@@ -1,14 +1,15 @@
-/*******************************************************************************
-* main.cpp
-* Author Jonathan Carlson
-* Description:
-*    Main driver.
-*******************************************************************************/
 #ifndef MAIN_CPP
 #define MAIN_CPP
 #include <iostream>
 #include <vector>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Network.hpp>
+#include "animations.h"
 #include "battle.h"
+using namespace std;
 
 vector<Character> createCharacters(short numHeroes) {
    vector<Character> heroes;
@@ -26,17 +27,44 @@ vector<Character> createCharacters(short numHeroes) {
 
 int main() {
 
-   vector<Character> heroes = createCharacters(3);
+   short screenWidth = 900;
+   short screenHeight = 600;
+   
+   vector<Character> heroes = createCharacters(1);
+   Battle battle(heroes, "Random", 1, 1);
 
-   //   Param 1 = create player object.
-   //   Param 2 = type of monster. 
-   //   Param 3 = toggles debug mode.
-   //   Param 4 = Number of extra monsters per combat.
-   {Battle battle(heroes, "Random", 1, 3);}
+   Animations animations(screenWidth, screenHeight);
 
+   sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
+      "Gladiator by Jonathan Carlson");
+   window.setFramerateLimit(60);
+
+
+   while (window.isOpen()) {
+      animations.eventListener(window);
+      window.clear(sf::Color(102, 255, 255));
+/******************************** Game Loop ***********************************/
+
+
+
+      animations.flyingDragon(window);
+      battle.combat(window);
+
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+      window.display();
+   }
    cout << "\n\n>> End of Program. <<" << endl;
-
-   return 0;
+	return 0;
 }
 
 #endif // MAIN_CPP

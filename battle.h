@@ -10,8 +10,16 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <cstdlib>  // sleep
+#include <unistd.h> // sleep
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Network.hpp>
 #include "display.h"
 #include "character.h"
+#include "animations.h"
 
 class Battle {
 
@@ -29,9 +37,9 @@ public:
          
       srand(time(0));       
       generateParticipantLists();
-      combat();
    }
 
+   void combat (sf::RenderWindow & window);
 
 private:
    /***************************************
@@ -57,6 +65,9 @@ private:
 
    Character* monster = NULL;
    Character* participant = NULL;
+   Animations animations;
+   sf::Clock clock1;
+   sf::Clock clock2;
 
 
    vector<Character> heroes;
@@ -97,7 +108,6 @@ private:
    bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
-   void combat               ();
 };
 
    /***************************************
@@ -657,38 +667,45 @@ void Battle::getCharacterAction(Character* character) {
 * a combat sequence. Only stops when it hits a 'break' statement.
 *
 *******************************************************************************/
-void Battle::combat() {
+void Battle::combat(sf::RenderWindow & window) {
 
+   short count = 0;
    while(true) {
+      usleep(16666); // 60 FPS
+      
+      // FPS tester
+      count++;
+      cout << "The battle is happening " << count << endl;
+
+      if(animations.eventListener(window)) break;
 
       // Determines who's turn it is based on the lowest running initiative. 
-      participant = nextAction();
+      // participant = nextAction();
 
       /*************************************************************************
       *                        Turn Ending Action Block
       * Code in this block will be executed after any turn, hero's or monster's.
       *************************************************************************/
-      applyFatigue(*participant);      
-      applyDazed(*participant);         
+      // applyFatigue(*participant);      
+      // applyDazed(*participant);         
       
       /*************************************************************************
       *                    Characters' Primary Action Block
       *************************************************************************/
-      getCharacterAction(participant);
-      if(applyCharacterAction(participant)) break;
+      // getCharacterAction(participant);
+      // if(applyCharacterAction(participant)) break;
 
       /*************************************************************************
       *                       Round Ending Action Block
       * A round ends after each character exceeds 200 running initiative.
       *************************************************************************/
-      if(isEndOfTurn()) 
-         if(endOfTurnActions()) break;           
+      // if(isEndOfTurn()) 
+      //    if(endOfTurnActions()) break;           
    }   
 
-   if(debugMode) 
-      cout << "\nDont forget to reset world affecting stats at the end of combat!" 
-           << endl;
-      
+   // if(debugMode) 
+   //    cout << "\nDont forget to reset world affecting stats at the end of combat!" 
+   //         << endl;
 }
 #endif // BATTLE_H
 

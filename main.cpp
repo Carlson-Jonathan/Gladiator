@@ -29,25 +29,31 @@ int main() {
 
    short screenWidth = 900;
    short screenHeight = 600;
-   
-   vector<Character> heroes = createCharacters(1);
-   Battle battle(heroes, "Random", 1, 1);
-
    Animations animations(screenWidth, screenHeight);
+   Animations* pAnimations = &animations;
+   
+   sf::Music music;
+   if (!music.openFromFile("Sounds/Music/preBattle.ogg"))
+      cout << "Error opening file 'Sounds/Music/preBattle.ogg'!\n";
+   music.setLoop(true);
+   music.play();
+
+   vector<Character> heroes = createCharacters(1);
+   Battle battle(heroes, "Random", 1, 1, 0, pAnimations);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");
    window.setFramerateLimit(60);
 
-
+   music.stop();
    while (window.isOpen()) {
       animations.eventListener(window);
       window.clear(sf::Color(102, 255, 255));
 /******************************** Game Loop ***********************************/
 
 
-
-      animations.flyingDragon(window);
+      // animations.drawBackground(window);
+      // animations.flyingDragon(window);
       battle.combat(window);
 
 

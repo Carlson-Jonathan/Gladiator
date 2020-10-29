@@ -26,6 +26,10 @@ private:
    sf::Sprite dragon;
    sf::IntRect dragonRect;
 
+   sf::Texture backgroundTex;
+   sf::Sprite backgroundSpr;
+   sf::IntRect backgroundRect;
+
    float a = 0, b = 0;
 
    short 
@@ -43,10 +47,12 @@ public:
    // Looped functions
    void flyingDragon(sf::RenderWindow & window);
    bool eventListener(sf::RenderWindow & window);
+   void drawBackground(sf::RenderWindow & window);
 
 
    // One-time functions
    void createDragon();
+   void createBackground();
 };
 
 /*******************************************************************************
@@ -56,6 +62,7 @@ Animations::Animations(short screenWidth, short screenHeight) {
    this->screenWidth = screenWidth;
    this->screenHeight = screenHeight;
    createDragon();
+   createBackground();
 }
 
 /*******************************************************************************
@@ -109,6 +116,18 @@ void Animations::createDragon() {
    this->dragonRect = dragonRect;																	// Set to member variable
    dragon.setTexture(dragonTexture);																// Give sprite the texture
    dragon.setTextureRect(dragonRect);																// Set the size/shape of sprite
+}
+
+void Animations::createBackground() {
+   if(!backgroundTex.loadFromFile("Images/sampleLandscape.jpg")) cout << "Error loading Images/dragon.png";
+   sf::IntRect backgroundRect(0, 0, screenWidth, screenHeight);
+   this->backgroundRect = backgroundRect;
+   backgroundSpr.setTexture(backgroundTex);
+   backgroundSpr.setTextureRect(backgroundRect);
+}
+
+void Animations::drawBackground(sf::RenderWindow & window) {
+   window.draw(backgroundSpr);
 }
 
 #endif // ANIMATIONS_H

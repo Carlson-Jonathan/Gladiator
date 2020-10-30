@@ -54,11 +54,11 @@ private:
       textMode = false,
 
       // 0 = nextAction, applyFatigue/Bleeding
-      code[30] = {1, 0},
+      code[10] = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
 
       // 0 = Bleeding animation
       // 1 = Dazed animation
-      animation[30] = {0, 0, 0, 0, 0, 0, 0};
+      animation[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
    short 
       died,
@@ -70,7 +70,8 @@ private:
       missed,
       damageTypes[4],
       block[4],
-      numMonsters;
+      numMonsters,
+      randNum;
 
    string 
       newMonster,
@@ -120,6 +121,7 @@ private:
    bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
+   void playBattleMusic      ();
 };
 
    /***************************************
@@ -205,6 +207,7 @@ void Battle::applyDamage(Character & victim) {
    victim.setHitPoints(-damageHpBpEp[0]);
    victim.setBloodPoints(-damageHpBpEp[1]);
    victim.setEssencePoints(-damageHpBpEp[2]);
+   animation[5] = true;
 }
 
 /*******************************************************************************
@@ -226,14 +229,16 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       if(wep->canStun)
          if(damageTypes[0] > aggressor.weapon->minDamage + 
             aggressor.weapon->rangeDamage / 2) { // Damge > than 50% of potential
-            stunMessage(aggressor, victim);
+            if(textMode) stunMessage(aggressor, victim);
+            animation[7] = true;
             victim.runningInitiative += wep->canStun;
          }
 
       // Slows base initiative by venom stat
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
-         slowMessage(aggressor, victim);
+         if(textMode) slowMessage(aggressor, victim);
+         animation[8] = true;
       }
 
    // Set additional afflictions
@@ -296,8 +301,9 @@ void Battle::flee() {
 *******************************************************************************/
 bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
-      characterDiedMessage(victim); 
+      if(textMode) characterDiedMessage(victim); 
       victim.isDead = true; 
+      animation[6] = true;
       return true;
    }
    return false;
@@ -312,7 +318,8 @@ void Battle::receiveHazardDamage(Character & aggressor, const Character & victim
     for(auto & i : damageHpBpEp)
         i /= victim.isHazardous;
 
-    hazardDamageMessage(aggressor, damageHpBpEp);
+    if(textMode) hazardDamageMessage(aggressor, damageHpBpEp);
+    animation[9] = true;
     applyDamage(aggressor);
     isDefeated(aggressor);
 }
@@ -335,7 +342,8 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
       receiveHazardDamage(aggressor, victim);
    }
    else
-      missedAttackMessage(aggressor, victim);
+      animation[10] = true;
+      if(textMode) missedAttackMessage(aggressor, victim);
 
    return 0;
 }
@@ -542,6 +550,7 @@ void Battle::applyFatigue(Character & victim) {
    else {
   	   victim.weapon->basePenalty = 1;
       animation[0] = false;
+      code[2] = true;
    }
 }
 
@@ -566,6 +575,7 @@ void Battle::applyDazed(Character & victim) {
       victim.evasionPenalty = 0;
       victim.precisionPenalty = 0;
       animation[1] = false;
+      code[3] = true;
    }
 }
 
@@ -601,15 +611,15 @@ void Battle::removeDefendBonuses(Character & character) {
 *******************************************************************************/
 bool Battle::completeOption1(Character & activeCharacter, Character & targetCharacter) {
    attackCharacter(activeCharacter, targetCharacter);
-   if(burnTheBodies()) return 1;
+   // if(burnTheBodies()) return 1;
 
-   applyRetaliationActions(activeCharacter, targetCharacter);
-   if(burnTheBodies()) return 1;
+   // applyRetaliationActions(activeCharacter, targetCharacter);
+   // if(burnTheBodies()) return 1;
 
-   if(activeCharacter.isDefending) {
-      activeCharacter.isDefending = false;
-      removeDefendBonuses(activeCharacter);
-   }
+   // if(activeCharacter.isDefending) {
+   //    activeCharacter.isDefending = false;
+   //    removeDefendBonuses(activeCharacter);
+   // }
 
    return 0;
 }
@@ -645,20 +655,18 @@ bool Battle::applyCharacterAction(Character* character) {
 *******************************************************************************/
 void Battle::getCharacterAction(Character* character) {
 
-   short randNum;
-
    // Get action for hero character 
    if(character->isHero) {
       if(textMode) displayCharacterStats(monsterParticipants, heroParticipants, round++);
       if(textMode) showWhosTurn(*participant);
-      if(textMode) option = getUserInput({"Attack", "Defend", "Flee"}); 
-
+      // if(textMode) option = getUserInput({"Attack", "Defend", "Flee"}); 
+      option = 1;
       animation[2] = true; 
 
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) {
-            target = getUserInput(listOfMonsters);           // Attack what?
-            animation[3] = true;
+            // target = getUserInput(listOfMonsters);           // Attack what?
+            target = 1;
          }
        else
            target = 1;                 // Auto attack if only 1 monster left 
@@ -673,6 +681,20 @@ void Battle::getCharacterAction(Character* character) {
          option = 1;
    }
 }
+
+/*******************************************************************************
+* void playBattleMusic() 
+* Randomly selects 1 of 3 battle themes and plays it on a loop.
+*******************************************************************************/
+void Battle::playBattleMusic() {
+   randNum = rand() % 3;
+   if (!music.openFromFile(battleMusic[randNum]))
+      cout << "Error opening file '" << battleMusic[randNum] << "'!\n";
+   music.setLoop(true);
+   music.play();
+}
+
+
 
 
 
@@ -692,17 +714,12 @@ void Battle::getCharacterAction(Character* character) {
 *******************************************************************************/
 void Battle::combat(sf::RenderWindow & window) {
 
-   
-   short randNum = rand() % 3;
-   if (!music.openFromFile(battleMusic[randNum]))
-      cout << "Error opening file '" << battleMusic[randNum] << "'!\n";
-   music.setLoop(true);
-   music.play();
+   playBattleMusic();
 
    short count = 0;
    while(true) {
       window.clear(sf::Color(102, 255, 255));
-      usleep(16666); // 60 FPS = 16666
+      usleep(500000); // 60 FPS = 16666
       
       // FPS tester
       count++;
@@ -712,21 +729,25 @@ void Battle::combat(sf::RenderWindow & window) {
 
       // Determines who's turn it is based on the lowest running initiative. 
       if(code[0]) participant = nextAction();                                    // Needs to be reactivated at end of turn
+      code[0] = false;   
 
       /*************************************************************************
       *                        Turn Ending Action Block
       * Code in this block will be executed after any turn, hero's or monster's.
       *************************************************************************/
-      if(code[0]) applyFatigue(*participant);                                    // Activate booleans to run animations.
-      if(code[0]) applyDazed(*participant);    
+      if(code[1]) applyFatigue(*participant);                                    // Activate booleans to run animations.
+      code[1] = false;
+      if(code[2]) applyDazed(*participant);
+      code[2] = false; 
       
       /*************************************************************************
       *                    Characters' Primary Action Block
       *************************************************************************/
-      if(code[0]) getCharacterAction(participant);
-      code[0] = false; 
-      code[1] = true;  
-      // if(code[1]) if(applyCharacterAction(participant)) break;
+      if(code[3]) getCharacterAction(participant);
+      code[3] = false;
+
+      if(code[4]) if(applyCharacterAction(participant)) break;
+      code[4] = false;
 
       /*************************************************************************
       *                       Round Ending Action Block
@@ -751,13 +772,106 @@ void Battle::combat(sf::RenderWindow & window) {
       * animations should be activated and deactivated at any given time.
       *************************************************************************/
       cout << "Current Display(s)" << endl;
-      if(animation[0]) cout << "\tFatigue animation is executed." << endl;
-      if(animation[1]) cout << "\tDazed animation is executed." << endl;
-      if(animation[2]) cout << "\tDisplay Character Stats" << endl;                 // animation[2] needs to set itself to false when an option is selected
-      if(animation[2]) cout << "\tWho's turn next arrow" << endl;
-      if(animation[2]) cout << "\tGet user input (listen event)" << endl;
-      if(animation[3]) cout << "\tSelect which monster to attack" << endl;
-      if(animation[4]) cout << "\tDisplay attack animation/message" << endl;
+
+      if(animation[0]) {
+         // This will just throw a "fatigued message over their head"
+         cout << "\tFatigue animation is executed." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[0] = false;
+            code[2] = true;
+            clock.restart();
+         }
+      }
+
+      if(animation[1]) {
+         // This will just throw a "dazed" message over their head.
+         cout << "\tDazed animation is executed." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[1] = false;
+            code[3] = true;
+            clock.restart();
+         }
+      }
+
+      if(animation[2]) {
+         cout << "\tAnimation: Character stats" << endl;                 // animation[2] needs to set itself to false when an option is selected
+         cout << "\tAnimation: Next turn arrow" << endl;
+         cout << "\tAnimation: Get user input (listen event)" << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[2] = false;
+            animation[3] = true;
+            clock.restart();
+         }
+      }
+
+      if(animation[3]) {
+         cout << "\tSelect which monster to attack" << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[3] = false;
+            code[4] = true;
+            clock.restart();
+         }  
+      }
+
+      if(animation[4]) {
+         cout << "\tDisplay attack animation/message" << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[4] = false;
+            clock.restart();
+         }           
+      }
+
+      if(animation[5]) {
+         cout << "\tDisplay damage numbers." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[5] = false;
+            clock.restart();
+            code[1] = true;
+         }  
+      }
+
+      if(animation[6]) {
+         cout << "\tDisplay character defeat animation." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[6] = false;
+            clock.restart();
+         }  
+      }
+      
+      if(animation[7]) {
+         cout << "\tDisplay stun animation." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[7] = false;
+            clock.restart();
+         }  
+      }
+      
+      if(animation[8]) {
+         cout << "\tDisplay venom animation." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[8] = false;
+            clock.restart();
+         }  
+      }
+      
+      if(animation[9]) {
+         cout << "\tDisplay hazard damage taken." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[9] = false;
+            clock.restart();
+         }  
+      }
+
+      if(animation[10]) {
+         cout << "\tDisplay missed attack message." << endl;
+         if(clock.getElapsedTime().asSeconds() > 5.0f) {
+            animation[10] = false;
+            clock.restart();
+            code[1] = true;
+         }  
+      }
+
+
       window.display();
    }   
 
@@ -775,6 +889,22 @@ void Battle::combat(sf::RenderWindow & window) {
 
 
 // Refactors:
+   // To create animations, let an entire combat round happen with no pauses or animations.
+   // Go through the code line by line and determine if an animation could be triggered.
+   // Create an animation lineup list (vector<bool>) where each element represents a 
+   // specific animation in the order they would occur. After the lineup list has been 
+   // populated, shut off the combat mechanics with an if(boolean) statement (it should
+   // only cycle through once anyway). Similar to the lineup list, create coresponding
+   // animation functions in logical order. Each function should be preceeded by an 
+   // if(lineupList[index]). Start the animation cycle by iterating through the lineup list 
+   // calling only the first true element, then break the loop. The coresponding function
+   // will be called. At the end of each function (a certain amount of time has passed), 
+   // the same loop will be called to determine the next animation function and so on. The
+   // last animation function will reactivate the combat mechanics to start a new round.
+   // If the combat round includes a prompt for player input, deactivate all other combat
+   // mechanics and animations except for the player prompt animation. Once that animation
+   // is complete (the player has made their selections), the other combat mechanics will 
+   // reactivate and continue to populate the next animation lineup list.
 
 // Currenlty working on:
 //   Implementing SFML game platform.

@@ -35,14 +35,15 @@ private:
    short 
       x = 0.f,
       y = 0.f,
-      screenWidth,
-      screenHeight,
       count = 0;
+
+   short* pScreenWidth;
+   short* pScreenHeight;
 
 public:
 
    Animations() {}
-   Animations(short screenWidth, short screenHeight); 
+   Animations(short* screenWidth, short* screenHeight); 
 
    // Looped functions
    void flyingDragon(sf::RenderWindow & window);
@@ -58,9 +59,9 @@ public:
 /*******************************************************************************
 * Prototypes
 *******************************************************************************/
-Animations::Animations(short screenWidth, short screenHeight) {
-   this->screenWidth = screenWidth;
-   this->screenHeight = screenHeight;
+Animations::Animations(short* screenWidth, short* screenHeight) {
+   pScreenWidth = screenWidth;
+   pScreenHeight = screenHeight;
    createDragon();
    createBackground();
 }
@@ -89,19 +90,30 @@ void Animations::flyingDragon(sf::RenderWindow & window) {
    }
 
    // Dragon changes direction and faces direction flying
-   if(x >= screenWidth - 191) {a = -4; dragonRect.top = 483;}
+   if(x >= *pScreenWidth - 191) {a = -4; dragonRect.top = 483;}
    if(x <= 0) {a = 4; dragonRect.top = 161;}
-   if(y >= screenHeight - 161) {b = -2; dragonRect.top = 0;}
+   if(y >= *pScreenHeight - 161) {b = -2; dragonRect.top = 0;}
    if(y <= 0) {b = 2; dragonRect.top = 322;}
    x += a; y += b;
 }
 
 bool Animations::eventListener(sf::RenderWindow & window) {
    sf::Event event;
+
+   // Closes the window and terminates loops if the 'X' is clicked or alt + F4.
    while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
          window.close();
          return 1;
+      }
+
+      // Auto adjusts the game resolution when the screen size is dragged.
+      if (event.type == sf::Event::Resized) {
+         *pScreenWidth = event.size.width;
+         *pScreenHeight = event.size.height;
+         sf::FloatRect visibleArea(0, 0, *pScreenWidth, *pScreenHeight);
+         window.setView(sf::View(visibleArea));
+         // createBackground();
       }
 
       // More events...
@@ -120,7 +132,7 @@ void Animations::createDragon() {
 
 void Animations::createBackground() {
    if(!backgroundTex.loadFromFile("Images/sampleLandscape.jpg")) cout << "Error loading Images/dragon.png";
-   sf::IntRect backgroundRect(0, 0, screenWidth, screenHeight);
+   sf::IntRect backgroundRect(0, 0, *pScreenWidth, *pScreenHeight);
    this->backgroundRect = backgroundRect;
    backgroundSpr.setTexture(backgroundTex);
    backgroundSpr.setTextureRect(backgroundRect);

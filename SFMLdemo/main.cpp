@@ -69,11 +69,22 @@ int main()
     while (window.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
+        while (window.pollEvent(event)) {
+           if (event.type == sf::Event::Closed)
+              window.close();
+
+
+          // catch the resize events
+          if (event.type == sf::Event::Resized) {
+             // update the view to the new size of the window
+          	 screenWidth = event.size.width;
+          	 screenHeight = event.size.height;
+             sf::FloatRect visibleArea(0, 0, screenWidth, screenHeight);
+             window.setView(sf::View(visibleArea));
+          }
+
+             shape.setPosition(sf::Vector2f(screenWidth / 2 - 100.f, screenHeight / 2 - 100.f));
+       }
 
         window.clear(sf::Color(102, 255, 255));
         /**********************************************************************/

@@ -27,9 +27,12 @@ vector<Character> createCharacters(short numHeroes) {
 
 int main() {
 
-   short screenWidth = 900;
-   short screenHeight = 600;
-   Animations animations(screenWidth, screenHeight);
+   short screenWidth = 900,
+         screenHeight = 600;
+   short* pScreenWidth = &screenWidth;
+   short* pScreenHeight = &screenHeight;
+
+   Animations animations(pScreenWidth, pScreenHeight);
    Animations* pAnimations = &animations;
    
    sf::Music music;
@@ -39,7 +42,7 @@ int main() {
    music.play();
 
    vector<Character> heroes = createCharacters(1);
-   Battle battle(heroes, "Random", 1, 1, 0, pAnimations);
+   Battle battle(heroes, "Random", 1, 1, 1, pAnimations);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");

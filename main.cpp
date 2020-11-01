@@ -41,8 +41,10 @@ int main() {
    music.setLoop(true);
    music.play();
 
-   vector<Character> heroes = createCharacters(1);
-   Battle battle(heroes, "Random", 1, 1, 1, pAnimations);
+   vector<Character> heroes = createCharacters(2);
+
+       // heroes, monster type, debug mode, num monsters, text mode, animations
+   Battle battle(heroes, "Omnibeast", 0, 1, 1, pAnimations);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");

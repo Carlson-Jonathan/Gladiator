@@ -49,7 +49,25 @@ public:
    void flyingDragon(sf::RenderWindow & window);
    bool eventListener(sf::RenderWindow & window);
    void drawBackground(sf::RenderWindow & window);
-
+   
+   void animationFatigue();
+   void animationDazed();
+   void animationHerosTurn();
+   void animationDefend();
+   void animationRetreat();
+   void animationAttack();
+   void animationMiss();
+   void animationApplyDamage();
+   void animationDeath();
+   void animationCombatDefeat();
+   void animationCombatVictory();
+   void animationWounded();
+   void animationStun();
+   void animationSlow();
+   void animationHazardDamage();
+   void animationRetaliation();
+   void animationBleeding();
+   void animationRegeneration();
 
    // One-time functions
    void createDragon();
@@ -131,8 +149,8 @@ void Animations::createDragon() {
 }
 
 void Animations::createBackground() {
-   if(!backgroundTex.loadFromFile("Images/sampleLandscape.jpg")) cout << "Error loading Images/dragon.png";
-   sf::IntRect backgroundRect(0, 0, *pScreenWidth, *pScreenHeight);
+   if(!backgroundTex.loadFromFile("Images/Backgroundflowers.png")) cout << "Error loading Images/dragon.png";
+   sf::IntRect backgroundRect(0, 0, 1920, 1080);
    this->backgroundRect = backgroundRect;
    backgroundSpr.setTexture(backgroundTex);
    backgroundSpr.setTextureRect(backgroundRect);
@@ -141,6 +159,86 @@ void Animations::createBackground() {
 void Animations::drawBackground(sf::RenderWindow & window) {
    window.draw(backgroundSpr);
 }
+
+void Animations::animationFatigue() {
+   cout << "\t*** Fatigue Animation ***\n";
+}
+
+void Animations::animationDazed() {
+   cout << "\t*** Dazed Animation ***\n";
+}
+
+void Animations::animationHerosTurn() {
+   cout << "\t*** Display Hero stats ***\n";
+   cout << "\t*** Who's turn arrow ***\n";
+   cout << "\t*** Listen for user input ***\n";
+   cout << "\t*** Select Monster/menu options ***\n";
+}
+
+void Animations::animationDefend() {
+   cout << "\t*** Character defending animation ***\n";
+}
+
+void Animations::animationRetreat() {
+   cout << "\t*** Character is running away ***\n";
+}
+
+void Animations::animationAttack() {
+   cout << "\t*** Character executes a primary attack ***\n";
+}
+
+void Animations::animationMiss() {
+   cout << "\t*** Character's attack misses the target ***\n";
+}
+
+void Animations::animationApplyDamage() {
+   cout << "\t*** Damage numbers appear over victim ***\n";
+}
+
+void Animations::animationDeath() {
+   cout << "\t*** This character has died! ***\n";
+}
+
+void Animations::animationCombatDefeat() {
+   cout << "\t*** Your party is wiped! You are defeated! ***\n";
+}
+
+void Animations::animationCombatVictory() {
+   cout << "\t*** All enemies are dead! You are victorious! ***\n";
+}
+
+void Animations::animationWounded() {
+   cout << "\t*** This character is wounded and will bleed each turn. ***\n";
+}
+
+void Animations::animationStun() {
+   cout << "\t*** This character is stunned (running initiative +) ***\n";
+}
+
+void Animations::animationSlow() {
+   cout << "\t*** This character is stunned (initiative -) ***\n";
+}
+
+void Animations::animationHazardDamage() {
+   cout << "\t*** Hazard damage taken for kicking a cactus ***\n";
+}
+
+void Animations::animationRetaliation() {
+   cout << "\t*** Character recoils and strikes back ***\n";
+}
+
+void Animations::animationBleeding() {
+   cout << "\t*** Bleeding damage is applied to this character ***\n";
+}
+
+void Animations::animationRegeneration() {
+   cout << "\t*** Character is regenerating blood points ***\n";
+}
+
+
+
+
+
 
 #endif // ANIMATIONS_H
 

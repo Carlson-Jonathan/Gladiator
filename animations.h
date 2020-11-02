@@ -1,6 +1,7 @@
 #ifndef ANIMATIONS_H
 #define ANIMATIONS_H
 #include <iostream>
+#include <vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
@@ -16,7 +17,8 @@ using namespace std;
 class Animations {
 
 private:
-   sf::Clock clock;
+   sf::Clock dragonClock;
+   sf::Clock animationClock;
    sf::FloatRect textRect;
    sf::Font font;
    sf::Music music;
@@ -35,7 +37,8 @@ private:
    short 
       x = 0.f,
       y = 0.f,
-      count = 0;
+      count = 0,
+      lineupIndex = 88;
 
    short* pScreenWidth;
    short* pScreenHeight;
@@ -49,7 +52,10 @@ public:
    void flyingDragon(sf::RenderWindow & window);
    bool eventListener(sf::RenderWindow & window);
    void drawBackground(sf::RenderWindow & window);
-   
+
+   short getLineupIndex(bool animationLineup[], short size);
+   void animationSelect(bool (&animationLineup)[36], bool & go);
+
    void animationFatigue();
    void animationDazed();
    void animationHerosTurn();
@@ -97,14 +103,14 @@ void Animations::flyingDragon(sf::RenderWindow & window) {
    window.draw(dragon);
 
    // Dragon flaps its wings
-   if(clock.getElapsedTime().asSeconds() > 0.2f) {
+   if(dragonClock.getElapsedTime().asSeconds() > 0.2f) {
       if(dragonRect.left == 382) 
          dragonRect.left = 0;
       else
          dragonRect.left += 191;
 
       dragon.setTextureRect(dragonRect);
-      clock.restart();
+      dragonClock.restart();
    }
 
    // Dragon changes direction and faces direction flying
@@ -115,6 +121,10 @@ void Animations::flyingDragon(sf::RenderWindow & window) {
    x += a; y += b;
 }
 
+/*******************************************************************************
+* bool eventListener(window)
+* This is the event listener- detects user interaction with the game.
+*******************************************************************************/
 bool Animations::eventListener(sf::RenderWindow & window) {
    sf::Event event;
 
@@ -129,9 +139,10 @@ bool Animations::eventListener(sf::RenderWindow & window) {
       if (event.type == sf::Event::Resized) {
          *pScreenWidth = event.size.width;
          *pScreenHeight = event.size.height;
+         cout << "Screen Width: " << event.size.width << endl;
+         cout << "Screen Height: " << event.size.height << endl;         
          sf::FloatRect visibleArea(0, 0, *pScreenWidth, *pScreenHeight);
          window.setView(sf::View(visibleArea));
-         // createBackground();
       }
 
       // More events...
@@ -140,6 +151,10 @@ bool Animations::eventListener(sf::RenderWindow & window) {
    return 0;
 }
 
+/*******************************************************************************
+* void createDragon()
+* One-time function that sets the sprite for the dragon animation.
+*******************************************************************************/
 void Animations::createDragon() {
    if(!dragonTexture.loadFromFile("Images/dragon.png")) cout << "Error loading Images/dragon.png";  // Load texture file
    sf::IntRect dragonRect(0, 161, 191, 161);														// Set rectangle size
@@ -148,14 +163,169 @@ void Animations::createDragon() {
    dragon.setTextureRect(dragonRect);																// Set the size/shape of sprite
 }
 
+/*******************************************************************************
+* void createBackground()
+* One-time function that sets the sprite for the background.
+*******************************************************************************/
 void Animations::createBackground() {
-   if(!backgroundTex.loadFromFile("Images/Backgroundflowers.png")) cout << "Error loading Images/dragon.png";
+   if(!backgroundTex.loadFromFile("Images/BackgroundPineforest.png")) cout << "Error loading Images/dragon.png";
    sf::IntRect backgroundRect(0, 0, 1920, 1080);
    this->backgroundRect = backgroundRect;
    backgroundSpr.setTexture(backgroundTex);
    backgroundSpr.setTextureRect(backgroundRect);
 }
 
+/*******************************************************************************
+* void getLineupIndex()
+* Iterates through the animation lineup array and returns the index of the frist
+* true boolean.
+*******************************************************************************/
+short Animations::getLineupIndex(bool animationLineup[], short size) {
+   for(short i = 0; i < size; i++) {
+      if(animationLineup[i]) {
+         animationLineup[i] = false;
+         return i + 1;
+      }
+   }
+   return 0;
+}
+
+/*******************************************************************************
+* void animationSelect()
+* Just a switch statement function. Picks which animation to display based on 
+* the lineupIndex. The '0' case resets the combat sequence and starts a new turn
+*******************************************************************************/
+void Animations::animationSelect(bool (&animationLineup)[36], bool & go) {
+
+   short size = sizeof(animationLineup);
+   if(animationClock.getElapsedTime().asSeconds() > 3.0f) {
+      lineupIndex = getLineupIndex(animationLineup, size);
+      animationClock.restart();
+   }
+
+   switch(lineupIndex) {
+      case 1:
+         animationFatigue();
+         break;
+      case 2:
+         animationDazed();
+         break;            
+      case 3:
+         animationHerosTurn();
+         break;
+      case 4:
+         animationDefend();
+         break;
+      case 5:
+         animationRetreat();
+         break;
+      case 6:
+         animationAttack();
+         break;
+      case 7:
+         animationMiss();
+         break;
+      case 8:
+         animationApplyDamage();
+         break;
+      case 9:
+         animationDeath();
+         break;
+      case 10:
+         animationCombatDefeat();
+         break;
+      case 11:
+         animationCombatVictory();
+         break;   
+      case 12:
+         animationWounded();
+         break;  
+      case 13:
+         animationStun();
+         break; 
+      case 14:
+         animationSlow();
+         break; 
+      case 15:
+         animationHazardDamage();
+         break; 
+      case 16:
+         animationDeath();
+         break; 
+      case 17:
+         animationCombatDefeat();
+         break;     
+      case 18:
+         animationCombatVictory();
+         break;
+      case 19:
+         animationRetaliation();
+         break;
+      case 20:
+         animationMiss();
+         break;
+      case 21:
+         animationApplyDamage();
+         break;
+      case 22:
+         animationDeath();
+         break;
+      case 23:
+         animationCombatDefeat();
+         break;
+      case 24:
+         animationCombatVictory();
+         break;
+      case 25:
+         animationWounded();
+         break;
+      case 26:
+         animationStun();
+         break;
+      case 27:
+         animationSlow();
+         break;
+      case 28:
+         animationHazardDamage();
+         break; 
+      case 29:
+         animationDeath();
+         break; 
+      case 30:
+         animationCombatDefeat();
+         break; 
+      case 31:
+         animationCombatVictory();
+         break; 
+      case 32:
+         animationBleeding();
+         break;  
+      case 33:
+         animationDeath();
+         break;  
+      case 34:
+         animationCombatDefeat();
+         break;  
+      case 35:
+         animationCombatVictory();
+         break;  
+      case 36:
+         animationRegeneration();
+        break; 
+      case 0:
+         cout << "************************** New Combat Turn ****************************" << endl;
+         go = true;
+         lineupIndex = 88;
+         for(bool & i : animationLineup)
+            i = 0;
+         break;
+      default:;
+   }
+}
+
+/*******************************************************************************
+* Function stubs for the different animations.
+*******************************************************************************/
 void Animations::drawBackground(sf::RenderWindow & window) {
    window.draw(backgroundSpr);
 }
@@ -235,11 +405,4 @@ void Animations::animationRegeneration() {
    cout << "\t*** Character is regenerating blood points ***\n";
 }
 
-
-
-
-
-
 #endif // ANIMATIONS_H
-
-

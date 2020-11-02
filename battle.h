@@ -44,15 +44,15 @@ public:
 
    void combat (sf::RenderWindow & window);
 
+
+//******************************************************************************
 private:
-   /***************************************
-   * Private variables
-   ***************************************/
+
    bool 
       debugMode = false,
       battleOver = false, 
       textMode = false,
-      go[3] = {1, 0, 0},
+      go = true,
       animationLineup[36] = {
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -61,17 +61,17 @@ private:
       };
 
    short 
-      died,
+      died = 0,
       option = 1,
       target = 1,
       round = 1,
       damageHpBpEp[3],
-      willMiss,
-      missed,
+      willMiss = 0,
+      missed = 0,
       damageTypes[4],
       block[4],
-      numMonsters,
-      randNum,
+      numMonsters = 1,
+      randNum = 1,
       lineupIndex = 88, 
       diedCount = 0,
       missedCount = 0,
@@ -83,7 +83,9 @@ private:
 
    string 
       newMonster,
-      battleMusic[3] = {"Sounds/Music/battle1.ogg", "Sounds/Music/battle2.ogg", "Sounds/Music/battle3.ogg"};
+      battleMusic[3] = {"Sounds/Music/battle1.ogg", 
+                        "Sounds/Music/battle2.ogg", 
+                        "Sounds/Music/battle3.ogg"};
 
    Character* monster = NULL;
    Character* participant = NULL;
@@ -97,9 +99,9 @@ private:
    vector<Character*> monsterParticipants;
    vector<Character*> allCombatParticipants;
 
-   /***************************************
-   * Private Prototypes
-   ***************************************/
+
+   //============================ Prototypes ===================================
+
    Character* nextAction();
    void getDamageSum         (const Character & vicitm);
    void getPhysicalDamages   (Character & victim, Character & aggressor);
@@ -131,12 +133,14 @@ private:
    void getCharacterAction   (Character* character);
    void playBattleMusic      ();
    short getLineupIndex      ();
+   void resetStuff           ();
 };
 
-   /***************************************
-   * Function definitions that for some
-   * reason cannot be placed into a '.cpp'.
-   ***************************************/
+
+//==============================================================================
+//========================== Function Definitions ==============================
+//==============================================================================
+
 
 /*******************************************************************************
 * Character* nextAction()
@@ -736,12 +740,12 @@ void Battle::getCharacterAction(Character* character) {
       if(textMode) displayCharacterStats(monsterParticipants, heroParticipants, round++);
       if(textMode) showWhosTurn(*participant);
       animationLineup[2] = true;
-      // if(textMode) option = getUserInput({"Attack", "Defend", "Flee"});
+      if(textMode) option = getUserInput({"Attack", "Defend", "Flee"});
 
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) {
-            // target = getUserInput(listOfMonsters);           // Attack what?
-            target = 1;
+            target = getUserInput(listOfMonsters);           // Attack what?
+            if(!textMode) target = 1;
          }
        else
            target = 1;                 // Auto attack if only 1 monster left 
@@ -787,6 +791,19 @@ short Battle::getLineupIndex() {
    return 0;
 }
 
+/*******************************************************************************
+* void resetStuff()
+* Sets various combat variables back to their default at the end of each turn.
+*******************************************************************************/
+void Battle::resetStuff() {
+   diedCount = 0;
+   missedCount = 0;
+   damageCount = 0;
+   bleedCount = 0;
+   stunCount = 0;
+   slowCount = 0,
+   hazardCount = 0;
+}
 
 
 
@@ -797,59 +814,52 @@ short Battle::getLineupIndex() {
 #####  ####  ##############                          ##############  ####  #####
 #####  ####  ###################                ###################  ####  #####
 #####  ####  ######################################################  ####  #####
-*
-* void combat()
-* Houses the primary combat loop. Brings all other functions together to form
-* a combat sequence. Only stops when it hits a 'break' statement.
-*
-*******************************************************************************/
+#
+# void combat()
+# Houses the primary combat loop. Brings all other functions together to form
+# a combat sequence. Only stops when it hits a 'break' statement.
+#
+##############################################################################*/
 void Battle::combat(sf::RenderWindow & window) {
 
    playBattleMusic();
 
    short count = 0;
    while(true) {
+
       window.clear(sf::Color(102, 255, 255));
       usleep(16666); // 60 FPS = 16666
       
       // FPS tester
       count++;
-      cout << "\nBattle in progress... FPS Counter: " << count << endl;
+      if(!textMode) cout << "\nBattle in progress... FPS Counter: " << count << endl;
 
       if(animations->eventListener(window)) break;
 
       // Determines who's turn it is based on the lowest running initiative. 
-      if(go[0]) {
-         participant = nextAction();
-         diedCount = 0;
-         missedCount = 0;
-         damageCount = 0;
-         bleedCount = 0;
-         stunCount = 0;
-         slowCount = 0,
-         hazardCount = 0;
-      }
+      if(go) participant = nextAction();
+      if(go) resetStuff();
 
       /*************************************************************************
       *                        Turn Ending Action Block
       * Code in this block will be executed after any turn, hero's or monster's.
       *************************************************************************/
-      if(go[0]) applyFatigue(*participant);                                    // Activate booleans to run animations.
-      if(go[0]) applyDazed(*participant);
+      if(go) applyFatigue(*participant);                                    // Activate booleans to run animations.
+      if(go) applyDazed(*participant);
       
       /*************************************************************************
       *                    Characters' Primary Action Block
       *************************************************************************/
-      if(go[0]) getCharacterAction(participant);
-      if(go[0]) if(applyCharacterAction(participant)) break;
+      if(go) getCharacterAction(participant);
+      if(go) if(applyCharacterAction(participant)) break;
 
       /*************************************************************************
       *                       Round Ending Action Block
       * A round ends after each character exceeds 200 running initiative.
       *************************************************************************/
-      if(go[0]) if(isEndOfTurn()) 
+      if(go) if(isEndOfTurn()) 
          if(endOfTurnActions()) break; 
-      go[0] = false;
+      go = false;
 
       /*************************************************************************
       *                          Battle Drawings
@@ -867,139 +877,15 @@ void Battle::combat(sf::RenderWindow & window) {
       * animations should be activated and deactivated at any given time.
       *************************************************************************/
       
-      if(clock.getElapsedTime().asSeconds() > 3.0f) {
-         lineupIndex = getLineupIndex();
-         clock.restart();
-      }
-
-
-      for(bool i : animationLineup)
+      if(debugMode) cout << "Participant: " << participant->name << endl;
+      if(debugMode) cout << "Current lineup index: " << lineupIndex << endl;
+      if(debugMode) for(bool i : animationLineup)
          cout << i << ", ";
-      cout << endl;
-      cout << "Participant: " << participant->name << endl;
-      cout << "Current lineup index: " << lineupIndex << endl;
+      if(debugMode) cout << endl; 
 
-      
-      switch(lineupIndex) {
-         case 1:
-            animations->animationFatigue();
-            break;
-         case 2:
-            animations->animationDazed();
-            break;            
-         case 3:
-            animations->animationHerosTurn();
-            break;
-         case 4:
-            animations->animationDefend();
-            break;
-         case 5:
-            animations->animationRetreat();
-            break;
-         case 6:
-            animations->animationAttack();
-            break;
-         case 7:
-            animations->animationMiss();
-            break;
-         case 8:
-            animations->animationApplyDamage();
-            break;
-         case 9:
-            animations->animationDeath();
-            break;
-         case 10:
-            animations->animationCombatDefeat();
-            break;
-         case 11:
-            animations->animationCombatVictory();
-            break;   
-         case 12:
-            animations->animationWounded();
-            break;  
-         case 13:
-            animations->animationStun();
-            break; 
-         case 14:
-            animations->animationSlow();
-            break; 
-         case 15:
-            animations->animationHazardDamage();
-            break; 
-         case 16:
-            animations->animationDeath();
-            break; 
-         case 17:
-            animations->animationCombatDefeat();
-            break;     
-         case 18:
-            animations->animationCombatVictory();
-            break;
-         case 19:
-            animations->animationRetaliation();
-            break;
-         case 20:
-            animations->animationMiss();
-            break;
-         case 21:
-            animations->animationApplyDamage();
-            break;
-         case 22:
-            animations->animationDeath();
-            break;
-         case 23:
-            animations->animationCombatDefeat();
-            break;
-         case 24:
-            animations->animationCombatVictory();
-            break;
-         case 25:
-            animations->animationWounded();
-            break;
-         case 26:
-            animations->animationStun();
-            break;
-         case 27:
-            animations->animationSlow();
-            break;
-         case 28:
-            animations->animationHazardDamage();
-            break; 
-         case 29:
-            animations->animationDeath();
-            break; 
-         case 30:
-            animations->animationCombatDefeat();
-            break; 
-         case 31:
-            animations->animationCombatVictory();
-            break; 
-         case 32:
-            animations->animationBleeding();
-            break;  
-         case 33:
-            animations->animationDeath();
-            break;  
-         case 34:
-            animations->animationCombatDefeat();
-            break;  
-         case 35:
-            animations->animationCombatVictory();
-            break;  
-         case 36:
-            animations->animationRegeneration();
-            break; 
-         case 0:
-            cout << "************************** New Combat Turn ****************************" << endl;
-            go[0] = true;
-            go[1] = true;
-            go[2] = false;
-            lineupIndex = 88;
-            for(bool & i : animationLineup)
-               i = 0;
-            break;
-         default:;
-      }
+      if(!textMode) animations->animationSelect(animationLineup, go);
+      else go = 1;
+
       window.display();
    }   
 
@@ -1025,25 +911,13 @@ void Battle::combat(sf::RenderWindow & window) {
 
 /*********************************************************************************************/
 
-   // To create animations, let an entire combat round happen with no pauses or animations.
-   // Go through the code line by line and determine if an animation could be triggered.
-   // Create an animation lineup list (vector<bool>) where each element represents a 
-   // specific animation in the order they would occur. After the lineup list has been 
-   // populated, shut off the combat mechanics with an if(boolean) statement (it should
-   // only cycle through once anyway). Set a short equal to the index of the first true
-   // boolean in the lineup list. Each animation function should be preceeded by an 
-   // if(<short index == true>). Start the animation cycle by iterating through the lineup list 
-   // calling only the first true element, then break the loop. The coresponding function
-   // will be called. At the end of each function (a certain amount of time has passed), 
-   // the same loop will be called to determine the next animation function and so on. The
-   // last animation function will reactivate the combat mechanics to start a new round.
-   // If the combat round includes a prompt for player input, deactivate all other combat
-   // mechanics and animations except for the player prompt animation. Once that animation
-   // is complete (the player has made their selections), the other combat mechanics will 
-   // reactivate and continue to populate the next animation lineup list.
-
-// Currenlty working on:
-//   Implementing SFML game platform.
+// Currenlty working on: Creating individual animations.
+   // Tie the animations to the character objects. Each Character object will have an 
+   // animation function with parameters that set the different properties. Create a pointer
+   // to the charcter object in the animations.h file. When killCharacter() is called, make it
+   // nullify the pointer in the compat participants lists and remove them, but keep the 
+   // object. After the defeat animation finishes, nullify the animation.h pointer, remove it,
+   // and delete the character object from that file.
 
 /*******************************************************************************
 * To do:

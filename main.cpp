@@ -27,8 +27,8 @@ vector<Character> createCharacters(short numHeroes) {
 
 int main() {
 
-   short screenWidth = 900,
-         screenHeight = 600;
+   short screenWidth = 1333,
+         screenHeight = 750;
    short* pScreenWidth = &screenWidth;
    short* pScreenHeight = &screenHeight;
 
@@ -44,7 +44,7 @@ int main() {
    vector<Character> heroes = createCharacters(2);
 
        // heroes, monster type, debug mode, num monsters, text mode, animations
-   Battle battle(heroes, "Omnibeast", 0, 1, 1, pAnimations);
+   Battle battle(heroes, "Omnibeast", 0, 1, 0, pAnimations);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");
@@ -60,7 +60,7 @@ int main() {
       // animations.drawBackground(window);
       // animations.flyingDragon(window);
       battle.combat(window);
-
+      break;
 
 
 

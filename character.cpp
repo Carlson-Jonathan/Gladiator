@@ -26,13 +26,12 @@ Character::Character(string newMonster) {
    this->hitPoints =           maxHitPoints; 
    this->bloodPoints =         maxBloodPoints; 
    essencePoints =             maxEssencePoints;
-
    weapon =                    new Weapon(monster[newMonster]);
    this->precision =           weapon->precision;
-
    armor =                     new Armor(monster[newMonster]);
    this->evasion =             monster[newMonster].second.first[10];
    this->regeneration =        monster[newMonster].second.first[15];
+   setSpriteAnimation(newMonster);
 }
 
 /*****************************************
@@ -96,6 +95,18 @@ void Character::setArmor(string name) {
    this->evasion += armor->evade;
    this->initiative += armor->speed;
    this->regeneration = armor->regeneration;
+}
+
+void Character::setSpriteAnimation(string newMonster) {
+   animatedSprite = new AnimatedSprite(
+      monster[newMonster].first.first[1],  
+      monster[newMonster].second.first[18],
+      monster[newMonster].second.first[19],
+      monster[newMonster].second.first[20],
+      monster[newMonster].second.first[21],
+      monster[newMonster].second.first[22],
+      monster[newMonster].second.second[11]
+   );
 }
 
 /*******************************************************************************

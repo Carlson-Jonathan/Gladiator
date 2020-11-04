@@ -16,6 +16,7 @@
 #include <memory> // shared pointers
 #include "weapon.h"
 #include "armor.h"
+#include "animatedSprite.h"
 using namespace std;
 
 class Character {
@@ -37,6 +38,7 @@ public:
    void setWeapon(string weaponType);
    void setOffhand(string weaponType);
    void setArmor(string name);
+   void setSpriteAnimation(string newMonster);
 
    // Functions
    void displayStats();
@@ -81,7 +83,7 @@ public:
 
    Weapon* weapon;
    Weapon* offhand;
-
+   AnimatedSprite* animatedSprite;
    Armor* armor;
    
    #include "monsters.cpp"

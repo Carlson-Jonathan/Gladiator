@@ -74,6 +74,7 @@ public:
    void animationRetaliation();
    void animationBleeding();
    void animationRegeneration();
+   void MaintainAspectRatio(sf::RenderWindow & window);
 
    // One-time functions
    void createDragon();
@@ -91,6 +92,18 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
 }
 
 /*******************************************************************************
+* void createDragon()
+* One-time function that sets the sprite for the dragon animation.
+*******************************************************************************/
+void Animations::createDragon() {
+   if(!dragonTexture.loadFromFile("Images/dragon.png")) cout << "Error loading Images/dragon.png";  // Load texture file
+   sf::IntRect dragonRect(0, 161, 191, 161);														// Set rectangle size
+   this->dragonRect = dragonRect;																	// Set to member variable
+   dragon.setTexture(dragonTexture);																// Give sprite the texture
+   dragon.setTextureRect(dragonRect);																// Set the size/shape of sprite
+}
+
+/*******************************************************************************
 * void flyingDragon()
 * Animates dragon
 *******************************************************************************/
@@ -99,7 +112,7 @@ void Animations::flyingDragon(sf::RenderWindow & window) {
    count++;
 
 
-   dragon.setPosition(sf::Vector2f(x, y));
+   // dragon.setPosition(sf::Vector2f(x, y));
    window.draw(dragon);
 
    // Dragon flaps its wings
@@ -143,6 +156,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
          cout << "Screen Height: " << event.size.height << endl;         
          sf::FloatRect visibleArea(0, 0, *pScreenWidth, *pScreenHeight);
          window.setView(sf::View(visibleArea));
+         MaintainAspectRatio(window);
       }
 
       // More events...
@@ -151,17 +165,31 @@ bool Animations::eventListener(sf::RenderWindow & window) {
    return 0;
 }
 
-/*******************************************************************************
-* void createDragon()
-* One-time function that sets the sprite for the dragon animation.
-*******************************************************************************/
-void Animations::createDragon() {
-   if(!dragonTexture.loadFromFile("Images/dragon.png")) cout << "Error loading Images/dragon.png";  // Load texture file
-   sf::IntRect dragonRect(0, 161, 191, 161);														// Set rectangle size
-   this->dragonRect = dragonRect;																	// Set to member variable
-   dragon.setTexture(dragonTexture);																// Give sprite the texture
-   dragon.setTextureRect(dragonRect);																// Set the size/shape of sprite
+void Animations::MaintainAspectRatio(sf::RenderWindow & window)
+{
+        //first we check our new aspect width to see if it changed
+        float newAspectWidth = window.getSize().x;
+        float newAspectHeight = window.getSize().y;
+        float currentAspectWidth = 1333;
+        float currentAspectHeight = 750;
+        float aspectRatio = 1.7777;
+
+        if(newAspectWidth != currentAspectWidth)
+        {
+                //width changed, maintain the aspect ratio and adjust the height
+                currentAspectWidth = newAspectWidth;
+                currentAspectHeight = currentAspectWidth / aspectRatio;
+        }
+        else if(newAspectHeight != currentAspectHeight)
+        {
+                //height changed, maintain aspect ratio and change the width
+                currentAspectHeight = newAspectHeight;
+                currentAspectWidth = currentAspectHeight * aspectRatio;
+        }
+        std::cout << "width: " << currentAspectWidth << " height: " << currentAspectHeight;
+        window.setSize(sf::Vector2u(currentAspectWidth, currentAspectHeight));
 }
+
 
 /*******************************************************************************
 * void createBackground()

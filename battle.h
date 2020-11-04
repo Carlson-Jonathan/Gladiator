@@ -495,11 +495,13 @@ void Battle::killCharacter() {
          }
          else 
          {
-            delete allCombatParticipants[i]->weapon;
+            // delete allCombatParticipants[i]->weapon;
             allCombatParticipants[i]->weapon = NULL;
-            delete allCombatParticipants[i]->armor;
+            // delete allCombatParticipants[i]->armor;
             allCombatParticipants[i]->armor = NULL;
-            delete allCombatParticipants[i];
+            // delete allCombatParticipants[i]->animatedSprite;
+            allCombatParticipants[i]->animatedSprite = NULL;
+            // delete allCombatParticipants[i];
             allCombatParticipants[i] = NULL;    
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
          }
@@ -866,7 +868,13 @@ void Battle::combat(sf::RenderWindow & window) {
       * Sprites that are always re-drawn each loop.
       *************************************************************************/
       animations->drawBackground(window);
-      animations->flyingDragon(window);
+      // animations->flyingDragon(window);
+      for(auto i : monsterParticipants) {
+         i->animatedSprite->sprite.setPosition(sf::Vector2f(1000.f, 500.f));
+         i->animatedSprite->placeSpriteAnimation(window);
+         // window.draw(i->animatedSprite->sprite);
+      }
+
       // Characters
       // Environmental overdraws
       // Menu and text boxes
@@ -904,9 +912,7 @@ void Battle::combat(sf::RenderWindow & window) {
 
 
 // Refactors:
-
    // Change "isEndOfTurn" to "isEndOfRound"
-   // Move animation switch statement to animations.h
    // Call damage numbers animation before wounded (bleeding).
 
 /*********************************************************************************************/

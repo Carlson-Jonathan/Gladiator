@@ -57,15 +57,8 @@ int main() {
 /******************************** Game Loop ***********************************/
 
 
-      // animations.drawBackground(window);
-      // animations.flyingDragon(window);
       battle.combat(window);
       break;
-
-
-
-
-
 
 
 

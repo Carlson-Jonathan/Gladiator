@@ -11,7 +11,6 @@ using namespace std;
 class AnimatedSprite {
 public:
 
-
    AnimatedSprite() {}
    ~AnimatedSprite() { cout << "The Sprite animation just died\n\n";}
    AnimatedSprite(string textureFile, short x1, short y1, 
@@ -45,11 +44,6 @@ public:
    // Loopable function
    void placeSpriteAnimation(sf::RenderWindow & window) {
       window.draw(sprite);
-      // rectangle.left = 50;
-      // rectangle.top = 50;
-      // sprite.setTextureRect(rectangle);
-      // cout << "Rect.left = " << rectangle.left << endl;
-      // cout << "Rect.top = " << rectangle.top << endl;
       if(clock.getElapsedTime().asSeconds() > speed) {
          if(rectangle.left == x2 * (frames - 1)) 
             rectangle.left = 0;

@@ -24,17 +24,17 @@ std::string a[11] = {" claws at ", " spits at ", " strikes at ", " bites at ",
 
 // Texture files used to create sprite animations.
 std::string b[11] = {
-	"", 						// 1
-	"", 						// 2
-	"", 						// 3
-	"", 						// 4
-	"", 						// 5
-	"", 						// 6
-	"", 						// 7
-	"Images/CactoSprite.png",	// 8
-	"", 						// 9
-	"",  						// 10
-    "Images/dragonLeft.png"		// 11
+	"", 						// 1. Skeleton
+	"", 						// 2. Slime
+	"", 						// 3. Snake
+	"", 						// 4. Wolf
+	"", 						// 5. Waps
+	"", 						// 6. Zombie
+	"", 						// 7. Duckling
+	"Images/CactoSprite.png",	// 8. Catcopus
+	"", 						// 9. Troll
+	"",  						// 10. Omnibeast
+    "Images/dragonLeft.png"		// 11. Dragon
 };
 
 /******************************** Glossary *************************************

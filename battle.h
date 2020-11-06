@@ -868,23 +868,11 @@ void Battle::combat(sf::RenderWindow & window) {
       * Sprites that are always re-drawn each loop.
       *************************************************************************/
       animations->drawBackground(window);
-      // animations->flyingDragon(window);
       for(auto i : monsterParticipants) {
          i->animatedSprite->sprite.setPosition(sf::Vector2f(1000.f, 500.f));
          i->animatedSprite->placeSpriteAnimation(window);
-         // window.draw(i->animatedSprite->sprite);
       }
 
-      // Characters
-      // Environmental overdraws
-      // Menu and text boxes
-
-      /*************************************************************************
-      *                          Animation Functions
-      * These are activated by booleans. The combat functions indicate which 
-      * animations should be activated and deactivated at any given time.
-      *************************************************************************/
-      
       if(debugMode) cout << "Participant: " << participant->name << endl;
       if(debugMode) cout << "Current lineup index: " << lineupIndex << endl;
       if(debugMode) for(bool i : animationLineup)
@@ -899,21 +887,22 @@ void Battle::combat(sf::RenderWindow & window) {
 
    cout << "End of battle." << endl;
 
-   // if(debugMode) 
-   //    cout << "\nDont forget to reset world affecting stats at the end of combat!" 
-   //         << endl;
 }
 #endif // BATTLE_H
 
 
+/**********************************************************************************************/
 
 // Bugs to fix:
    // Make defeat/victory ANIMATIONS break the combat loop when called and remove other breaks.
 
-
 // Refactors:
    // Change "isEndOfTurn" to "isEndOfRound"
    // Call damage numbers animation before wounded (bleeding).
+
+// Reminders:
+   // Reset world-affecting stats at the end of each combat.
+   // The 'delete' statement has been commented out of killCharacter().
 
 /*********************************************************************************************/
 

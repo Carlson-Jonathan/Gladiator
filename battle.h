@@ -40,6 +40,10 @@ public:
          
       srand(time(0));       
       generateParticipantLists();
+      setHeroPositions();
+      // setMonsterPositions();
+      this->animations->heroParticipants = this->heroParticipants;
+      this->animations->monsterParticipants = this->monsterParticipants;
    }
 
    void combat (sf::RenderWindow & window);
@@ -80,6 +84,9 @@ private:
       stunCount = 0,
       slowCount = 0, 
       hazardCount = 0;
+
+   float heroPositionsX[4] = {360.f, 240.f, 320.f, 280.f},
+         heroPositionsY[4] = {400.f, 510.f, 290.f, 620.f};
 
    string 
       newMonster,
@@ -134,6 +141,8 @@ private:
    void playBattleMusic      ();
    short getLineupIndex      ();
    void resetStuff           ();
+   float randomize           (float num);
+   void setHeroPositions     ();
 };
 
 
@@ -807,6 +816,26 @@ void Battle::resetStuff() {
    hazardCount = 0;
 }
 
+/*******************************************************************************
+* void randomize(float)
+* Randomizes the hero sprite placement on the screen. Shifts + or - 50px from a
+* pre-designated point.
+*******************************************************************************/
+float Battle::randomize(float num) {
+   return (rand() % 100) + (num - 50);
+}
+
+/*******************************************************************************
+* setHeroPositions()
+* Sets the locations to draw the hero character sprites.
+*******************************************************************************/
+void Battle::setHeroPositions() {
+   for(short i = 0; i < heroParticipants.size(); i++) {
+      heroParticipants[i]->animatedSprite->sprite.setPosition(
+         sf::Vector2f(randomize(heroPositionsX[i]), heroPositionsY[i]));
+   }
+}
+
 
 
 /*###  ####  ######################################################  ####  #####
@@ -824,7 +853,7 @@ void Battle::resetStuff() {
 ##############################################################################*/
 void Battle::combat(sf::RenderWindow & window) {
 
-   playBattleMusic();
+   if(!textMode) playBattleMusic();
 
    short count = 0;
    while(true) {
@@ -839,8 +868,11 @@ void Battle::combat(sf::RenderWindow & window) {
       if(animations->eventListener(window)) break;
 
       // Determines who's turn it is based on the lowest running initiative. 
-      if(go) participant = nextAction();
-      if(go) resetStuff();
+      if(go) {
+         participant = nextAction();
+         animations->activeCharacter = participant;         
+         resetStuff();
+      }
 
       /*************************************************************************
       *                        Turn Ending Action Block
@@ -867,19 +899,13 @@ void Battle::combat(sf::RenderWindow & window) {
       *                          Battle Drawings
       * Activates all animations in animations.h.
       *************************************************************************/
-      animations->animateBattlescape(window, heroParticipants, monsterParticipants,
-         animationLineup, go);
-
-
+      animations->animateBattlescape(window, animationLineup, go);
 
       if(debugMode) cout << "Participant: " << participant->name << endl;
       if(debugMode) cout << "Current lineup index: " << lineupIndex << endl;
       if(debugMode) for(bool i : animationLineup)
          cout << i << ", ";
       if(debugMode) cout << endl; 
-
-      // if(!textMode) animations->animationSelect(animationLineup, go, window);
-      // else go = 1;
 
       window.display();
    }   

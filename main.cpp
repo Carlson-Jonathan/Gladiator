@@ -41,7 +41,7 @@ int main() {
    music.setLoop(true);
    music.play();
 
-   vector<Character> heroes = createCharacters(1);
+   vector<Character> heroes = createCharacters(4);
 
        // heroes, monster type, debug mode, num monsters, text mode, animations
    Battle battle(heroes, "Dragon", 0, 1, 0, pAnimations);

@@ -38,7 +38,8 @@ public:
    void setWeapon(string weaponType);
    void setOffhand(string weaponType);
    void setArmor(string name);
-   void setSpriteAnimation(string newMonster);
+   void setMonsterSpriteAnimation(string newMonster);
+   void setHeroSpriteAnimation();
 
    // Functions
    void displayStats();

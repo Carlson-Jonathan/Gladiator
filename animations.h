@@ -2,6 +2,9 @@
 #define ANIMATIONS_H
 #include <iostream>
 #include <vector>
+#include <stdio.h>     // rand()
+#include <stdlib.h>    // rand()
+#include <time.h>      // rand()
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
@@ -20,10 +23,12 @@ public:
    Animations() {}
    Animations(short* screenWidth, short* screenHeight); 
    void animateBattlescape(sf::RenderWindow & window, 
-   vector<Character*> & heroParticipants, 
-   vector<Character*> & monsterParticipants, bool (&animationLineup)[36], 
-   bool & go);
+      bool (&animationLineup)[36], bool & go);
    bool eventListener(sf::RenderWindow & window);
+
+   vector<Character*> heroParticipants;   
+   vector<Character*> monsterParticipants;
+   Character* activeCharacter;
 
 private:
    sf::Clock animationClock;
@@ -32,14 +37,15 @@ private:
    sf::Music music;
    sf::Text text;
 
-   sf::Texture mWheel;
+   /*************************/
+
    sf::Texture backgroundTex;
-
-   sf::IntRect menuRect;
    sf::IntRect backgroundRect;
-
-   sf::Sprite menuSprite;
    sf::Sprite backgroundSpr;
+
+   sf::Texture mWheel;
+   sf::IntRect menuRect;
+   sf::Sprite menuSprite;
 
    float a = 0, b = 0;
 
@@ -53,8 +59,8 @@ private:
    short* pScreenHeight;
 
    // One-time functions (create sprites)
-   void createBackground();
-   void createMenuWheel();
+   void createScapeSprite(string fileName, short x, short y, 
+      sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite);
 
    // Looped functions
    void drawBackground(sf::RenderWindow & window);
@@ -86,16 +92,21 @@ private:
 };
 
 
+/*##############################################################################
+################################# Functions ####################################
+##############################################################################*/
 
 
 /*******************************************************************************
-* Constructor. All the 'create sprite' functions should be included here.
+* Constructor. All 'create sprite' functions should be included here.
 *******************************************************************************/
 Animations::Animations(short* screenWidth, short* screenHeight) {
    pScreenWidth = screenWidth;
    pScreenHeight = screenHeight;
-   createBackground();
-   createMenuWheel();
+   createScapeSprite("Images/BackgroundPineforest.png", 1920, 1080, 
+      backgroundTex, backgroundRect, backgroundSpr);
+   createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, menuSprite);
+   menuSprite.setOrigin(70.f, 70.f);
 }
 
 /*******************************************************************************
@@ -117,8 +128,8 @@ bool Animations::eventListener(sf::RenderWindow & window) {
       if (event.type == sf::Event::Resized) {
          *pScreenWidth = event.size.width;
          *pScreenHeight = event.size.height;
-         cout << "Screen Width: " << event.size.width << endl;
-         cout << "Screen Height: " << event.size.height << endl;         
+         // cout << "Screen Width: " << event.size.width << endl;
+         // cout << "Screen Height: " << event.size.height << endl;         
          sf::FloatRect visibleArea(0, 0, *pScreenWidth, *pScreenHeight);
          window.setView(sf::View(visibleArea));
          MaintainAspectRatio(window);
@@ -130,6 +141,10 @@ bool Animations::eventListener(sf::RenderWindow & window) {
    return 0;
 }
 
+float randomize(float num) {
+   return (rand() % 100) + (num - 50);
+}
+
 /*******************************************************************************
 * animateBattleScape(window, Character*, Character*)
 * Public function. This is what battle.h calls to create the entire battlescape
@@ -137,45 +152,36 @@ bool Animations::eventListener(sf::RenderWindow & window) {
 * animations called when an event is triggered (attack, bleed, die, etc.).
 *******************************************************************************/
 void Animations::animateBattlescape(sf::RenderWindow & window, 
-   vector<Character*> & heroParticipants, 
-   vector<Character*> & monsterParticipants, bool (&animationLineup)[36], 
-   bool & go) {
+   bool (&animationLineup)[36], bool & go) {
 
-   // eventListener(window);
    drawBackground(window);
+   
+   for(auto i : heroParticipants) 
+      i->animatedSprite->placeSpriteAnimation(window);
+
    for(auto i : monsterParticipants) {
       i->animatedSprite->sprite.setPosition(sf::Vector2f(1000.f, 500.f));
       i->animatedSprite->placeSpriteAnimation(window);
    }
+
+   // This must be last to be called in this function!
    animationSelect(animationLineup, go, window);
 }
 
 /*******************************************************************************
-* void createBackground()
-* Creates the battlescape background sprite.
+* void createScapeSprite(texture file, rect dimensions, file, spite obj)
+* Creates a sprite object.
 *******************************************************************************/
-void Animations::createBackground() {
-   if(!backgroundTex.loadFromFile("Images/BackgroundPineforest.png")) 
-      cout << "Error loading Images/dragon.png";
-   sf::IntRect backgroundRect(0, 0, 1920, 1080);
-   this->backgroundRect = backgroundRect;
-   backgroundSpr.setTexture(backgroundTex);
-   backgroundSpr.setTextureRect(backgroundRect);
+void Animations::createScapeSprite(string fileName, short x, short y,
+   sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite) {
+   
+   if(!texture.loadFromFile(fileName)) cout << "Error loading " << fileName;
+   rectangle.width = x;
+   rectangle.height = y;
+   sprite.setTexture(texture);
+   sprite.setTextureRect(rectangle);
 }
 
-/*******************************************************************************
-* void createMenuWheel()
-* Creates the menu wheel sprite (character options menu).
-*******************************************************************************/
-void Animations::createMenuWheel() {
-   if(!mWheel.loadFromFile("Images/MenuWheel.png")) 
-      cout << "unable to load image 'MenuWheel.png'" << endl;
-   sf::IntRect menuRect(0, 0, 140, 140);
-   this->menuRect = menuRect;
-   menuSprite.setTexture(mWheel);
-   menuSprite.setTextureRect(menuRect);
-   menuSprite.setOrigin(70.f, 70.f);
-}
 
 
 /*##############################################################################
@@ -216,7 +222,6 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
                 currentAspectHeight = newAspectHeight;
                 currentAspectWidth = currentAspectHeight * aspectRatio;
         }
-        std::cout << "width: " << currentAspectWidth << " height: " << currentAspectHeight;
         window.setSize(sf::Vector2u(currentAspectWidth, currentAspectHeight));
 }
 
@@ -226,7 +231,11 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 * the hero. On key-press, the menu rotates to change the active action selected.
 *******************************************************************************/
 void Animations::drawMenuWheel(sf::RenderWindow & window) {
-   menuSprite.setPosition(sf::Vector2f(*pScreenWidth / 2 - 70, *pScreenHeight / 2 - 70));
+   // menuSprite.setPosition(sf::Vector2f(*pScreenWidth / 2 - 70, *pScreenHeight / 2 - 70));
+   sf::Vector2f pos = activeCharacter->animatedSprite->sprite.getPosition();
+   pos.x += activeCharacter->animatedSprite->rectangle.width / 2;
+   pos.y += activeCharacter->animatedSprite->rectangle.height / 2;
+   menuSprite.setPosition(pos);
    window.draw(menuSprite);
    menuSprite.rotate(-2.f);
 }
@@ -260,7 +269,7 @@ short Animations::getLineupIndex(bool animationLineup[], short size) {
 void Animations::animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window) {
 
    short size = sizeof(animationLineup);
-   if(animationClock.getElapsedTime().asSeconds() > 3.0f) {
+   if(animationClock.getElapsedTime().asSeconds() > 1.5f) {
       lineupIndex = getLineupIndex(animationLineup, size);
       animationClock.restart();
    }

@@ -27,7 +27,7 @@ vector<Character> createCharacters(short numHeroes) {
 
 int main() {
 
-   short screenWidth = 1333,
+   short screenWidth = 1333, // 16:9 aspect ratio
          screenHeight = 750;
    short* pScreenWidth = &screenWidth;
    short* pScreenHeight = &screenHeight;
@@ -44,7 +44,7 @@ int main() {
    vector<Character> heroes = createCharacters(1);
 
        // heroes, monster type, debug mode, num monsters, text mode, animations
-   Battle battle(heroes, "Cactopus", 0, 1, 0, pAnimations);
+   Battle battle(heroes, "Dragon", 0, 1, 0, pAnimations);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");

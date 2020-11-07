@@ -865,13 +865,12 @@ void Battle::combat(sf::RenderWindow & window) {
 
       /*************************************************************************
       *                          Battle Drawings
-      * Sprites that are always re-drawn each loop.
+      * Activates all animations in animations.h.
       *************************************************************************/
-      animations->drawBackground(window);
-      for(auto i : monsterParticipants) {
-         i->animatedSprite->sprite.setPosition(sf::Vector2f(1000.f, 500.f));
-         i->animatedSprite->placeSpriteAnimation(window);
-      }
+      animations->animateBattlescape(window, heroParticipants, monsterParticipants,
+         animationLineup, go);
+
+
 
       if(debugMode) cout << "Participant: " << participant->name << endl;
       if(debugMode) cout << "Current lineup index: " << lineupIndex << endl;
@@ -879,8 +878,8 @@ void Battle::combat(sf::RenderWindow & window) {
          cout << i << ", ";
       if(debugMode) cout << endl; 
 
-      if(!textMode) animations->animationSelect(animationLineup, go);
-      else go = 1;
+      // if(!textMode) animations->animationSelect(animationLineup, go, window);
+      // else go = 1;
 
       window.display();
    }   

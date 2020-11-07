@@ -7,6 +7,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Network.hpp>
+#include "character.h"
 using namespace std;
 
 
@@ -15,22 +16,30 @@ using namespace std;
 
 
 class Animations {
+public:
+   Animations() {}
+   Animations(short* screenWidth, short* screenHeight); 
+   void animateBattlescape(sf::RenderWindow & window, 
+   vector<Character*> & heroParticipants, 
+   vector<Character*> & monsterParticipants, bool (&animationLineup)[36], 
+   bool & go);
+   bool eventListener(sf::RenderWindow & window);
 
 private:
-   sf::Clock dragonClock;
    sf::Clock animationClock;
    sf::FloatRect textRect;
    sf::Font font;
    sf::Music music;
    sf::Text text;
 
-   sf::Texture dragonTexture;
-   sf::Sprite dragon;
-   sf::IntRect dragonRect;
-
+   sf::Texture mWheel;
    sf::Texture backgroundTex;
-   sf::Sprite backgroundSpr;
+
+   sf::IntRect menuRect;
    sf::IntRect backgroundRect;
+
+   sf::Sprite menuSprite;
+   sf::Sprite backgroundSpr;
 
    float a = 0, b = 0;
 
@@ -43,21 +52,21 @@ private:
    short* pScreenWidth;
    short* pScreenHeight;
 
-public:
-
-   Animations() {}
-   Animations(short* screenWidth, short* screenHeight); 
+   // One-time functions (create sprites)
+   void createBackground();
+   void createMenuWheel();
 
    // Looped functions
-   bool eventListener(sf::RenderWindow & window);
    void drawBackground(sf::RenderWindow & window);
+   void MaintainAspectRatio(sf::RenderWindow & window);
+   void drawMenuWheel(sf::RenderWindow & window);
 
+   // Ordered animations
    short getLineupIndex(bool animationLineup[], short size);
-   void animationSelect(bool (&animationLineup)[36], bool & go);
-
+   void animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window);
    void animationFatigue();
    void animationDazed();
-   void animationHerosTurn();
+   void animationHerosTurn(sf::RenderWindow & window);
    void animationDefend();
    void animationRetreat();
    void animationAttack();
@@ -73,19 +82,20 @@ public:
    void animationRetaliation();
    void animationBleeding();
    void animationRegeneration();
-   void MaintainAspectRatio(sf::RenderWindow & window);
 
-   // One-time functions
-   void createBackground();
 };
 
+
+
+
 /*******************************************************************************
-* Prototypes
+* Constructor. All the 'create sprite' functions should be included here.
 *******************************************************************************/
 Animations::Animations(short* screenWidth, short* screenHeight) {
    pScreenWidth = screenWidth;
    pScreenHeight = screenHeight;
    createBackground();
+   createMenuWheel();
 }
 
 /*******************************************************************************
@@ -103,6 +113,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
       }
 
       // Auto adjusts the game resolution when the screen size is dragged.
+      // This will likely need to be fixed- does not work as needed.
       if (event.type == sf::Event::Resized) {
          *pScreenWidth = event.size.width;
          *pScreenHeight = event.size.height;
@@ -119,6 +130,71 @@ bool Animations::eventListener(sf::RenderWindow & window) {
    return 0;
 }
 
+/*******************************************************************************
+* animateBattleScape(window, Character*, Character*)
+* Public function. This is what battle.h calls to create the entire battlescape
+* (background, static characters, misc sprites, etc.) as opposed to the specific
+* animations called when an event is triggered (attack, bleed, die, etc.).
+*******************************************************************************/
+void Animations::animateBattlescape(sf::RenderWindow & window, 
+   vector<Character*> & heroParticipants, 
+   vector<Character*> & monsterParticipants, bool (&animationLineup)[36], 
+   bool & go) {
+
+   // eventListener(window);
+   drawBackground(window);
+   for(auto i : monsterParticipants) {
+      i->animatedSprite->sprite.setPosition(sf::Vector2f(1000.f, 500.f));
+      i->animatedSprite->placeSpriteAnimation(window);
+   }
+   animationSelect(animationLineup, go, window);
+}
+
+/*******************************************************************************
+* void createBackground()
+* Creates the battlescape background sprite.
+*******************************************************************************/
+void Animations::createBackground() {
+   if(!backgroundTex.loadFromFile("Images/BackgroundPineforest.png")) 
+      cout << "Error loading Images/dragon.png";
+   sf::IntRect backgroundRect(0, 0, 1920, 1080);
+   this->backgroundRect = backgroundRect;
+   backgroundSpr.setTexture(backgroundTex);
+   backgroundSpr.setTextureRect(backgroundRect);
+}
+
+/*******************************************************************************
+* void createMenuWheel()
+* Creates the menu wheel sprite (character options menu).
+*******************************************************************************/
+void Animations::createMenuWheel() {
+   if(!mWheel.loadFromFile("Images/MenuWheel.png")) 
+      cout << "unable to load image 'MenuWheel.png'" << endl;
+   sf::IntRect menuRect(0, 0, 140, 140);
+   this->menuRect = menuRect;
+   menuSprite.setTexture(mWheel);
+   menuSprite.setTextureRect(menuRect);
+   menuSprite.setOrigin(70.f, 70.f);
+}
+
+
+/*##############################################################################
+############################## Looped Functions ################################
+##############################################################################*/
+
+
+/*******************************************************************************
+* Function stubs for the different animations.
+*******************************************************************************/
+void Animations::drawBackground(sf::RenderWindow & window) {
+   window.draw(backgroundSpr);
+}
+
+/*******************************************************************************
+* MaintainAspectRatio(window)
+* An attempt to get the aspect ratio to stay 16:9 when the window is dragged
+* and re-sized with the mouse. It kinda works, but not really.
+*******************************************************************************/
 void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 {
         //first we check our new aspect width to see if it changed
@@ -144,18 +220,22 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
         window.setSize(sf::Vector2u(currentAspectWidth, currentAspectHeight));
 }
 
-
 /*******************************************************************************
-* void createBackground()
-* One-time function that sets the sprite for the background.
+* void drawMenuWheel()
+* Creates an animated menu wheel. During a hero's turn, this is drawn around
+* the hero. On key-press, the menu rotates to change the active action selected.
 *******************************************************************************/
-void Animations::createBackground() {
-   if(!backgroundTex.loadFromFile("Images/BackgroundPineforest.png")) cout << "Error loading Images/dragon.png";
-   sf::IntRect backgroundRect(0, 0, 1920, 1080);
-   this->backgroundRect = backgroundRect;
-   backgroundSpr.setTexture(backgroundTex);
-   backgroundSpr.setTextureRect(backgroundRect);
+void Animations::drawMenuWheel(sf::RenderWindow & window) {
+   menuSprite.setPosition(sf::Vector2f(*pScreenWidth / 2 - 70, *pScreenHeight / 2 - 70));
+   window.draw(menuSprite);
+   menuSprite.rotate(-2.f);
 }
+
+
+
+/*##############################################################################
+############################## Combat Animations ###############################
+##############################################################################*/
 
 /*******************************************************************************
 * void getLineupIndex()
@@ -177,7 +257,7 @@ short Animations::getLineupIndex(bool animationLineup[], short size) {
 * Just a switch statement function. Picks which animation to display based on 
 * the lineupIndex. The '0' case resets the combat sequence and starts a new turn
 *******************************************************************************/
-void Animations::animationSelect(bool (&animationLineup)[36], bool & go) {
+void Animations::animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window) {
 
    short size = sizeof(animationLineup);
    if(animationClock.getElapsedTime().asSeconds() > 3.0f) {
@@ -193,7 +273,7 @@ void Animations::animationSelect(bool (&animationLineup)[36], bool & go) {
          animationDazed();
          break;            
       case 3:
-         animationHerosTurn();
+         animationHerosTurn(window);
          break;
       case 4:
          animationDefend();
@@ -305,13 +385,11 @@ void Animations::animationSelect(bool (&animationLineup)[36], bool & go) {
    }
 }
 
-/*******************************************************************************
-* Function stubs for the different animations.
-*******************************************************************************/
-void Animations::drawBackground(sf::RenderWindow & window) {
-   window.draw(backgroundSpr);
-}
 
+
+/*******************************************************************************
+* Ordered animation functions.
+*******************************************************************************/
 void Animations::animationFatigue() {
    cout << "\t*** Fatigue Animation ***\n";
 }
@@ -320,7 +398,8 @@ void Animations::animationDazed() {
    cout << "\t*** Dazed Animation ***\n";
 }
 
-void Animations::animationHerosTurn() {
+void Animations::animationHerosTurn(sf::RenderWindow & window) {
+   drawMenuWheel(window);
    cout << "\t*** Display Hero stats ***\n";
    cout << "\t*** Who's turn arrow ***\n";
    cout << "\t*** Listen for user input ***\n";

@@ -26,13 +26,16 @@ class Battle {
 public:
    Battle() {}
    Battle(vector<Character> & heroes, string newMonster, bool debugMode, 
-      short numMonsters, bool textMode, Animations* animations) {
+      short numMonsters, bool textMode, Animations* animations,
+      short* screenWidth, short* screenHeight) {
       this->debugMode = debugMode; 
       this->numMonsters = numMonsters;
       this->newMonster = newMonster;
       this->heroes = heroes;
       this->textMode = textMode;
       this->animations = animations;
+      this->screenWidth = screenWidth;
+      this->screenHeight = screenHeight;
       for(auto & i : this->heroes) {
          selectWeapon(i);
          selectArmor(i);
@@ -41,7 +44,7 @@ public:
       srand(time(0));       
       generateParticipantLists();
       setHeroPositions();
-      // setMonsterPositions();
+      setMonsterPositions();
       this->animations->heroParticipants = this->heroParticipants;
       this->animations->monsterParticipants = this->monsterParticipants;
    }
@@ -85,8 +88,24 @@ private:
       slowCount = 0, 
       hazardCount = 0;
 
+   short* screenWidth;
+   short* screenHeight;
+
    float heroPositionsX[4] = {360.f, 240.f, 320.f, 280.f},
          heroPositionsY[4] = {400.f, 510.f, 290.f, 620.f};
+
+   float monsterPositionsX[8] = {
+      (1333 - heroPositionsX[0] - 150),
+      (1333 - heroPositionsX[1] - 150),
+      (1333 - heroPositionsX[2] - 150),
+      (1333 - heroPositionsX[3] - 150),
+      (1333 - heroPositionsX[0]),
+      (1333 - heroPositionsX[1]),
+      (1333 - heroPositionsX[2]),
+      (1333 - heroPositionsX[3])
+   };
+
+   float monsterPositionsY[8] = {400, 510, 290, 620, 400, 510, 290, 620}; 
 
    string 
       newMonster,
@@ -120,7 +139,7 @@ private:
    void focus                (Character & character);
    void flee                 ();
    bool isDefeated           (Character & victim);
-   void receiveHazardDamage  (Character & aggressor, const Character & victim);
+   void receiveHazardDamage  (Character & aggressor, Character & victim);
    short attackCharacter     (Character & aggressor, Character & victim);
    static bool sorter        (Character* a, Character* b);
    bool isEndOfTurn          ();
@@ -143,6 +162,7 @@ private:
    void resetStuff           ();
    float randomize           (float num);
    void setHeroPositions     ();
+   void setMonsterPositions  ();
 };
 
 
@@ -366,7 +386,7 @@ bool Battle::isDefeated(Character & victim) {
 * void receiveHazardDamage(Character, Character)
 * Calculates and applies reflective damage.
 *******************************************************************************/
-void Battle::receiveHazardDamage(Character & aggressor, const Character & victim) {
+void Battle::receiveHazardDamage(Character & aggressor, Character & victim) {
 
     for(auto & i : damageHpBpEp)
         i /= victim.isHazardous;
@@ -755,11 +775,13 @@ void Battle::getCharacterAction(Character* character) {
 
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) {
-            target = getUserInput(listOfMonsters);           // Attack what?
+            if(textMode) target = getUserInput(listOfMonsters);           // Attack what?
             if(!textMode) target = 1;
+            animations->targetCharacter = monsterParticipants[target - 1];
          }
        else
            target = 1;                 // Auto attack if only 1 monster left 
+           animations->targetCharacter = monsterParticipants[target - 1];
    }
 
    // Get action for monster AI 
@@ -770,8 +792,10 @@ void Battle::getCharacterAction(Character* character) {
       }
       else {
          option = 1;
+         animations->targetCharacter = heroParticipants[rand() % heroParticipants.size()];
       }
    }
+   animations->setCharacterPositions();
 }
 
 /*******************************************************************************
@@ -822,7 +846,7 @@ void Battle::resetStuff() {
 * pre-designated point.
 *******************************************************************************/
 float Battle::randomize(float num) {
-   return (rand() % 100) + (num - 50);
+   return (rand() % 50) + (num - 50);
 }
 
 /*******************************************************************************
@@ -833,6 +857,17 @@ void Battle::setHeroPositions() {
    for(short i = 0; i < heroParticipants.size(); i++) {
       heroParticipants[i]->animatedSprite->sprite.setPosition(
          sf::Vector2f(randomize(heroPositionsX[i]), heroPositionsY[i]));
+   }
+}
+
+/*******************************************************************************
+* setMonsterPositions()
+* Sets the locations to draw the monster character sprites.
+*******************************************************************************/
+void Battle::setMonsterPositions() {
+   for(short i = 0; i < monsterParticipants.size(); i++) {
+      monsterParticipants[i]->animatedSprite->sprite.setPosition(
+         sf::Vector2f(monsterPositionsX[i], monsterPositionsY[i]));
    }
 }
 
@@ -870,7 +905,7 @@ void Battle::combat(sf::RenderWindow & window) {
       // Determines who's turn it is based on the lowest running initiative. 
       if(go) {
          participant = nextAction();
-         animations->activeCharacter = participant;         
+         animations->activeCharacter = participant;
          resetStuff();
       }
 
@@ -878,14 +913,16 @@ void Battle::combat(sf::RenderWindow & window) {
       *                        Turn Ending Action Block
       * Code in this block will be executed after any turn, hero's or monster's.
       *************************************************************************/
-      if(go) applyFatigue(*participant);                                    // Activate booleans to run animations.
+      if(go) applyFatigue(*participant);                                    
       if(go) applyDazed(*participant);
       
       /*************************************************************************
       *                    Characters' Primary Action Block
       *************************************************************************/
-      if(go) getCharacterAction(participant);
-      if(go) if(applyCharacterAction(participant)) break;
+      if(go) { 
+         getCharacterAction(participant); 
+         if(applyCharacterAction(participant)) break;
+      }
 
       /*************************************************************************
       *                       Round Ending Action Block

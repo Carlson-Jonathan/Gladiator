@@ -1,4 +1,4 @@
 #!/bin/bash
 ./clean 2>> /dev/null
-g++ -o gladiator.out main.cpp character.cpp
+g++ -o gladiator.out main.cpp character.cpp -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 exit

@@ -83,7 +83,7 @@ string writeMessage(const string message) {
 	for(char i : message) {
 		cout << i;
 		cout.flush();
-		usleep(1000);
+		//usleep(1000);
 	}
 	return "\t";
 }
@@ -105,10 +105,10 @@ void writeMessageScroll(const string message) {
       while(getline(ss,to,'\n')) {
          cout << to << endl;
          cout.flush();
-         usleep(5000);
+         //usleep(5000);
       }
    
-   usleep(70000);
+   //usleep(70000);
 }
 
 
@@ -122,7 +122,7 @@ void combatVictory(const Character & player) {
    message += "All monsters have been defeated!"; 
 	
    message = writeMessage(message);
-   usleep(1000000);
+   //usleep(1000000);
    cout << endl;
 
    cout << "========================================"
@@ -137,7 +137,7 @@ void combatVictory(const Character & player) {
    writeMessage(message);
    cout << "\n======================================="
 	    << "========================================\n";	
-   usleep(1000000);
+   //usleep(1000000);
 
    cout << "\n\t***************\n" << "\tRewards:\n" << "\tCash + $0.23\n" 
 	    << "\tPopularity + 10\n" << "\tChocolate + 1\n" 
@@ -174,7 +174,7 @@ void displayAttackMessage(const Character & victim,
    message += "!\n";
 
    message = writeMessage(message);
-   usleep(300000);
+   //usleep(300000);
 
    if(aggressor.weapon->isCritical) {
       aggressor.weapon->isCritical = false;
@@ -189,7 +189,7 @@ void displayAttackMessage(const Character & victim,
    cout << "\n\t\tHP: -" << damage[0] << "  |  " << "BP: -" << damage[1] 
         << "  |  " << "EP: -" << damage[2] << "\n";
 
-   usleep(700000);
+   //usleep(700000);
    cout << endl;
 }
 

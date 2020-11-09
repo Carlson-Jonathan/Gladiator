@@ -26,13 +26,12 @@ Character::Character(string newMonster) {
    this->hitPoints =           maxHitPoints; 
    this->bloodPoints =         maxBloodPoints; 
    essencePoints =             maxEssencePoints;
-
    weapon =                    new Weapon(monster[newMonster]);
    this->precision =           weapon->precision;
-
    armor =                     new Armor(monster[newMonster]);
    this->evasion =             monster[newMonster].second.first[10];
    this->regeneration =        monster[newMonster].second.first[15];
+   setMonsterSpriteAnimation(newMonster);
 }
 
 /*****************************************
@@ -44,6 +43,7 @@ Character::Character(string name, bool hero) {
    this->weapon = new Weapon;
    this->armor = new Armor;
    this->runningInitiative = initiative;
+   setHeroSpriteAnimation();
 }
 
 /*******************************************************************************
@@ -96,6 +96,22 @@ void Character::setArmor(string name) {
    this->evasion += armor->evade;
    this->initiative += armor->speed;
    this->regeneration = armor->regeneration;
+}
+
+void Character::setMonsterSpriteAnimation(string newMonster) {
+   animatedSprite = new AnimatedSprite(
+      monster[newMonster].first.first[1],     // Texture File 
+      monster[newMonster].second.first[18],   // x1
+      monster[newMonster].second.first[19],   // y1
+      monster[newMonster].second.first[20],   // x2
+      monster[newMonster].second.first[21],   // y2
+      monster[newMonster].second.first[22],   // Number of frames
+      monster[newMonster].second.second[11]   // FPS
+   );
+}
+
+void Character::setHeroSpriteAnimation() {
+   animatedSprite = new AnimatedSprite("Images/Heroine.png", 0, 0, 54, 72, 5, 0.11f); 
 }
 
 /*******************************************************************************

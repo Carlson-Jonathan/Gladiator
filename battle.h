@@ -10,18 +10,32 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <cstdlib>  // sleep
+#include <unistd.h> // sleep
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Network.hpp>
 #include "display.h"
 #include "character.h"
+#include "animations.h"
 
 class Battle {
 
 public:
    Battle() {}
-   Battle(vector<Character> & heroes, string newMonster, bool debugMode, short numMonsters) {
+   Battle(vector<Character> & heroes, string newMonster, bool debugMode, 
+      short numMonsters, bool textMode, Animations* animations,
+      short* screenWidth, short* screenHeight) {
       this->debugMode = debugMode; 
       this->numMonsters = numMonsters;
       this->newMonster = newMonster;
       this->heroes = heroes;
+      this->textMode = textMode;
+      this->animations = animations;
+      this->screenWidth = screenWidth;
+      this->screenHeight = screenHeight;
       for(auto & i : this->heroes) {
          selectWeapon(i);
          selectArmor(i);
@@ -29,35 +43,81 @@ public:
          
       srand(time(0));       
       generateParticipantLists();
-      combat();
+      setHeroPositions();
+      setMonsterPositions();
+      this->animations->heroParticipants = this->heroParticipants;
+      this->animations->monsterParticipants = this->monsterParticipants;
    }
 
+   void combat (sf::RenderWindow & window);
 
+
+//******************************************************************************
 private:
-   /***************************************
-   * Private variables
-   ***************************************/
+
    bool 
-      debugMode,
-      battleOver = false;
+      debugMode = false,
+      battleOver = false, 
+      textMode = false,
+      go = true,
+      animationLineup[36] = {
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 0, 0
+      };
 
    short 
-      died,
-      option,
-      target,
+      died = 0,
+      option = 1,
+      target = 1,
       round = 1,
       damageHpBpEp[3],
-      willMiss,
-      missed,
+      willMiss = 0,
+      missed = 0,
       damageTypes[4],
       block[4],
-      numMonsters;
+      numMonsters = 1,
+      randNum = 1,
+      lineupIndex = 88, 
+      diedCount = 0,
+      missedCount = 0,
+      damageCount = 0,
+      bleedCount = 0,
+      stunCount = 0,
+      slowCount = 0, 
+      hazardCount = 0;
 
-   string newMonster;
+   short* screenWidth;
+   short* screenHeight;
+
+   float heroPositionsX[4] = {360.f, 240.f, 320.f, 280.f},
+         heroPositionsY[4] = {400.f, 510.f, 290.f, 620.f};
+
+   float monsterPositionsX[8] = {
+      (1333 - heroPositionsX[0] - 150),
+      (1333 - heroPositionsX[1] - 150),
+      (1333 - heroPositionsX[2] - 150),
+      (1333 - heroPositionsX[3] - 150),
+      (1333 - heroPositionsX[0]),
+      (1333 - heroPositionsX[1]),
+      (1333 - heroPositionsX[2]),
+      (1333 - heroPositionsX[3])
+   };
+
+   float monsterPositionsY[8] = {400, 510, 290, 620, 400, 510, 290, 620}; 
+
+   string 
+      newMonster,
+      battleMusic[3] = {"Sounds/Music/battle1.ogg", 
+                        "Sounds/Music/battle2.ogg", 
+                        "Sounds/Music/battle3.ogg"};
 
    Character* monster = NULL;
    Character* participant = NULL;
-
+   Animations* animations;
+   sf::Clock clock;
+   sf::Music music;
 
    vector<Character> heroes;
    vector<string> listOfMonsters;
@@ -65,9 +125,9 @@ private:
    vector<Character*> monsterParticipants;
    vector<Character*> allCombatParticipants;
 
-   /***************************************
-   * Private Prototypes
-   ***************************************/
+
+   //============================ Prototypes ===================================
+
    Character* nextAction();
    void getDamageSum         (const Character & vicitm);
    void getPhysicalDamages   (Character & victim, Character & aggressor);
@@ -79,7 +139,7 @@ private:
    void focus                (Character & character);
    void flee                 ();
    bool isDefeated           (Character & victim);
-   void receiveHazardDamage  (Character & aggressor, const Character & victim);
+   void receiveHazardDamage  (Character & aggressor, Character & victim);
    short attackCharacter     (Character & aggressor, Character & victim);
    static bool sorter        (Character* a, Character* b);
    bool isEndOfTurn          ();
@@ -97,13 +157,19 @@ private:
    bool completeOption1      (Character & activeCharacter, Character & targetCharacter);
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
-   void combat               ();
+   void playBattleMusic      ();
+   short getLineupIndex      ();
+   void resetStuff           ();
+   float randomize           (float num);
+   void setHeroPositions     ();
+   void setMonsterPositions  ();
 };
 
-   /***************************************
-   * Function definitions that for some
-   * reason cannot be placed into a '.cpp'.
-   ***************************************/
+
+//==============================================================================
+//========================== Function Definitions ==============================
+//==============================================================================
+
 
 /*******************************************************************************
 * Character* nextAction()
@@ -113,7 +179,8 @@ private:
 Character* Battle::nextAction() {
    sort(allCombatParticipants.begin(), allCombatParticipants.end(), sorter);
    if(debugMode) displayInitiatives(allCombatParticipants);
-   allCombatParticipants[0]->runningInitiative += allCombatParticipants[0]->initiative;
+   allCombatParticipants[0]->runningInitiative += 
+   allCombatParticipants[0]->initiative;
    return allCombatParticipants[0];
 }
 
@@ -197,21 +264,30 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
    if(!victim.isDefending) {
 
       // Sets a bleeding affliction 
-      if(wep->isSharp) 
+      if(wep->isSharp) {
          victim.isBleeding += aggressor.weapon->isSharp;
+         if(bleedCount == 0) animationLineup[11] = true;
+         else if(bleedCount == 1) animationLineup[24] = true;
+         ++bleedCount;
+      }
       
       // Sets a stun affliction (skips the victim's next turn).
       if(wep->canStun)
          if(damageTypes[0] > aggressor.weapon->minDamage + 
             aggressor.weapon->rangeDamage / 2) { // Damge > than 50% of potential
-            stunMessage(aggressor, victim);
+            if(textMode) stunMessage(aggressor, victim);
+            if(stunCount == 0) animationLineup[12] = true;
+            else if(stunCount == 1) animationLineup[25] = true;
+            ++stunCount;
             victim.runningInitiative += wep->canStun;
          }
 
       // Slows base initiative by venom stat
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
-         slowMessage(aggressor, victim);
+         if(textMode) slowMessage(aggressor, victim);
+         if(slowCount == 0) animationLineup[13] = true;
+         else if(slowCount == 1) animationLineup[26] = true;
       }
 
    // Set additional afflictions
@@ -228,8 +304,8 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
 void Battle::applyBleeding(Character & victim) {
    
    victim.setBloodPoints(-victim.isBleeding);
-
-   bleedingMessage(victim);
+   if(textMode) bleedingMessage(victim);
+   animationLineup[31] = true;
    isDefeated(victim);
 
    victim.setIsBleeding(-2);
@@ -241,8 +317,10 @@ void Battle::applyBleeding(Character & victim) {
 *******************************************************************************/
 void Battle::applyRegeneration(Character & character) {
    character.setBloodPoints(character.regeneration);
-   if(character.bloodPoints < character.maxBloodPoints - character.regeneration)
+   if(character.bloodPoints < character.maxBloodPoints - character.regeneration) {
       regenerationMessage(character);
+      animationLineup[35] = true; 
+   }
 }
 
 /*******************************************************************************
@@ -250,7 +328,8 @@ void Battle::applyRegeneration(Character & character) {
 * Sets the player's defend status to true.
 *******************************************************************************/
 void Battle::focus(Character & character) {
-   defendingMessage(character);
+   if(textMode) defendingMessage(character);
+   animationLineup[3] = true;
    character.isDefending = true;
    applyDefendBonuses(character);
 
@@ -265,6 +344,7 @@ void Battle::focus(Character & character) {
 * Will house the flee function. All it does right now is end the combat.
 ******************************************************************************/
 void Battle::flee() {
+   animationLineup[4] = true;
    fleeCombatMessage();
 }
 
@@ -274,10 +354,28 @@ void Battle::flee() {
 *******************************************************************************/
 bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
-      characterDiedMessage(victim); 
+      if(textMode) characterDiedMessage(victim); 
+      switch(diedCount) {
+         case 0:
+            animationLineup[8] = true;
+            break;
+         case 1:
+            animationLineup[15] = true;
+            break;
+         case 2:
+            animationLineup[21] = true;
+            break;
+         case 3:
+            animationLineup[28] = true;
+            break;
+         case 4:
+            animationLineup[32] = true;
+            break;
+      }
       victim.isDead = true; 
       return true;
    }
+   ++diedCount;
    return false;
 }
 
@@ -285,12 +383,14 @@ bool Battle::isDefeated(Character & victim) {
 * void receiveHazardDamage(Character, Character)
 * Calculates and applies reflective damage.
 *******************************************************************************/
-void Battle::receiveHazardDamage(Character & aggressor, const Character & victim) {
+void Battle::receiveHazardDamage(Character & aggressor, Character & victim) {
 
     for(auto & i : damageHpBpEp)
         i /= victim.isHazardous;
 
-    hazardDamageMessage(aggressor, damageHpBpEp);
+    if(textMode) hazardDamageMessage(aggressor, damageHpBpEp);
+    if(hazardCount == 0) animationLineup[14] = true;
+    else if(hazardCount == 1) animationLineup[27] = true;
     applyDamage(aggressor);
     isDefeated(aggressor);
 }
@@ -301,18 +401,29 @@ void Battle::receiveHazardDamage(Character & aggressor, const Character & victim
 *******************************************************************************/
 short Battle::attackCharacter(Character & aggressor, Character & victim) {
 
+   animationLineup[5] = true;
    if(!missedAttack(aggressor, victim)) {
       getPhysicalDamages(victim, aggressor);
-      displayAttackMessage(victim, aggressor, damageHpBpEp);
+      if(textMode) displayAttackMessage(victim, aggressor, damageHpBpEp);
       applyDamage(victim);
+      if(damageCount == 0) animationLineup[7] = true;
+      else if(damageCount == 1) animationLineup[20] = true;
+      damageCount++;
       if(isDefeated(victim)) return 1;
       determineAffliction(aggressor, victim);
 
       if(victim.isHazardous) 
-      receiveHazardDamage(aggressor, victim);
+         receiveHazardDamage(aggressor, victim);
    }
-   else
-      missedAttackMessage(aggressor, victim);
+   else {
+      if(textMode) missedAttackMessage(aggressor, victim);
+      if(missedCount == 0) animationLineup[6] = true;
+      else if(missedCount == 1) animationLineup[19] = true;
+      ++missedCount;
+      ++damageCount;
+      ++bleedCount;
+   }
+   hazardCount = 1;
 
    return 0;
 }
@@ -352,7 +463,7 @@ bool Battle::endOfTurnActions() {
       if(allCombatParticipants[i]->isBleeding) 
          applyBleeding(*allCombatParticipants[i]);
 
-      if(allCombatParticipants[i]->regeneration)
+      if(allCombatParticipants[i]->regeneration) 
          applyRegeneration(*allCombatParticipants[i]);
    }
          
@@ -420,9 +531,13 @@ void Battle::killCharacter() {
             allCombatParticipants[i]->weapon = NULL;
             delete allCombatParticipants[i]->armor;
             allCombatParticipants[i]->armor = NULL;
+            delete allCombatParticipants[i]->animatedSprite;
+            allCombatParticipants[i]->animatedSprite = NULL;
             delete allCombatParticipants[i];
             allCombatParticipants[i] = NULL;    
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
+            animations->monsterParticipants = this->monsterParticipants;
+            animations->heroParticipants = this->heroParticipants;
          }
       }
    }
@@ -447,6 +562,7 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
 *******************************************************************************/
 void Battle::riposte(Character & aggressor, Character & victim) {
    riposteMessage(victim, aggressor);
+   animationLineup[18] = true;
    attackCharacter(victim, aggressor);
 }
 
@@ -482,7 +598,24 @@ bool Battle::burnTheBodies() {
       if(i->isDead)
          deathCount++;
       if(deathCount == heroParticipants.size()) {
-         combatDefeat();
+         if(textMode) combatDefeat();
+         switch(diedCount) {
+         case 0:
+            animationLineup[9] = true;
+            break;
+         case 1:
+            animationLineup[16] = true;
+            break;
+         case 2:
+            animationLineup[22] = true;
+            break;
+         case 3:
+            animationLineup[29] = true;
+            break;
+         case 4:
+            animationLineup[33] = true;
+            break;
+      }
          battleOver = true;
          return 1;
       }
@@ -491,7 +624,24 @@ bool Battle::burnTheBodies() {
    if(corpseExists) killCharacter();
 
    if(!listOfMonsters.size()) {
-      combatVictory(heroes[0]);
+      if(textMode) combatVictory(heroes[0]);
+      switch(diedCount) {
+      case 0:
+         animationLineup[10] = true;
+         break;
+      case 1:
+         animationLineup[17] = true;
+         break;
+      case 2:
+         animationLineup[23] = true;
+         break;
+      case 3:
+         animationLineup[30] = true;
+         break;
+      case 4:
+         animationLineup[34] = true;
+         break;
+   }
       battleOver = true;
    }
    return battleOver;
@@ -513,10 +663,12 @@ void Battle::applyFatigue(Character & victim) {
       
       victim.weapon->basePenalty = 1 - ((float)difference / (float)limit / 2);
 
-      fatigueMessage(victim, additionalInit);
+      if(textMode) fatigueMessage(victim, additionalInit);
+      animationLineup[0] = true;
    } 
-   else
-   	  victim.weapon->basePenalty = 1;
+   else {
+  	   victim.weapon->basePenalty = 1;
+   }
 }
 
 /****************************************************************************
@@ -533,7 +685,8 @@ void Battle::applyDazed(Character & victim) {
       victim.evasionPenalty   = (float)difference / (float)limit * 50.0;
       victim.precisionPenalty = (float)difference / (float)limit * 50.0;
 
-      dazedMessage(victim, victim.precisionPenalty, victim.evasionPenalty);
+      if(textMode) dazedMessage(victim, victim.precisionPenalty, victim.evasionPenalty);
+      animationLineup[1] = true;
    }
    else {
       victim.evasionPenalty = 0;
@@ -593,8 +746,9 @@ bool Battle::completeOption1(Character & activeCharacter, Character & targetChar
 bool Battle::applyCharacterAction(Character* character) {
    if(option == 1) {
       if(character->isHero) {
-         if(completeOption1(*character, *monsterParticipants[target - 1])) 
+         if(completeOption1(*character, *monsterParticipants[target - 1])) {
             return 1;
+         }
       }
       else {
          if(completeOption1(*character, *heroParticipants[rand() % heroParticipants.size()])) 
@@ -602,7 +756,7 @@ bool Battle::applyCharacterAction(Character* character) {
       }
    }
    else if (option == 2) {
-      focus(*character);                                // Player is defending
+      focus(*character);
    }
    else if(option == 3) {
       flee();                                           // Player retreats
@@ -617,30 +771,112 @@ bool Battle::applyCharacterAction(Character* character) {
 *******************************************************************************/
 void Battle::getCharacterAction(Character* character) {
 
-   short randNum;
-
    // Get action for hero character 
    if(character->isHero) {
-      displayCharacterStats(monsterParticipants, heroParticipants, round++);
-      showWhosTurn(*participant);
-      option = getUserInput({"Attack", "Defend", "Flee"});
+      if(textMode) displayCharacterStats(monsterParticipants, heroParticipants, round++);
+      if(textMode) showWhosTurn(*participant);
+      animationLineup[2] = true;
+      if(textMode) option = getUserInput({"Attack", "Defend", "Flee"});
+
+      option = 1;
       if (option == 1)                                           // Attack
-         if(listOfMonsters.size() > 1) 
-            target = getUserInput(listOfMonsters);           // Attack what?
+         if(listOfMonsters.size() > 1) {
+            if(textMode) target = getUserInput(listOfMonsters);           // Attack what?
+            if(!textMode) target = 1;
+            animations->targetCharacter = monsterParticipants[target - 1];
+         }
        else
            target = 1;                 // Auto attack if only 1 monster left 
+           animations->targetCharacter = monsterParticipants[target - 1];
    }
 
    // Get action for monster AI 
    else {
       randNum = rand() % 10;
-      if(randNum > 7)
+      if(randNum > 7) {
          option = 2;
-      else
+      }
+      else {
          option = 1;
+         animations->targetCharacter = heroParticipants[rand() % heroParticipants.size()];
+      }
+   }
+   animations->setCharacterPositions();
+}
+
+/*******************************************************************************
+* void playBattleMusic() 
+* Randomly selects 1 of 3 battle themes and plays it on a loop.
+*******************************************************************************/
+void Battle::playBattleMusic() {
+   randNum = rand() % 3;
+   if (!music.openFromFile(battleMusic[randNum]))
+      cout << "Error opening file '" << battleMusic[randNum] << "'!\n";
+   music.setLoop(true);
+   music.setVolume(40.f);
+   music.play();
+}
+
+/*******************************************************************************
+* short getLineupIndex() 
+* Returns the index + 1 of the next animation in the list. If there are no true
+* booleans in the lineup, returns 0.
+*******************************************************************************/
+short Battle::getLineupIndex() {
+   for(short i = 0; i < sizeof(animationLineup); i++) {
+      if(animationLineup[i]) {
+         animationLineup[i] = false;
+         return i + 1;
+      }
+   }
+
+   return 0;
+}
+
+/*******************************************************************************
+* void resetStuff()
+* Sets various combat variables back to their default at the end of each turn.
+*******************************************************************************/
+void Battle::resetStuff() {
+   diedCount = 0;
+   missedCount = 0;
+   damageCount = 0;
+   bleedCount = 0;
+   stunCount = 0;
+   slowCount = 0,
+   hazardCount = 0;
+}
+
+/*******************************************************************************
+* void randomize(float)
+* Randomizes the hero sprite placement on the screen. Shifts + or - 50px from a
+* pre-designated point.
+*******************************************************************************/
+float Battle::randomize(float num) {
+   return (rand() % 50) + (num - 50);
+}
+
+/*******************************************************************************
+* setHeroPositions()
+* Sets the locations to draw the hero character sprites.
+*******************************************************************************/
+void Battle::setHeroPositions() {
+   for(short i = 0; i < heroParticipants.size(); i++) {
+      heroParticipants[i]->animatedSprite->sprite.setPosition(
+         sf::Vector2f(randomize(heroPositionsX[i]), heroPositionsY[i]));
    }
 }
 
+/*******************************************************************************
+* setMonsterPositions()
+* Sets the locations to draw the monster character sprites.
+*******************************************************************************/
+void Battle::setMonsterPositions() {
+   for(short i = 0; i < monsterParticipants.size(); i++) {
+      monsterParticipants[i]->animatedSprite->sprite.setPosition(
+         sf::Vector2f(monsterPositionsX[i], monsterPositionsY[i]));
+   }
+}
 
 
 
@@ -651,56 +887,104 @@ void Battle::getCharacterAction(Character* character) {
 #####  ####  ##############                          ##############  ####  #####
 #####  ####  ###################                ###################  ####  #####
 #####  ####  ######################################################  ####  #####
-*
-* void combat()
-* Houses the primary combat loop. Brings all other functions together to form
-* a combat sequence. Only stops when it hits a 'break' statement.
-*
-*******************************************************************************/
-void Battle::combat() {
+#
+# void combat()
+# Houses the primary combat loop. Brings all other functions together to form
+# a combat sequence. Only stops when it hits a 'break' statement.
+#
+##############################################################################*/
+void Battle::combat(sf::RenderWindow & window) {
 
+   if(!textMode) playBattleMusic();
+
+   short count = 0;
    while(true) {
 
-      // Determines who's turn it is based on the lowest running initiative. 
-      participant = nextAction();
-
-      /*************************************************************************
-      *                        Turn Ending Action Block
-      * Code in this block will be executed after any turn, hero's or monster's.
-      *************************************************************************/
-      applyFatigue(*participant);      
-      applyDazed(*participant);         
+      window.clear(sf::Color(102, 255, 255));
+      usleep(16666); // 60 FPS = 16666
       
-      /*************************************************************************
-      *                    Characters' Primary Action Block
-      *************************************************************************/
-      getCharacterAction(participant);
-      if(applyCharacterAction(participant)) break;
+      // FPS tester
+      count++;
+      displayCharacterStats(monsterParticipants, heroParticipants, round);
+      if(!textMode) cout << "\nBattle in progress... FPS Counter: " << count << endl;
+
+      if(animations->eventListener(window)) break;
+
+      // Determines who's turn it is based on the lowest running initiative. 
+      if(go) {
+         participant = nextAction();
+         animations->activeCharacter = participant;
+         resetStuff();
+      
+         /*************************************************************************
+         *                        Turn Ending Action Block
+         * Code in this block will be executed after any turn, hero's or monster's.
+         *************************************************************************/
+         applyFatigue(*participant);                                    
+         applyDazed(*participant);
+      
+         /*************************************************************************
+         *                    Characters' Primary Action Block
+         *************************************************************************/
+         getCharacterAction(participant); 
+         if(applyCharacterAction(participant)) break;
+         
+         /*************************************************************************
+         *                       Round Ending Action Block
+         * A round ends after each character exceeds 200 running initiative.
+         *************************************************************************/
+         if(isEndOfTurn()) 
+            if(endOfTurnActions()) break;
+      } 
+      go = false;
 
       /*************************************************************************
-      *                       Round Ending Action Block
-      * A round ends after each character exceeds 200 running initiative.
+      *                          Battle Drawings
+      * Activates all animations in animations.h.
       *************************************************************************/
-      if(isEndOfTurn()) 
-         if(endOfTurnActions()) break;           
+      animations->animateBattlescape(window, animationLineup, go);
+
+      if(debugMode) {
+         cout << "Participant: " << participant->name << endl;
+         cout << "Current lineup index: " << lineupIndex << endl;
+         for(bool i : animationLineup)
+            cout << i << ", ";
+         cout << endl; 
+      }
+
+      window.display();
    }   
 
-   if(debugMode) 
-      cout << "\nDont forget to reset world affecting stats at the end of combat!" 
-           << endl;
-      
+   cout << "End of battle." << endl;
+
 }
 #endif // BATTLE_H
 
 
+/**********************************************************************************************/
 
 // Bugs to fix:
-
+   // Make defeat/victory ANIMATIONS break the combat loop when called and remove other breaks.
+   // "Wounded" does not display on retaliation attacks if the inital attack lands.
+   // EOT bleeding does not display for heros. Double check regeneration.
 
 // Refactors:
+   // Change "isEndOfTurn" to "isEndOfRound"
+   // Call damage numbers animation before wounded (bleeding).
 
-// Currenlty working on:
-//   Implementing SFML game platform.
+// Reminders:
+   // Reset world-affecting stats at the end of each combat.
+   // The 'delete' statement has been commented out of killCharacter().
+
+/*********************************************************************************************/
+
+// Currenlty working on: Creating individual animations.
+   // Tie the animations to the character objects. Each Character object will have an 
+   // animation function with parameters that set the different properties. Create a pointer
+   // to the charcter object in the animations.h file. When killCharacter() is called, make it
+   // nullify the pointer in the compat participants lists and remove them, but keep the 
+   // object. After the defeat animation finishes, nullify the animation.h pointer, remove it,
+   // and delete the character object from that file.
 
 /*******************************************************************************
 * To do:

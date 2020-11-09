@@ -1,14 +1,15 @@
-/*******************************************************************************
-* main.cpp
-* Author Jonathan Carlson
-* Description:
-*    Main driver.
-*******************************************************************************/
 #ifndef MAIN_CPP
 #define MAIN_CPP
 #include <iostream>
 #include <vector>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Network.hpp>
+#include "animations.h"
 #include "battle.h"
+using namespace std;
 
 vector<Character> createCharacters(short numHeroes) {
    vector<Character> heroes;
@@ -26,17 +27,48 @@ vector<Character> createCharacters(short numHeroes) {
 
 int main() {
 
+   short screenWidth = 1333, // 16:9 aspect ratio
+         screenHeight = 750;
+   short* pScreenWidth = &screenWidth;
+   short* pScreenHeight = &screenHeight;
+
+   Animations animations(pScreenWidth, pScreenHeight);
+   Animations* pAnimations = &animations;
+   
+   sf::Music music;
+   if (!music.openFromFile("Sounds/Music/preBattle.ogg"))
+      cout << "Error opening file 'Sounds/Music/preBattle.ogg'!\n";
+   music.setLoop(true);
+   music.play();
+
    vector<Character> heroes = createCharacters(3);
 
-   //   Param 1 = create player object.
-   //   Param 2 = type of monster. 
-   //   Param 3 = toggles debug mode.
-   //   Param 4 = Number of extra monsters per combat.
-   {Battle battle(heroes, "Random", 1, 3);}
+       // heroes, monster type, debug mode, num monsters, text mode, animations, screenW, screenH
+   Battle battle(heroes, "Cactopus", 0, 5, 0, pAnimations, pScreenWidth, pScreenHeight);
 
+   sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
+      "Gladiator by Jonathan Carlson");
+   window.setFramerateLimit(60);
+
+   music.stop();
+   while (window.isOpen()) {
+      animations.eventListener(window);
+      window.clear(sf::Color(102, 255, 255));
+/******************************** Game Loop ***********************************/
+
+
+      battle.combat(window);
+      break;
+
+
+
+
+
+/******************************************************************************/
+      window.display();
+   }
    cout << "\n\n>> End of Program. <<" << endl;
-
-   return 0;
+	return 0;
 }
 
 #endif // MAIN_CPP

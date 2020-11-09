@@ -20,27 +20,30 @@ using namespace std;
 
 class Animations {
 public:
+
    Animations                 () {}
    Animations                 (short* screenWidth, short* screenHeight); 
+
    void animateBattlescape    (sf::RenderWindow & window, bool (&animationLineup)[36], bool & go);
    bool eventListener         (sf::RenderWindow & window);
    void setCharacterPositions ();
 
    vector<Character*> heroParticipants;   
    vector<Character*> monsterParticipants;
+   Character* targetCharacter;
    Character* activeCharacter;
    sf::Vector2f activeCharacterPos;
-   Character* targetCharacter;
    sf::Vector2f targetCharacterPos;
 
 private:
+
    sf::Clock animationClock;
    sf::Font font;
    sf::Music music;
    sf::Text text;
    sf::FloatRect textRect;
 
-   /*************************/
+   /************* Battlescape Sprites *************/
 
    sf::Texture backgroundTex;
    sf::IntRect backgroundRect;
@@ -50,11 +53,9 @@ private:
    sf::IntRect menuRect;
    sf::Sprite menuSprite;
 
-   float a = 0, b = 0;
+   /**********************************************/
 
    short 
-      x = 0.f,
-      y = 0.f,
       count = 0,
       lineupIndex = 88;
 
@@ -66,7 +67,6 @@ private:
       sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite);
 
    // Looped functions
-   void drawBackground(sf::RenderWindow & window);
    void MaintainAspectRatio(sf::RenderWindow & window);
    void drawMenuWheel(sf::RenderWindow & window);
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
@@ -163,14 +163,13 @@ float randomize(float num) {
 void Animations::animateBattlescape(sf::RenderWindow & window, 
    bool (&animationLineup)[36], bool & go) {
 
-   drawBackground(window);
-   
+   window.draw(backgroundSpr);
+
    for(auto i : heroParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
 
    for(auto i : monsterParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
-   
 
    // This must be last to be called in this function!
    animationSelect(animationLineup, go, window);
@@ -208,14 +207,6 @@ void Animations::setCharacterPositions() {
 /*##############################################################################
 ############################## Looped Functions ################################
 ##############################################################################*/
-
-
-/*******************************************************************************
-* Function stubs for the different animations.
-*******************************************************************************/
-void Animations::drawBackground(sf::RenderWindow & window) {
-   window.draw(backgroundSpr);
-}
 
 /*******************************************************************************
 * MaintainAspectRatio(window)
@@ -265,7 +256,8 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
 /*******************************************************************************
 * void getLineupIndex()
 * Iterates through the animation lineup array and returns the index of the frist
-* true boolean.
+* true boolean. The order of the lineup is the order that the animations get
+* displayed, so they must be in the correct order.
 *******************************************************************************/
 short Animations::getLineupIndex(bool animationLineup[], short size) {
    for(short i = 0; i < size; i++) {
@@ -278,9 +270,8 @@ short Animations::getLineupIndex(bool animationLineup[], short size) {
 }
 
 /*******************************************************************************
-* void getLineupIndex()
-* Iterates through the animation lineup array and returns the index of the frist
-* true boolean.
+* void displayActionText
+* Give it a string and Vector2f position and it will display it to the screen.
 *******************************************************************************/
 void Animations::displayActionText(sf::RenderWindow & window, string message, 
    sf::Vector2f pos) {
@@ -296,10 +287,13 @@ void Animations::displayActionText(sf::RenderWindow & window, string message,
 * Just a switch statement function. Picks which animation to display based on 
 * the lineupIndex. The '0' case resets the combat sequence and starts a new turn
 *******************************************************************************/
-void Animations::animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window) {
+void Animations::animationSelect(bool (&animationLineup)[36], bool & go, 
+                                 sf::RenderWindow & window) {
 
+   // Sets a time delay for all animations across the board. Temporary until
+   // all animations are created and have their own execution time.
    short size = sizeof(animationLineup);
-   if(animationClock.getElapsedTime().asSeconds() > 1.5f) {
+   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
       lineupIndex = getLineupIndex(animationLineup, size);
       animationClock.restart();
    }
@@ -416,15 +410,13 @@ void Animations::animationSelect(bool (&animationLineup)[36], bool & go, sf::Ren
       case 0:
          cout << "************************** New Combat Turn ****************************" << endl;
          go = true;
-         lineupIndex = 88;
-         for(bool & i : animationLineup)
-            i = 0;
+         lineupIndex = 88; // Arbitrary number to prevent '0' skips.
+         for(bool & i : animationLineup) // Reset entire lineup inpreperation
+            i = 0;                       // for next character turn.
          break;
       default:;
    }
 }
-
-
 
 /*******************************************************************************
 * Ordered animation functions.
@@ -496,7 +488,7 @@ void Animations::animationStun(sf::RenderWindow & window, sf::Vector2f pos) {
 }
 
 void Animations::animationSlow(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** This character is stunned (initiative -) ***\n";
+   cout << "\t*** This character is slowed (initiative -) ***\n";
    displayActionText(window, "Slowed!", pos);
 }
 
@@ -507,15 +499,57 @@ void Animations::animationHazardDamage(sf::RenderWindow & window, sf::Vector2f p
 
 void Animations::animationRetaliation(sf::RenderWindow & window) {
    cout << "\t*** Character recoils and strikes back ***\n";
-   displayActionText(window, "Retaliation Attack!", activeCharacterPos);
+   displayActionText(window, "Retaliation Attack!", targetCharacterPos);
 }
 
 void Animations::animationBleeding(sf::RenderWindow & window) {
    cout << "\t*** Bleeding damage is applied to this character ***\n";
+   for(auto i : monsterParticipants) {
+      if(i->isBleeding) {
+         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
+         short sprWidth = i->animatedSprite->rectangle.width;
+         short sprHeight = i->animatedSprite->rectangle.height;
+         pos.x += sprWidth / 2;
+         pos.y += sprHeight / 2;
+         displayActionText(window, "Bleed Damage", pos);
+      }
+   }
+
+   for(auto i : heroParticipants) {
+      if(i->isBleeding) {
+         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
+         short sprWidth = i->animatedSprite->rectangle.width;
+         short sprHeight = i->animatedSprite->rectangle.height;
+         pos.x += sprWidth / 2;
+         pos.y += sprHeight / 2;
+         displayActionText(window, "Bleed Damage", pos);
+      }
+   }
 }
 
 void Animations::animationRegeneration(sf::RenderWindow & window) {
    cout << "\t*** Character is regenerating blood points ***\n";
+   for(auto i : monsterParticipants) {
+      if(i->regeneration) {
+         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
+         short sprWidth = i->animatedSprite->rectangle.width;
+         short sprHeight = i->animatedSprite->rectangle.height;
+         pos.x += sprWidth / 2;
+         pos.y += sprHeight / 2;
+         displayActionText(window, "Regeneration", pos);
+      }
+   }
+
+   for(auto i : heroParticipants) {
+      if(i->regeneration) {
+         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
+         short sprWidth = i->animatedSprite->rectangle.width;
+         short sprHeight = i->animatedSprite->rectangle.height;
+         pos.x += sprWidth / 2;
+         pos.y += sprHeight / 2;
+         displayActionText(window, "Regeneration", pos);
+      }
+   }
 }
 
 #endif // ANIMATIONS_H

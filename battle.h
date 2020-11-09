@@ -250,9 +250,6 @@ void Battle::applyDamage(Character & victim) {
    victim.setHitPoints(-damageHpBpEp[0]);
    victim.setBloodPoints(-damageHpBpEp[1]);
    victim.setEssencePoints(-damageHpBpEp[2]);
-   if(damageCount == 0) animationLineup[7] = true;
-   else if(damageCount == 1) animationLineup[20] = true;
-   ++damageCount;
 }
 
 /*******************************************************************************
@@ -289,7 +286,7 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
          if(textMode) slowMessage(aggressor, victim);
-         if(slowCount == 0) animationLineup[14] = true;
+         if(slowCount == 0) animationLineup[13] = true;
          else if(slowCount == 1) animationLineup[26] = true;
       }
 
@@ -409,18 +406,24 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
       getPhysicalDamages(victim, aggressor);
       if(textMode) displayAttackMessage(victim, aggressor, damageHpBpEp);
       applyDamage(victim);
+      if(damageCount == 0) animationLineup[7] = true;
+      else if(damageCount == 1) animationLineup[20] = true;
+      damageCount++;
       if(isDefeated(victim)) return 1;
       determineAffliction(aggressor, victim);
 
       if(victim.isHazardous) 
-      receiveHazardDamage(aggressor, victim);
+         receiveHazardDamage(aggressor, victim);
    }
    else {
       if(textMode) missedAttackMessage(aggressor, victim);
       if(missedCount == 0) animationLineup[6] = true;
       else if(missedCount == 1) animationLineup[19] = true;
       ++missedCount;
+      ++damageCount;
+      ++bleedCount;
    }
+   hazardCount = 1;
 
    return 0;
 }
@@ -460,7 +463,7 @@ bool Battle::endOfTurnActions() {
       if(allCombatParticipants[i]->isBleeding) 
          applyBleeding(*allCombatParticipants[i]);
 
-      if(allCombatParticipants[i]->regeneration)
+      if(allCombatParticipants[i]->regeneration) 
          applyRegeneration(*allCombatParticipants[i]);
    }
          
@@ -524,15 +527,17 @@ void Battle::killCharacter() {
          }
          else 
          {
-            // delete allCombatParticipants[i]->weapon;
+            delete allCombatParticipants[i]->weapon;
             allCombatParticipants[i]->weapon = NULL;
-            // delete allCombatParticipants[i]->armor;
+            delete allCombatParticipants[i]->armor;
             allCombatParticipants[i]->armor = NULL;
-            // delete allCombatParticipants[i]->animatedSprite;
+            delete allCombatParticipants[i]->animatedSprite;
             allCombatParticipants[i]->animatedSprite = NULL;
-            // delete allCombatParticipants[i];
+            delete allCombatParticipants[i];
             allCombatParticipants[i] = NULL;    
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
+            animations->monsterParticipants = this->monsterParticipants;
+            animations->heroParticipants = this->heroParticipants;
          }
       }
    }
@@ -773,6 +778,7 @@ void Battle::getCharacterAction(Character* character) {
       animationLineup[2] = true;
       if(textMode) option = getUserInput({"Attack", "Defend", "Flee"});
 
+      option = 1;
       if (option == 1)                                           // Attack
          if(listOfMonsters.size() > 1) {
             if(textMode) target = getUserInput(listOfMonsters);           // Attack what?
@@ -807,6 +813,7 @@ void Battle::playBattleMusic() {
    if (!music.openFromFile(battleMusic[randNum]))
       cout << "Error opening file '" << battleMusic[randNum] << "'!\n";
    music.setLoop(true);
+   music.setVolume(40.f);
    music.play();
 }
 
@@ -898,6 +905,7 @@ void Battle::combat(sf::RenderWindow & window) {
       
       // FPS tester
       count++;
+      displayCharacterStats(monsterParticipants, heroParticipants, round);
       if(!textMode) cout << "\nBattle in progress... FPS Counter: " << count << endl;
 
       if(animations->eventListener(window)) break;
@@ -907,29 +915,27 @@ void Battle::combat(sf::RenderWindow & window) {
          participant = nextAction();
          animations->activeCharacter = participant;
          resetStuff();
-      }
-
-      /*************************************************************************
-      *                        Turn Ending Action Block
-      * Code in this block will be executed after any turn, hero's or monster's.
-      *************************************************************************/
-      if(go) applyFatigue(*participant);                                    
-      if(go) applyDazed(*participant);
       
-      /*************************************************************************
-      *                    Characters' Primary Action Block
-      *************************************************************************/
-      if(go) { 
+         /*************************************************************************
+         *                        Turn Ending Action Block
+         * Code in this block will be executed after any turn, hero's or monster's.
+         *************************************************************************/
+         applyFatigue(*participant);                                    
+         applyDazed(*participant);
+      
+         /*************************************************************************
+         *                    Characters' Primary Action Block
+         *************************************************************************/
          getCharacterAction(participant); 
          if(applyCharacterAction(participant)) break;
-      }
-
-      /*************************************************************************
-      *                       Round Ending Action Block
-      * A round ends after each character exceeds 200 running initiative.
-      *************************************************************************/
-      if(go) if(isEndOfTurn()) 
-         if(endOfTurnActions()) break; 
+         
+         /*************************************************************************
+         *                       Round Ending Action Block
+         * A round ends after each character exceeds 200 running initiative.
+         *************************************************************************/
+         if(isEndOfTurn()) 
+            if(endOfTurnActions()) break;
+      } 
       go = false;
 
       /*************************************************************************
@@ -938,11 +944,13 @@ void Battle::combat(sf::RenderWindow & window) {
       *************************************************************************/
       animations->animateBattlescape(window, animationLineup, go);
 
-      if(debugMode) cout << "Participant: " << participant->name << endl;
-      if(debugMode) cout << "Current lineup index: " << lineupIndex << endl;
-      if(debugMode) for(bool i : animationLineup)
-         cout << i << ", ";
-      if(debugMode) cout << endl; 
+      if(debugMode) {
+         cout << "Participant: " << participant->name << endl;
+         cout << "Current lineup index: " << lineupIndex << endl;
+         for(bool i : animationLineup)
+            cout << i << ", ";
+         cout << endl; 
+      }
 
       window.display();
    }   
@@ -957,6 +965,8 @@ void Battle::combat(sf::RenderWindow & window) {
 
 // Bugs to fix:
    // Make defeat/victory ANIMATIONS break the combat loop when called and remove other breaks.
+   // "Wounded" does not display on retaliation attacks if the inital attack lands.
+   // EOT bleeding does not display for heros. Double check regeneration.
 
 // Refactors:
    // Change "isEndOfTurn" to "isEndOfRound"

@@ -881,12 +881,15 @@ void Battle::setMonsterPositions() {
 
 /*******************************************************************************
 * sendLineupData()
-* Send the lineup information to the animations object.
+* Send the lineup information to the animations object, the clears the lineup
+* so the next propogation does not mix with old data.
 *******************************************************************************/
 void Battle::sendLineupData() {
    short lineupSize = sizeof(animationLineup);	
-   for(short i = 0; i < lineupSize; i++)
+   for(short i = 0; i < lineupSize; i++) {
       animations->animationLineup[i] = animationLineup[i];
+      animationLineup[i] = 0;
+   }
    animations->lineupSize = lineupSize;   	
 }
 
@@ -913,7 +916,7 @@ void Battle::combat(sf::RenderWindow & window) {
    while(true) {
 
       window.clear(sf::Color(102, 255, 255));
-      usleep(16000); // 60 FPS = 16666
+      usleep(16666); // 60 FPS = 16666
       
       // FPS tester
       count++;
@@ -924,6 +927,7 @@ void Battle::combat(sf::RenderWindow & window) {
 
       // Determines who's turn it is based on the lowest running initiative. 
       if(go) {
+      	 cout << "=NEW LINEUP BEING PROPOGATED=" << endl;
          participant = nextAction();
          animations->activeCharacter = participant;
          resetStuff();
@@ -951,13 +955,19 @@ void Battle::combat(sf::RenderWindow & window) {
          sendLineupData();
 
       } 
+     cout << "Original lineup data: " << endl;
+     for(bool i : animationLineup)
+        cout << i << ", ";
+     cout << endl;	
+
+
       go = false;
 
       /*************************************************************************
       *                          Battle Drawings
       * Activates all animations in animations.h.
       *************************************************************************/
-      animations->animateBattlescape(window, animationLineup, go);
+      animations->animateBattlescape(window, go);
 
       if(debugMode) {
          cout << "Participant: " << participant->name << endl;

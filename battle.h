@@ -913,7 +913,7 @@ void Battle::combat(sf::RenderWindow & window) {
    while(true) {
 
       window.clear(sf::Color(102, 255, 255));
-      usleep(100000); // 60 FPS = 16666
+      usleep(16000); // 60 FPS = 16666
       
       // FPS tester
       count++;

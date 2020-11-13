@@ -81,7 +81,7 @@ private:
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
 
    // Ordered animations
-   short getLineupIndex(bool animationLineup[], short size);
+   short getLineupIndex();
    void animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window);
    void animationFatigue(sf::RenderWindow & window);
    void animationDazed(sf::RenderWindow & window);
@@ -268,8 +268,8 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
 * true boolean. The order of the lineup is the order that the animations get
 * displayed, so they must be in the correct order.
 *******************************************************************************/
-short Animations::getLineupIndex(bool animationLineup[], short size) {
-   for(short i = 0; i < size; i++) {
+short Animations::getLineupIndex() {
+   for(short i = 0; i < lineupSize; i++) {
       if(animationLineup[i]) {
          animationLineup[i] = false;
          return i + 1;
@@ -302,8 +302,8 @@ void Animations::animationSelect(bool (&animationLineup)[36], bool & go,
    // Sets a time delay for all animations across the board. Temporary until
    // all animations are created and have their own execution time.
    short size = sizeof(animationLineup);
-   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
-      lineupIndex = getLineupIndex(animationLineup, size);
+   if(animationClock.getElapsedTime().asSeconds() > 0.7f) {
+      lineupIndex = getLineupIndex();
       animationClock.restart();
    }
 

@@ -163,6 +163,7 @@ private:
    float randomize           (float num);
    void setHeroPositions     ();
    void setMonsterPositions  ();
+   void sendLineupData       ();
 };
 
 
@@ -878,6 +879,17 @@ void Battle::setMonsterPositions() {
    }
 }
 
+/*******************************************************************************
+* sendLineupData()
+* Send the lineup information to the animations object.
+*******************************************************************************/
+void Battle::sendLineupData() {
+   short lineupSize = sizeof(animationLineup);	
+   for(short i = 0; i < lineupSize; i++)
+      animations->animationLineup[i] = animationLineup[i];
+   animations->lineupSize = lineupSize;   	
+}
+
 
 
 /*###  ####  ######################################################  ####  #####
@@ -901,7 +913,7 @@ void Battle::combat(sf::RenderWindow & window) {
    while(true) {
 
       window.clear(sf::Color(102, 255, 255));
-      usleep(1000000); // 60 FPS = 16666
+      usleep(100000); // 60 FPS = 16666
       
       // FPS tester
       count++;
@@ -935,6 +947,9 @@ void Battle::combat(sf::RenderWindow & window) {
          *************************************************************************/
          if(isEndOfTurn()) 
             if(endOfTurnActions()) break;
+
+         sendLineupData();
+
       } 
       go = false;
 

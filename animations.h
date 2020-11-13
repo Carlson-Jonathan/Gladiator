@@ -35,6 +35,15 @@ public:
    sf::Vector2f activeCharacterPos;
    sf::Vector2f targetCharacterPos;
 
+   bool animationLineup[36] = {
+   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   	0, 0, 0, 0, 0, 0
+   };
+
+   short lineupSize = 36;
+
 private:
 
    sf::Clock animationClock;

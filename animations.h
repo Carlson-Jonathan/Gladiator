@@ -298,6 +298,15 @@ void Animations::animationSelect(bool (&animationLineup)[36], bool & go,
       animationClock.restart();
    }
 
+   cout << "Active character: " << activeCharacter->name << endl;
+   cout << "Target character: " << targetCharacter->name << endl;
+   cout << "animationLineup:\n";
+   for(short i = 0; i < size; i++)
+   	  cout << animationLineup[i] << ", ";
+   cout << endl;
+   cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
+   cout << endl;
+
    switch(lineupIndex) {
       case 1:
          animationFatigue(window);
@@ -433,9 +442,6 @@ void Animations::animationDazed(sf::RenderWindow & window) {
 
 void Animations::animationHerosTurn(sf::RenderWindow & window) {
    drawMenuWheel(window);
-   cout << "\t*** Display Hero stats ***\n";
-   cout << "\t*** Who's turn arrow ***\n";
-   cout << "\t*** Listen for user input ***\n";
    cout << "\t*** Select Monster/menu options ***\n";
 }
 

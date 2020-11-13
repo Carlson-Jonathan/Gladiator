@@ -901,7 +901,7 @@ void Battle::combat(sf::RenderWindow & window) {
    while(true) {
 
       window.clear(sf::Color(102, 255, 255));
-      usleep(1000000); // 60 FPS = 16666
+      usleep(16666); // 60 FPS = 16666
       
       // FPS tester
       count++;
@@ -935,6 +935,12 @@ void Battle::combat(sf::RenderWindow & window) {
          *************************************************************************/
          if(isEndOfTurn()) 
             if(endOfTurnActions()) break;
+
+         short size = sizeof(animationLineup);
+         for(short i = 0; i < size; i++)
+            animations->animationLineup[i] = animationLineup[i];
+         animations->lineupSize = size;
+
       } 
       go = false;
 
@@ -942,7 +948,8 @@ void Battle::combat(sf::RenderWindow & window) {
       *                          Battle Drawings
       * Activates all animations in animations.h.
       *************************************************************************/
-      animations->animateBattlescape(window, animationLineup, go);
+
+      animations->animateBattlescape(window, go);
 
       if(debugMode) {
          cout << "Participant: " << participant->name << endl;

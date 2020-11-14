@@ -64,12 +64,14 @@ private:
 
    /**********************************************/
 
+   // '88' means 'no selection made' and is usually default.
    short 
       count = 0,
       lineupIndex = 88,
       wheelRotate = 0,
       menuOption = 1,
-      rotation[4] = {0, 90, 180, 270};
+      rotation[4] = {0, 90, 180, 270},
+      selection = 88;
 
    short* pScreenWidth;
    short* pScreenHeight;
@@ -159,14 +161,16 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                if(menuOption > 3) menuOption = 0;
                wheelRotate = 6.0f;
                break;
+            case sf::Keyboard::Return:
+               selection = menuOption;
+               menuOption = 1;
+               wheelRotate = 0.0f;
+               break;
          }
       }
 
       if(event.type == sf::Event::KeyReleased)
          released = true;
-
-      // if (event.type == sf::Event::KeyReleased) 
-      //    released = true;
 
       // Auto adjusts the game resolution when the screen size is dragged.
       // This will likely need to be fixed- does not work as needed.
@@ -330,7 +334,7 @@ void Animations::animationSelect(bool & go, sf::RenderWindow & window) {
 
    // Sets a time delay for all animations across the board. Temporary until
    // all animations are created and have their own execution time.
-   if(animationClock.getElapsedTime().asSeconds() > 2.0f) {
+   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }

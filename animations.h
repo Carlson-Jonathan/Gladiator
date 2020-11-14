@@ -24,7 +24,7 @@ public:
    Animations                 () {}
    Animations                 (short* screenWidth, short* screenHeight); 
 
-   void animateBattlescape    (sf::RenderWindow & window, bool & go);
+   void animateBattlescape    (sf::RenderWindow & window, bool & go, bool & go2);
    bool eventListener         (sf::RenderWindow & window);
    void setCharacterPositions ();
 
@@ -42,7 +42,10 @@ public:
    	0, 0, 0, 0, 0, 0
    };
 
-   short lineupSize = 36;
+   short 
+      lineupSize = 36,
+      lineupIndex = 88,
+      selection = 88;
 
 private:
 
@@ -67,11 +70,9 @@ private:
    // '88' means 'no selection made' and is usually default.
    short 
       count = 0,
-      lineupIndex = 88,
       wheelRotate = 0,
       menuOption = 1,
-      rotation[4] = {0, 90, 180, 270},
-      selection = 88;
+      rotation[4] = {0, 90, 180, 270};
 
    short* pScreenWidth;
    short* pScreenHeight;
@@ -89,7 +90,7 @@ private:
 
    // Ordered animations
    short getLineupIndex();
-   void animationSelect(bool & go, sf::RenderWindow & window);
+   void animationSelect(bool & go, bool & go2, sf::RenderWindow & window);
    void animationFatigue(sf::RenderWindow & window);
    void animationDazed(sf::RenderWindow & window);
    void animationHerosTurn(sf::RenderWindow & window);
@@ -165,6 +166,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                selection = menuOption;
                menuOption = 1;
                wheelRotate = 0.0f;
+               lineupIndex = 88;
                break;
          }
       }
@@ -200,7 +202,7 @@ float randomize(float num) {
 * (background, static characters, misc sprites, etc.) as opposed to the specific
 * animations called when an event is triggered (attack, bleed, die, etc.).
 *******************************************************************************/
-void Animations::animateBattlescape(sf::RenderWindow & window, bool & go) {
+void Animations::animateBattlescape(sf::RenderWindow & window, bool & go, bool & go2) {
 
    window.draw(backgroundSpr);
 
@@ -211,7 +213,7 @@ void Animations::animateBattlescape(sf::RenderWindow & window, bool & go) {
       i->animatedSprite->placeSpriteAnimation(window);
 
    // This must be last to be called in this function!
-   animationSelect(go, window);
+   animationSelect(go, go2, window);
 }
 
 /*******************************************************************************
@@ -330,11 +332,11 @@ void Animations::displayActionText(sf::RenderWindow & window, string message,
 * Just a switch statement function. Picks which animation to display based on 
 * the lineupIndex. The '0' case resets the combat sequence and starts a new turn
 *******************************************************************************/
-void Animations::animationSelect(bool & go, sf::RenderWindow & window) {
+void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & window) {
 
    // Sets a time delay for all animations across the board. Temporary until
    // all animations are created and have their own execution time.
-   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
+   if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }
@@ -460,9 +462,8 @@ void Animations::animationSelect(bool & go, sf::RenderWindow & window) {
       case 0:
          cout << "************************** New Combat Turn ****************************" << endl;
          go = true;
-         lineupIndex = 88; // Arbitrary number to prevent '0' skips.
-         // for(bool & i : animationLineup) // Reset entire lineup inpreperation
-         //    i = 0;                       // for next character turn.
+         go2 = true;
+         lineupIndex = 88; 
          break;
       default:;
    }

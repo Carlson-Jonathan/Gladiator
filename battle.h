@@ -773,11 +773,20 @@ bool Battle::applyCharacterAction(Character* character) {
 *******************************************************************************/
 void Battle::getCharacterAction(Character* character) {
 
+   animations->targetCharacter = heroParticipants[0]; // Prevents a seg fault
    // Get action for hero character 
    if(character->isHero) {
       animationLineup[2] = true;
+      animations->lineupIndex = 3;
+      go = false;
 
-      option = 1;
+      option = animations->selection;
+      if(option <= 2 && option >= 1) {
+         go = true;	
+         go2 = false;
+         animations->selection = 88;
+      }
+
       if (option == 1) { 
          if(listOfMonsters.size() > 1) {
             animations->targetCharacter = monsterParticipants[target - 1];
@@ -791,6 +800,7 @@ void Battle::getCharacterAction(Character* character) {
 
    // Get action for monster AI 
    else {
+   	  go2 = false;
       randNum = rand() % 10;
       if(randNum > 7) 
          option = 2;
@@ -882,6 +892,7 @@ void Battle::setMonsterPositions() {
 * so the next propogation does not mix with old data.
 *******************************************************************************/
 void Battle::sendLineupData() {
+   cout << "*********** New Lineup data sent to animations **************" << endl;	
    short lineupSize = sizeof(animationLineup);	
    for(short i = 0; i < lineupSize; i++) {
       animations->animationLineup[i] = animationLineup[i];
@@ -935,11 +946,16 @@ void Battle::combat(sf::RenderWindow & window) {
          *************************************************************************/
          applyFatigue(*participant);                                    
          applyDazed(*participant);
-      
+      }
+
+      if(go2) {
          /*************************************************************************
          *                    Characters' Primary Action Block
          *************************************************************************/
          getCharacterAction(participant); 
+      }
+
+      if(go) {
          if(applyCharacterAction(participant)) break;
          
          /*************************************************************************
@@ -949,16 +965,20 @@ void Battle::combat(sf::RenderWindow & window) {
          if(isEndOfTurn()) 
             if(endOfTurnActions()) break;
 
+         int x;
+         cout << "Lineup data is being sent to animations here." << endl;
+         // cin >> x; 
          sendLineupData();
 
       } 
+
       go = false;
 
       /*************************************************************************
       *                          Battle Drawings
       * Activates all animations in animations.h.
       *************************************************************************/
-      animations->animateBattlescape(window, go);
+      animations->animateBattlescape(window, go, go2);
 
       if(debugMode) {
          cout << "Participant: " << participant->name << endl;

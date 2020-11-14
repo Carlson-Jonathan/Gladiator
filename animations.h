@@ -144,7 +144,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
 
    // Closes the window and terminates loops if the 'X' is clicked or alt + F4.
    while (window.pollEvent(event)) {
-   	
+
       if (event.type == sf::Event::Closed) {
          window.close();
          return 1;

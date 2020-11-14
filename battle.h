@@ -931,27 +931,30 @@ void Battle::combat(sf::RenderWindow & window) {
       displayCharacterStats(monsterParticipants, heroParticipants, round);
       if(!textMode) cout << "\nBattle in progress... FPS Counter: " << count << endl;
 
-      if(animations->eventListener(window)) break;
+      if(animations->eventListener(window)) break; // Exit the game
 
+
+   /*###########################################################################
+   # Mechanics. Executes combat sequence and propogates animation lineup.
+   ###########################################################################*/
       // Determines who's turn it is based on the lowest running initiative. 
       if(go) {
-      	 cout << "=NEW LINEUP BEING PROPOGATED=" << endl;
          participant = nextAction();
          animations->activeCharacter = participant;
          resetStuff();
       
-         /*************************************************************************
+         /**********************************************************************
          *                        Turn Ending Action Block
          * Code in this block will be executed after any turn, hero's or monster's.
-         *************************************************************************/
+         **********************************************************************/
          applyFatigue(*participant);                                    
          applyDazed(*participant);
       }
 
       if(go2) {
-         /*************************************************************************
+         /**********************************************************************
          *                    Characters' Primary Action Block
-         *************************************************************************/
+         **********************************************************************/
          getCharacterAction(participant); 
       }
 
@@ -965,29 +968,16 @@ void Battle::combat(sf::RenderWindow & window) {
          if(isEndOfTurn()) 
             if(endOfTurnActions()) break;
 
-         int x;
-         cout << "Lineup data is being sent to animations here." << endl;
-         // cin >> x; 
          sendLineupData();
 
       } 
-
+   /*###########################################################################
+   # End of mechanics.
+   ###########################################################################*/
+      
       go = false;
 
-      /*************************************************************************
-      *                          Battle Drawings
-      * Activates all animations in animations.h.
-      *************************************************************************/
       animations->animateBattlescape(window, go, go2);
-
-      if(debugMode) {
-         cout << "Participant: " << participant->name << endl;
-         cout << "Current lineup index: " << lineupIndex << endl;
-         for(bool i : animationLineup)
-            cout << i << ", ";
-         cout << endl; 
-      }
-
       window.display();
    }   
 
@@ -1002,7 +992,6 @@ void Battle::combat(sf::RenderWindow & window) {
 // Bugs to fix:
    // Make defeat/victory ANIMATIONS break the combat loop when called and remove other breaks.
    // "Wounded" does not display on retaliation attacks if the inital attack lands.
-   // EOT bleeding does not display for heros. Double check regeneration.
 
 // Refactors:
    // Change "isEndOfTurn" to "isEndOfRound"

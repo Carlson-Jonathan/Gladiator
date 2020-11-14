@@ -77,7 +77,7 @@ private:
    short* pScreenWidth;
    short* pScreenHeight;
 
-   bool released = true;
+   bool animationFinished = true;
 
    // One-time functions (create sprites)
    void createScapeSprite(string fileName, short x, short y, 
@@ -144,23 +144,25 @@ bool Animations::eventListener(sf::RenderWindow & window) {
 
    // Closes the window and terminates loops if the 'X' is clicked or alt + F4.
    while (window.pollEvent(event)) {
+   	
       if (event.type == sf::Event::Closed) {
          window.close();
          return 1;
       }
 
-      if(released) {
-         released = false;
+      if(animationFinished) {
          switch(event.key.code) {
             case sf::Keyboard::Left:
+      	       animationFinished = false;
+               wheelRotate = -6.0f;
                menuOption--;
                if(menuOption < 0) menuOption = 3;
-               wheelRotate = -6.0f;
                break;
             case sf::Keyboard::Right:
+               animationFinished = false;
+               wheelRotate = 6.0f;
                menuOption++;
                if(menuOption > 3) menuOption = 0;
-               wheelRotate = 6.0f;
                break;
             case sf::Keyboard::Return:
                selection = menuOption;
@@ -170,9 +172,6 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                break;
          }
       }
-
-      if(event.type == sf::Event::KeyReleased)
-         released = true;
 
       // Auto adjusts the game resolution when the screen size is dragged.
       // This will likely need to be fixed- does not work as needed.
@@ -190,10 +189,6 @@ bool Animations::eventListener(sf::RenderWindow & window) {
 
    }
    return 0;
-}
-
-float randomize(float num) {
-   return (rand() % 100) + (num - 50);
 }
 
 /*******************************************************************************
@@ -286,8 +281,10 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 void Animations::drawMenuWheel(sf::RenderWindow & window) {
    menuSprite.setPosition(activeCharacterPos);
 
-   if(menuSprite.getRotation() == rotation[menuOption])
+   if(menuSprite.getRotation() == rotation[menuOption]) {
       wheelRotate = 0.f;
+      animationFinished = true;
+   }
 
    menuSprite.rotate(wheelRotate);
    window.draw(menuSprite);

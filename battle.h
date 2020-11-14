@@ -153,7 +153,7 @@ private:
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
    void playBattleMusic      ();
-   short getLineupIndex      ();
+   // short getLineupIndex      ();
    void resetStuff           ();
    float randomize           (float num);
    void setHeroPositions     ();
@@ -823,16 +823,16 @@ void Battle::playBattleMusic() {
 * Returns the index + 1 of the next animation in the list. If there are no true
 * booleans in the lineup, returns 0.
 *******************************************************************************/
-short Battle::getLineupIndex() {
-   for(short i = 0; i < sizeof(animations->animationLineup); i++) {
-      if(animations->animationLineup[i]) {
-         animations->animationLineup[i] = false;
-         return i + 1;
-      }
-   }
+// short Battle::getLineupIndex() {
+//    for(short i = 0; i < sizeof(animations->animationLineup); i++) {
+//       if(animations->animationLineup[i]) {
+//          animations->animationLineup[i] = false;
+//          return i + 1;
+//       }
+//    }
 
-   return 0;
-}
+//    return 0;
+// }
 
 /*******************************************************************************
 * void resetStuff()

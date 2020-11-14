@@ -66,6 +66,11 @@ private:
    sf::IntRect menuRect;
    sf::Sprite menuSprite;
 
+   /************* Battlescape Sounds *************/
+   sf::SoundBuffer menuTick_b;
+   sf::Sound menuTick;
+
+
    /**********************************************/
 
    // '88' means 'no selection made' and is usually default.
@@ -83,6 +88,7 @@ private:
    // One-time functions (create sprites)
    void createScapeSprite(string fileName, short x, short y, 
       sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite);
+   void createSound(string filename, sf::SoundBuffer & buffer, sf::Sound & sound);
 
    // Looped functions
    void MaintainAspectRatio(sf::RenderWindow & window);
@@ -133,6 +139,9 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
    createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, menuSprite);
    menuSprite.setOrigin(70.f, 70.f);
 
+   // Sounds
+   createSound("Sounds/Effects/tick.ogg", menuTick_b, menuTick);
+
    // Fonts and text
    if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) 
    	  cout << "Robusta font not found" << endl;
@@ -163,12 +172,14 @@ bool Animations::eventListener(sf::RenderWindow & window) {
             case sf::Keyboard::Left:
       	       animationFinished = false;
                wheelRotate = -6.0f;
+               menuTick.play();
                menuOption--;
                if(menuOption < 0) menuOption = 3;
                break;
             case sf::Keyboard::Right:
                animationFinished = false;
                wheelRotate = 6.0f;
+               menuTick.play();
                menuOption++;
                if(menuOption > 3) menuOption = 0;
                break;
@@ -239,6 +250,17 @@ void Animations::createScapeSprite(string fileName, short x, short y,
 }
 
 /*******************************************************************************
+* void createSound(string, Soundbuffer, Sound) 
+* Creates a sound effect. 
+*******************************************************************************/
+void Animations::createSound(string filename, sf::SoundBuffer & buffer, 
+	                         sf::Sound & sound) {
+   if (!buffer.loadFromFile(filename)) 
+   	  cout << "Error loading sound: " << filename << endl;
+   sound.setBuffer(buffer);
+}
+
+/*******************************************************************************
 * void setCharacterPositions()
 * Sets the position of the current active character to a member variable.
 * Origin is automatically adjusted to the center of the sprite.
@@ -302,15 +324,22 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
 * void getLineupIndex()
 * Iterates through the animation lineup array and returns the index of the first
 * true boolean. The order of the lineup is the order that the animations get
-* displayed, so they must be in the correct order.
+* displayed, so they must be in the correct order. The parameter represents the
+* number of seconds delay before the new index is retrieved.
 *******************************************************************************/
 short Animations::getLineupIndex() {
-   for(short i = 0; i < lineupSize; i++) {
-      if(animationLineup[i]) {
-         animationLineup[i] = false;
-         return i + 1;
+
+   // if(animationClock.getElapsedTime().asSeconds() > seconds && lineupIndex != 3) {
+
+      for(short i = 0; i < lineupSize; i++) {
+         if(animationLineup[i]) {
+            animationLineup[i] = false;
+            return i + 1;
+         }
       }
-   }
+
+      // animationClock.restart();
+   // }
    return 0;
 }
 
@@ -379,6 +408,8 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }
+
+   // getLineupIndex(1.0f);
 
    displayInfoInConsole();
 

@@ -66,10 +66,15 @@ private:
 
    short 
       count = 0,
-      lineupIndex = 88;
+      lineupIndex = 88,
+      wheelRotate = 0,
+      menuOption = 1,
+      rotation[4] = {0, 90, 180, 270};
 
    short* pScreenWidth;
    short* pScreenHeight;
+
+   bool released = true;
 
    // One-time functions (create sprites)
    void createScapeSprite(string fileName, short x, short y, 
@@ -140,6 +145,28 @@ bool Animations::eventListener(sf::RenderWindow & window) {
          window.close();
          return 1;
       }
+
+      if(released) {
+         released = false;
+         switch(event.key.code) {
+            case sf::Keyboard::Left:
+               menuOption--;
+               if(menuOption < 0) menuOption = 3;
+               wheelRotate = -6.0f;
+               break;
+            case sf::Keyboard::Right:
+               menuOption++;
+               if(menuOption > 3) menuOption = 0;
+               wheelRotate = 6.0f;
+               break;
+         }
+      }
+
+      if(event.type == sf::Event::KeyReleased)
+         released = true;
+
+      // if (event.type == sf::Event::KeyReleased) 
+      //    released = true;
 
       // Auto adjusts the game resolution when the screen size is dragged.
       // This will likely need to be fixed- does not work as needed.
@@ -252,8 +279,12 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 *******************************************************************************/
 void Animations::drawMenuWheel(sf::RenderWindow & window) {
    menuSprite.setPosition(activeCharacterPos);
+
+   if(menuSprite.getRotation() == rotation[menuOption])
+      wheelRotate = 0.f;
+
+   menuSprite.rotate(wheelRotate);
    window.draw(menuSprite);
-   menuSprite.rotate(-2.f);
 }
 
 
@@ -299,7 +330,7 @@ void Animations::animationSelect(bool & go, sf::RenderWindow & window) {
 
    // Sets a time delay for all animations across the board. Temporary until
    // all animations are created and have their own execution time.
-   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
+   if(animationClock.getElapsedTime().asSeconds() > 2.0f) {
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }

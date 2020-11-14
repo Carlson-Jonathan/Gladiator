@@ -60,6 +60,7 @@ private:
       battleOver = false, 
       textMode = false,
       go = true,
+      go2 = true,
       animationLineup[36] = {
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -69,7 +70,7 @@ private:
 
    short 
       died = 0,
-      option = 1,
+      option = 88,
       target = 1,
       round = 1,
       damageHpBpEp[3],
@@ -774,29 +775,25 @@ void Battle::getCharacterAction(Character* character) {
 
    // Get action for hero character 
    if(character->isHero) {
-      if(textMode) displayCharacterStats(monsterParticipants, heroParticipants, round++);
-      if(textMode) showWhosTurn(*participant);
       animationLineup[2] = true;
-      if(textMode) option = getUserInput({"Attack", "Defend", "Flee"});
 
       option = 1;
-      if (option == 1)                                           // Attack
+      if (option == 1) { 
          if(listOfMonsters.size() > 1) {
-            if(textMode) target = getUserInput(listOfMonsters);           // Attack what?
-            if(!textMode) target = 1;
             animations->targetCharacter = monsterParticipants[target - 1];
          }
-       else
-           target = 1;                 // Auto attack if only 1 monster left 
-           animations->targetCharacter = monsterParticipants[target - 1];
+         else {
+            target = 1;                 // Auto attack if only 1 monster left 
+            animations->targetCharacter = monsterParticipants[target - 1];
+         }
+      }
    }
 
    // Get action for monster AI 
    else {
       randNum = rand() % 10;
-      if(randNum > 7) {
+      if(randNum > 7) 
          option = 2;
-      }
       else {
          option = 1;
          animations->targetCharacter = heroParticipants[rand() % heroParticipants.size()];
@@ -955,12 +952,6 @@ void Battle::combat(sf::RenderWindow & window) {
          sendLineupData();
 
       } 
-     cout << "Original lineup data: " << endl;
-     for(bool i : animationLineup)
-        cout << i << ", ";
-     cout << endl;	
-
-
       go = false;
 
       /*************************************************************************

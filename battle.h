@@ -15,8 +15,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Network.hpp>
+// #include <SFML/System.hpp>
+// #include <SFML/Network.hpp>
 #include "display.h"
 #include "character.h"
 #include "animations.h"
@@ -61,12 +61,6 @@ private:
       textMode = false,
       go = true,
       go2 = true;
-      // animationLineup[36] = {
-      //    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-      //    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      //    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      //    0, 0, 0, 0, 0, 0
-      // };
 
    short 
       died = 0,
@@ -164,7 +158,6 @@ private:
    float randomize           (float num);
    void setHeroPositions     ();
    void setMonsterPositions  ();
-   // void sendLineupData       ();
 };
 
 
@@ -886,22 +879,6 @@ void Battle::setMonsterPositions() {
    }
 }
 
-/*******************************************************************************
-* sendLineupData()
-* Send the lineup information to the animations object, the clears the lineup
-* so the next propogation does not mix with old data.
-*******************************************************************************/
-// void Battle::sendLineupData() {
-//    cout << "*********** New Lineup data sent to animations **************" << endl;	
-//    short lineupSize = sizeof(animationLineup);	
-//    for(short i = 0; i < lineupSize; i++) {
-//       animations->animationLineup[i] = animationLineup[i];
-//       animationLineup[i] = 0;
-//    }
-//    animations->lineupSize = lineupSize;   	
-// }
-
-
 
 /*###  ####  ######################################################  ####  #####
 #####  ####  ###################                ###################  ####  #####
@@ -937,10 +914,11 @@ void Battle::combat(sf::RenderWindow & window) {
    /*###########################################################################
    # Mechanics. Executes combat sequence and propogates animation lineup.
    ###########################################################################*/
-      // Determines who's turn it is based on the lowest running initiative. 
       if(go) {
+         // Determines who's turn it is based on the lowest running initiative. 
          participant = nextAction();
          animations->activeCharacter = participant;
+         // Used to re-propogate animationLineup
          resetStuff();
       
          /**********************************************************************
@@ -967,9 +945,6 @@ void Battle::combat(sf::RenderWindow & window) {
          *************************************************************************/
          if(isEndOfTurn()) 
             if(endOfTurnActions()) break;
-
-         // sendLineupData();
-
       } 
    /*###########################################################################
    # End of mechanics.

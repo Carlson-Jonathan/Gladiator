@@ -8,8 +8,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Network.hpp>
+// #include <SFML/System.hpp>
+// #include <SFML/Network.hpp>
 #include "character.h"
 using namespace std;
 
@@ -49,6 +49,7 @@ public:
 
 private:
 
+   sf::Event event;
    sf::Clock animationClock;
    sf::Font font;
    sf::Music music;
@@ -87,6 +88,8 @@ private:
    void MaintainAspectRatio(sf::RenderWindow & window);
    void drawMenuWheel(sf::RenderWindow & window);
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
+   void getNewLineup(bool & go, bool & go2);
+   void displayInfoInConsole(); 
 
    // Ordered animations
    short getLineupIndex();
@@ -123,11 +126,16 @@ private:
 Animations::Animations(short* screenWidth, short* screenHeight) {
    pScreenWidth = screenWidth;
    pScreenHeight = screenHeight;
-   createScapeSprite("Images/meadow.png", 1920, 1080, 
-      backgroundTex, backgroundRect, backgroundSpr);
+
+   createScapeSprite("Images/meadow.png", 1920, 1080, backgroundTex, 
+   	                 backgroundRect, backgroundSpr);
+
    createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, menuSprite);
    menuSprite.setOrigin(70.f, 70.f);
-   if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) cout << "Robusta font not found" << endl;
+
+   // Fonts and text
+   if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) 
+   	  cout << "Robusta font not found" << endl;
    this->text.setCharacterSize(20);
    this->text.setFont(font);
    this->text.setFillColor(sf::Color::Yellow);
@@ -140,16 +148,16 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
 * This is the event listener- detects user interaction with the game.
 *******************************************************************************/
 bool Animations::eventListener(sf::RenderWindow & window) {
-   sf::Event event;
 
-   // Closes the window and terminates loops if the 'X' is clicked or alt + F4.
    while (window.pollEvent(event)) {
 
+      // Closes the window/terminates loops if 'X', F4, etc.
       if (event.type == sf::Event::Closed) {
          window.close();
          return 1;
       }
 
+      // Controls
       if(animationFinished) {
          switch(event.key.code) {
             case sf::Keyboard::Left:
@@ -173,8 +181,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
          }
       }
 
-      // Auto adjusts the game resolution when the screen size is dragged.
-      // This will likely need to be fixed- does not work as needed.
+      // Auto adjusts the screen resolution when dragged. (Partially works)
       if (event.type == sf::Event::Resized) {
          *pScreenWidth = event.size.width;
          *pScreenHeight = event.size.height;
@@ -199,21 +206,27 @@ bool Animations::eventListener(sf::RenderWindow & window) {
 *******************************************************************************/
 void Animations::animateBattlescape(sf::RenderWindow & window, bool & go, bool & go2) {
 
+   // Background
    window.draw(backgroundSpr);
 
+   // Draw Heroes to screen
    for(auto i : heroParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
 
+   // Draw monsters to screen
    for(auto i : monsterParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
 
-   // This must be last to be called in this function!
+   // Draw other animated sprites to screen
+   // futureFunction(); 
+
+   // Draw event animations. This must be called LAST in this function!
    animationSelect(go, go2, window);
 }
 
 /*******************************************************************************
 * void createScapeSprite(texture file, rect dimensions, file, spite obj)
-* Creates a sprite object.
+* Creates a sprite object. Should be called only once per sprite per battle.
 *******************************************************************************/
 void Animations::createScapeSprite(string fileName, short x, short y,
    sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite) {
@@ -229,6 +242,7 @@ void Animations::createScapeSprite(string fileName, short x, short y,
 * void setCharacterPositions()
 * Sets the position of the current active character to a member variable.
 * Origin is automatically adjusted to the center of the sprite.
+* Note: this is a potential source of segmentation faults.
 *******************************************************************************/
 void Animations::setCharacterPositions() {
    this->activeCharacterPos = activeCharacter->animatedSprite->sprite.getPosition();
@@ -238,11 +252,6 @@ void Animations::setCharacterPositions() {
    this->targetCharacterPos.x += targetCharacter->animatedSprite->rectangle.width / 2;
    this->targetCharacterPos.y += targetCharacter->animatedSprite->rectangle.height / 2;
 }
-
-
-/*##############################################################################
-############################## Looped Functions ################################
-##############################################################################*/
 
 /*******************************************************************************
 * MaintainAspectRatio(window)
@@ -258,18 +267,17 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
         float currentAspectHeight = 750;
         float aspectRatio = 1.7777;
 
-        if(newAspectWidth != currentAspectWidth)
-        {
-                //width changed, maintain the aspect ratio and adjust the height
-                currentAspectWidth = newAspectWidth;
-                currentAspectHeight = currentAspectWidth / aspectRatio;
+        if(newAspectWidth != currentAspectWidth) {
+           //width changed, maintain the aspect ratio and adjust the height
+           currentAspectWidth = newAspectWidth;
+           currentAspectHeight = currentAspectWidth / aspectRatio;
         }
-        else if(newAspectHeight != currentAspectHeight)
-        {
-                //height changed, maintain aspect ratio and change the width
-                currentAspectHeight = newAspectHeight;
-                currentAspectWidth = currentAspectHeight * aspectRatio;
+        else if(newAspectHeight != currentAspectHeight) {
+           //height changed, maintain aspect ratio and change the width
+           currentAspectHeight = newAspectHeight;
+           currentAspectWidth = currentAspectHeight * aspectRatio;
         }
+
         window.setSize(sf::Vector2u(currentAspectWidth, currentAspectHeight));
 }
 
@@ -290,14 +298,9 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
    window.draw(menuSprite);
 }
 
-
-/*##############################################################################
-############################## Combat Animations ###############################
-##############################################################################*/
-
 /*******************************************************************************
 * void getLineupIndex()
-* Iterates through the animation lineup array and returns the index of the frist
+* Iterates through the animation lineup array and returns the index of the first
 * true boolean. The order of the lineup is the order that the animations get
 * displayed, so they must be in the correct order.
 *******************************************************************************/
@@ -317,12 +320,51 @@ short Animations::getLineupIndex() {
 *******************************************************************************/
 void Animations::displayActionText(sf::RenderWindow & window, string message, 
    sf::Vector2f pos) {
-   this->text.setString(message);
-   this->text.setOrigin(text.getLocalBounds().left + text.getLocalBounds().width / 2.0f,
+   text.setString(message);
+   text.setOrigin(text.getLocalBounds().left + text.getLocalBounds().width / 2.0f,
                   text.getLocalBounds().top  + text.getLocalBounds().height / 2.0f);
-   this->text.setPosition(pos);
+   text.setPosition(pos);
    window.draw(text);
 }
+
+/*******************************************************************************
+* void getNewLineup()
+* Sends the signals to battle.h to propogate a new turn animation lineup.
+*******************************************************************************/
+void Animations::getNewLineup(bool & go, bool & go2) {
+   cout << "************************** New Combat Turn ****************************" << endl;
+   go = true;
+   go2 = true;
+   lineupIndex = 88; 
+}
+
+/*******************************************************************************
+* void displayInfoInConsole()
+* Used for debugging. Displays the information in the console that is happening
+* in the animations.
+*******************************************************************************/
+void Animations::displayInfoInConsole() {
+   cout << "Active character: " << activeCharacter->name << endl;
+   cout << "Target character: " << targetCharacter->name << endl;
+   cout << "animationLineup:\n";
+   for(short i = 0; i < lineupSize; i++)
+   	  cout << this->animationLineup[i] << ", ";
+   cout << endl;
+   cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
+   cout << endl;
+}
+
+
+
+
+
+/*###  ####  ######################################################  ####  #####
+#####  ####  ###################                ###################  ####  #####
+#####  ####  ##############                          ##############  ####  #####
+#####  ####  ###########      Animation Switch Hub      ###########  ####  #####
+#####  ####  ##############                          ##############  ####  #####
+#####  ####  ###################                ###################  ####  #####
+#####  ####  ######################################################  ####  #####
 
 /*******************************************************************************
 * void animationSelect()
@@ -338,14 +380,7 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
       animationClock.restart();
    }
 
-   cout << "Active character: " << activeCharacter->name << endl;
-   cout << "Target character: " << targetCharacter->name << endl;
-   cout << "animationLineup:\n";
-   for(short i = 0; i < lineupSize; i++)
-   	  cout << this->animationLineup[i] << ", ";
-   cout << endl;
-   cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
-   cout << endl;
+   displayInfoInConsole();
 
    switch(lineupIndex) {
       case 1:
@@ -455,12 +490,9 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
          break;  
       case 36:
          animationRegeneration(window);
-        break; 
+         break; 
       case 0:
-         cout << "************************** New Combat Turn ****************************" << endl;
-         go = true;
-         go2 = true;
-         lineupIndex = 88; 
+         getNewLineup(go, go2);
          break;
       default:;
    }

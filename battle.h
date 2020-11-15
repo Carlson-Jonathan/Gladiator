@@ -26,13 +26,12 @@ class Battle {
 public:
    Battle() {}
    Battle(vector<Character> & heroes, string newMonster, bool debugMode, 
-      short numMonsters, bool textMode, Animations* animations,
+      short numMonsters, Animations* animations,
       short* screenWidth, short* screenHeight) {
       this->debugMode = debugMode; 
       this->numMonsters = numMonsters;
       this->newMonster = newMonster;
       this->heroes = heroes;
-      this->textMode = textMode;
       this->animations = animations;
       this->screenWidth = screenWidth;
       this->screenHeight = screenHeight;
@@ -58,7 +57,6 @@ private:
    bool 
       debugMode = false,
       battleOver = false, 
-      textMode = false,
       go = true,
       go2 = true;
 
@@ -269,7 +267,6 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       if(wep->canStun)
          if(damageTypes[0] > aggressor.weapon->minDamage + 
             aggressor.weapon->rangeDamage / 2) { // Damge > than 50% of potential
-            if(textMode) stunMessage(aggressor, victim);
             if(stunCount == 0) animations->animationLineup[12] = true;
             else if(stunCount == 1) animations->animationLineup[25] = true;
             ++stunCount;
@@ -279,7 +276,6 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
       // Slows base initiative by venom stat
       if(wep->isVenomous) {
          victim.initiative += wep->isVenomous;   
-         if(textMode) slowMessage(aggressor, victim);
          if(slowCount == 0) animations->animationLineup[13] = true;
          else if(slowCount == 1) animations->animationLineup[26] = true;
       }
@@ -298,7 +294,6 @@ void Battle::determineAffliction(const Character & aggressor, Character & victim
 void Battle::applyBleeding(Character & victim) {
    
    victim.setBloodPoints(-victim.isBleeding);
-   if(textMode) bleedingMessage(victim);
    animations->animationLineup[31] = true;
    isDefeated(victim);
 
@@ -322,7 +317,6 @@ void Battle::applyRegeneration(Character & character) {
 * Sets the player's defend status to true.
 *******************************************************************************/
 void Battle::focus(Character & character) {
-   if(textMode) defendingMessage(character);
    animations->animationLineup[3] = true;
    character.isDefending = true;
    applyDefendBonuses(character);
@@ -348,7 +342,6 @@ void Battle::flee() {
 *******************************************************************************/
 bool Battle::isDefeated(Character & victim) {
    if(!(victim.hitPoints && victim.bloodPoints && victim.essencePoints)) {
-      if(textMode) characterDiedMessage(victim); 
       switch(diedCount) {
          case 0:
             animations->animationLineup[8] = true;
@@ -382,7 +375,6 @@ void Battle::receiveHazardDamage(Character & aggressor, Character & victim) {
     for(auto & i : damageHpBpEp)
         i /= victim.isHazardous;
 
-    if(textMode) hazardDamageMessage(aggressor, damageHpBpEp);
     if(hazardCount == 0) animations->animationLineup[14] = true;
     else if(hazardCount == 1) animations->animationLineup[27] = true;
     applyDamage(aggressor);
@@ -398,7 +390,6 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
    animations->animationLineup[5] = true;
    if(!missedAttack(aggressor, victim)) {
       getPhysicalDamages(victim, aggressor);
-      if(textMode) displayAttackMessage(victim, aggressor, damageHpBpEp);
       applyDamage(victim);
       if(damageCount == 0) animations->animationLineup[7] = true;
       else if(damageCount == 1) animations->animationLineup[20] = true;
@@ -410,7 +401,6 @@ short Battle::attackCharacter(Character & aggressor, Character & victim) {
          receiveHazardDamage(aggressor, victim);
    }
    else {
-      if(textMode) missedAttackMessage(aggressor, victim);
       if(missedCount == 0) animations->animationLineup[6] = true;
       else if(missedCount == 1) animations->animationLineup[19] = true;
       ++missedCount;
@@ -592,7 +582,6 @@ bool Battle::burnTheBodies() {
       if(i->isDead)
          deathCount++;
       if(deathCount == heroParticipants.size()) {
-         if(textMode) combatDefeat();
          switch(diedCount) {
          case 0:
             animations->animationLineup[9] = true;
@@ -618,7 +607,6 @@ bool Battle::burnTheBodies() {
    if(corpseExists) killCharacter();
 
    if(!listOfMonsters.size()) {
-      if(textMode) combatVictory(heroes[0]);
       switch(diedCount) {
       case 0:
          animations->animationLineup[10] = true;
@@ -657,7 +645,6 @@ void Battle::applyFatigue(Character & victim) {
       
       victim.weapon->basePenalty = 1 - ((float)difference / (float)limit / 2);
 
-      if(textMode) fatigueMessage(victim, additionalInit);
       animations->animationLineup[0] = true;
    } 
    else {
@@ -679,7 +666,6 @@ void Battle::applyDazed(Character & victim) {
       victim.evasionPenalty   = (float)difference / (float)limit * 50.0;
       victim.precisionPenalty = (float)difference / (float)limit * 50.0;
 
-      if(textMode) dazedMessage(victim, victim.precisionPenalty, victim.evasionPenalty);
       animations->animationLineup[1] = true;
    }
    else {
@@ -879,7 +865,7 @@ void Battle::setMonsterPositions() {
 ##############################################################################*/
 void Battle::combat(sf::RenderWindow & window) {
 
-   if(!textMode) playBattleMusic();
+   playBattleMusic();
 
    short count = 0;
    while(true) {
@@ -890,7 +876,7 @@ void Battle::combat(sf::RenderWindow & window) {
       // FPS tester
       count++;
       displayCharacterStats(monsterParticipants, heroParticipants, round);
-      if(!textMode) cout << "\nBattle in progress... FPS Counter: " << count << endl;
+      cout << "\nBattle in progress... FPS Counter: " << count << endl;
 
       if(animations->eventListener(window)) break; // Exit the game
 

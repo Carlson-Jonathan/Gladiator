@@ -42,6 +42,45 @@ public:
    	0, 0, 0, 0, 0, 0
    };
 
+   map<string, bool> animationLineup2 = {
+      {"fatigue",		0}, // 1
+      {"dazed", 		0}, // 2
+      {"heroesTurn",	0}, // 3
+      {"defend",		0}, // 4
+      {"flee",			0}, // 5
+      {"attack1",		0}, // 6
+      {"missed1",		0}, // 7
+      {"applyDamage1",	0}, // 8
+      {"charDead1",		0}, // 9
+      {"combatDefeat1",	0}, // 10
+      {"combatVictory1",0}, // 11
+      {"setBleeding1",	0}, // 12
+      {"Stun1",			0}, // 13
+      {"Slow1",			0}, // 14
+      {"hazardDamage1",	0}, // 15
+      {"charDead2",		0}, // 16
+      {"combatDefeat2",	0}, // 17
+      {"combatVictory2",0}, // 18
+      {"retaliation",	0}, // 19
+      {"missed2",		0}, // 20
+      {"applyDamage2",	0}, // 21
+      {"charDead3",		0}, // 22
+      {"combatDefeat3",	0}, // 23
+      {"combatVictory3",0}, // 24
+      {"setBleeding2",	0}, // 25
+      {"Stun2",			0}, // 26
+      {"Slow2",			0}, // 27
+      {"hazardDamage2",	0}, // 28
+      {"charDead4",		0}, // 29
+      {"combatDefeat4",	0}, // 30
+      {"combatVictory4",0}, // 31
+      {"applyBleed",	0}, // 32
+      {"charDead5",		0}, // 33
+      {"combatDefeat5",	0}, // 34
+      {"combatVictory5",0}, // 35
+      {"regeneration",	0}, // 36
+   };
+
    short 
       lineupSize = 36,
       lineupIndex = 88,
@@ -579,6 +618,19 @@ void Animations::animationApplyDamage(sf::RenderWindow & window, sf::Vector2f po
 void Animations::animationDeath(sf::RenderWindow & window, sf::Vector2f pos) {
    cout << "\t*** This character has died! ***\n";
    displayActionText(window, "D E A D ! ! !", pos);
+   // for(auto i : monsterParticipants) {
+   // 	  if(i->isDead) {
+   // 	     delete i->animatedSprite;
+   // 	     delete i;
+   // 	  }
+   // }
+
+   // for(auto i : heroParticipants) {
+   // 	  if(i->isDead) {
+   // 	     delete i->animatedSprite;
+   // 	     delete i;
+   // 	  }
+   // }
 }
 
 void Animations::animationCombatDefeat(sf::RenderWindow & window) {

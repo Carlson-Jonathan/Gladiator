@@ -2,6 +2,7 @@
 #define ANIMATIONS_H
 #include <iostream>
 #include <vector>
+#include <map>
 #include <stdio.h>     // rand()
 #include <stdlib.h>    // rand()
 #include <time.h>      // rand()
@@ -35,28 +36,22 @@ public:
    sf::Vector2f activeCharacterPos;
    sf::Vector2f targetCharacterPos;
 
-   bool animationLineup[36] = {
-   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-   	0, 0, 0, 0, 0, 0
-   };
-
-   map<string, bool> animationLineup2 = {
+   // Order is unimportant since maps auto-sort by key.
+   map<string, bool> animationLineup = {
       {"fatigue",		0}, // 1
       {"dazed", 		0}, // 2
       {"heroesTurn",	0}, // 3
       {"defend",		0}, // 4
       {"flee",			0}, // 5
-      {"attack1",		0}, // 6
+      {"attack",		0}, // 6
       {"missed1",		0}, // 7
       {"applyDamage1",	0}, // 8
       {"charDead1",		0}, // 9
       {"combatDefeat1",	0}, // 10
       {"combatVictory1",0}, // 11
       {"setBleeding1",	0}, // 12
-      {"Stun1",			0}, // 13
-      {"Slow1",			0}, // 14
+      {"stun1",			0}, // 13
+      {"slow1",			0}, // 14
       {"hazardDamage1",	0}, // 15
       {"charDead2",		0}, // 16
       {"combatDefeat2",	0}, // 17
@@ -68,8 +63,8 @@ public:
       {"combatDefeat3",	0}, // 23
       {"combatVictory3",0}, // 24
       {"setBleeding2",	0}, // 25
-      {"Stun2",			0}, // 26
-      {"Slow2",			0}, // 27
+      {"stun2",			0}, // 26
+      {"slow2",			0}, // 27
       {"hazardDamage2",	0}, // 28
       {"charDead4",		0}, // 29
       {"combatDefeat4",	0}, // 30
@@ -79,6 +74,47 @@ public:
       {"combatDefeat5",	0}, // 34
       {"combatVictory5",0}, // 35
       {"regeneration",	0}, // 36
+   };
+
+   // Since maps auto-sort by key value, this vector is needed to preserve the
+   // execution order of the animation lineup.
+   vector<string> lineupOrder = {
+      "fatigue", 		// 1
+      "dazed", 			// 2
+      "heroesTurn",		// 3
+      "defend",			// 4
+      "flee",			// 5
+      "attack",			// 6
+      "missed1",		// 7
+      "applyDamage1",	// 8
+      "charDead1",		// 9
+      "combatDefeat1",	// 10
+      "combatVictory1", // 11
+      "setBleeding1",	// 12
+      "stun1",			// 13
+      "slow1",			// 14
+      "hazardDamage1",	// 15
+      "charDead2",		// 16
+      "combatDefeat2",	// 17
+      "combatVictory2", // 18
+      "retaliation",	// 19
+      "missed2",		// 20
+      "applyDamage2",	// 21
+      "charDead3",		// 22
+      "combatDefeat3",	// 23
+      "combatVictory3", // 24
+      "setBleeding2",	// 25
+      "stun2",			// 26
+      "slow2",			// 27
+      "hazardDamage2",	// 28
+      "charDead4",		// 29
+      "combatDefeat4",	// 30
+      "combatVictory4", // 31
+      "applyBleed",		// 32
+      "charDead5",		// 33
+      "combatDefeat5",	// 34
+      "combatVictory5",	// 35
+      "regeneration",	// 36
    };
 
    short 
@@ -373,8 +409,8 @@ short Animations::getLineupIndex() {
    // if(animationClock.getElapsedTime().asSeconds() > seconds && lineupIndex != 3) {
 
       for(short i = 0; i < lineupSize; i++) {
-         if(animationLineup[i]) {
-            animationLineup[i] = false;
+         if(animationLineup[lineupOrder[i]]) {
+            animationLineup[lineupOrder[i]] = false;
             return i + 1;
          }
       }
@@ -418,7 +454,7 @@ void Animations::displayInfoInConsole() {
    cout << "Target character: " << targetCharacter->name << endl;
    cout << "animationLineup:\n";
    for(short i = 0; i < lineupSize; i++)
-   	  cout << this->animationLineup[i] << ", ";
+   	  cout << this->animationLineup[lineupOrder[i]] << ", ";
    cout << "lineupIndex = " << lineupIndex << endl;
    cout << endl;
    cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;

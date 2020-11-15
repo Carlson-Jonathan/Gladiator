@@ -767,14 +767,15 @@ bool Battle::applyCharacterAction(Character* character) {
 void Battle::getCharacterAction(Character* character) {
 
    animations->targetCharacter = heroParticipants[0]; // Prevents a seg fault
+                                                      // in setCharacterPositions()
    // Get action for hero character 
    if(character->isHero) {
-      animations->animationLineup[2] = true;
+      // animations->animationLineup[2] = true;
       animations->lineupIndex = 3;
       go = false;
 
       option = animations->selection;
-      if(option <= 2 && option >= 1) {
+      if(option != 88) {
          go = true;	
          go2 = false;
          animations->selection = 88;
@@ -935,6 +936,14 @@ void Battle::combat(sf::RenderWindow & window) {
          **********************************************************************/
          getCharacterAction(participant); 
       }
+
+      cout << "go = " << go << " | go2 = " << go2 << endl;
+      cout << "option = " << option << " | selection = " << animations->selection << endl;
+      string x; 
+      // if(go) {
+      //    cout << "go has been activated. Press enter to confirm..." << endl;
+      //    getline(cin, x);
+      // }
 
       if(go) {
          if(applyCharacterAction(participant)) break;

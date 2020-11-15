@@ -83,7 +83,7 @@ private:
    short* pScreenWidth;
    short* pScreenHeight;
 
-   bool animationFinished = true;
+   bool keyHasBeenReleased = true;
 
    // One-time functions (create sprites)
    void createScapeSprite(string fileName, short x, short y, 
@@ -167,23 +167,24 @@ bool Animations::eventListener(sf::RenderWindow & window) {
       }
 
       // Controls
-      if(animationFinished) {
+      if(keyHasBeenReleased) {
          switch(event.key.code) {
             case sf::Keyboard::Left:
-      	       animationFinished = false;
+      	       keyHasBeenReleased = false;
                wheelRotate = -6.0f;
                menuTick.play();
                menuOption--;
-               if(menuOption < 0) menuOption = 3;
+               if(menuOption < 1) menuOption = 4;
                break;
             case sf::Keyboard::Right:
-               animationFinished = false;
+               keyHasBeenReleased = false;
                wheelRotate = 6.0f;
                menuTick.play();
                menuOption++;
-               if(menuOption > 3) menuOption = 0;
+               if(menuOption > 4) menuOption = 1;
                break;
             case sf::Keyboard::Return:
+               keyHasBeenReleased = false;
                selection = menuOption;
                menuOption = 1;
                wheelRotate = 0.0f;
@@ -191,6 +192,9 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                break;
          }
       }
+
+      if(event.type == sf::Event::KeyReleased) 
+      	 keyHasBeenReleased = true;
 
       // Auto adjusts the screen resolution when dragged. (Partially works)
       if (event.type == sf::Event::Resized) {
@@ -311,10 +315,8 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 void Animations::drawMenuWheel(sf::RenderWindow & window) {
    menuSprite.setPosition(activeCharacterPos);
 
-   if(menuSprite.getRotation() == rotation[menuOption]) {
+   if(menuSprite.getRotation() == rotation[menuOption - 1]) 
       wheelRotate = 0.f;
-      animationFinished = true;
-   }
 
    menuSprite.rotate(wheelRotate);
    window.draw(menuSprite);

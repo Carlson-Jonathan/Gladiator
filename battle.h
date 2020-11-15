@@ -16,8 +16,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
-// #include <SFML/System.hpp>
-// #include <SFML/Network.hpp>
 #include "display.h"
 #include "character.h"
 #include "animations.h"
@@ -346,18 +344,23 @@ bool Battle::isDefeated(Character & victim) {
       switch(diedCount) {
          case 0:
             animations->animationLineup["charDead1"] = true;
+            animations->animationLineup["stopSprites1"] = true;
             break;
          case 1:
             animations->animationLineup["charDead2"] = true;
+            animations->animationLineup["stopSprites2"] = true;
             break;
          case 2:
             animations->animationLineup["charDead3"] = true;
+            animations->animationLineup["stopSprites3"] = true;
             break;
          case 3:
             animations->animationLineup["charDead4"] = true;
+            animations->animationLineup["stopSprites4"] = true;
             break;
          case 4:
             animations->animationLineup["charDead5"] = true;
+            animations->animationLineup["stopSprites5"] = true;
             break;
       }
       victim.isDead = true; 
@@ -512,17 +515,17 @@ void Battle::killCharacter() {
          }
          else 
          {
-            delete allCombatParticipants[i]->weapon;
-            allCombatParticipants[i]->weapon = NULL;
-            delete allCombatParticipants[i]->armor;
-            allCombatParticipants[i]->armor = NULL;
-            delete allCombatParticipants[i]->animatedSprite;
-            allCombatParticipants[i]->animatedSprite = NULL;
-            delete allCombatParticipants[i];
+            // delete allCombatParticipants[i]->weapon;
+            // allCombatParticipants[i]->weapon = NULL;
+            // delete allCombatParticipants[i]->armor;
+            // allCombatParticipants[i]->armor = NULL;
+            // delete allCombatParticipants[i]->animatedSprite;
+            // allCombatParticipants[i]->animatedSprite = NULL;
+            // delete allCombatParticipants[i];
             allCombatParticipants[i] = NULL;    
             allCombatParticipants.erase(allCombatParticipants.begin() + i);
-            animations->monsterParticipants = this->monsterParticipants;
-            animations->heroParticipants = this->heroParticipants;
+            // animations->monsterParticipants = this->monsterParticipants;
+            // animations->heroParticipants = this->heroParticipants;
          }
       }
    }
@@ -879,8 +882,10 @@ void Battle::combat(sf::RenderWindow & window) {
       displayCharacterStats(monsterParticipants, heroParticipants, round);
       cout << "\nBattle in progress... FPS Counter: " << count << endl;
 
-      if(animations->eventListener(window)) break; // Exit the game
-
+      if(animations->eventListener(window)) {
+      	 animations->deleteCharacterObjects();
+         break; // Exit the game
+      }
 
    /*###########################################################################
    # Mechanics. Executes combat sequence and propogates animation lineup.
@@ -912,14 +917,21 @@ void Battle::combat(sf::RenderWindow & window) {
       string x; 
 
       if(go) {
-         if(applyCharacterAction(participant)) break;
-         
+
+         if(applyCharacterAction(participant)) {
+         	animations->deleteCharacterObjects();
+            break;
+         }
+
          /*************************************************************************
          *                       Round Ending Action Block
          * A round ends after each character exceeds 200 running initiative.
          *************************************************************************/
          if(isEndOfTurn()) 
-            if(endOfTurnActions()) break;
+            if(endOfTurnActions()) {
+               animations->deleteCharacterObjects();	
+               break;
+            }
       } 
    /*###########################################################################
    # End of mechanics.
@@ -940,8 +952,8 @@ void Battle::combat(sf::RenderWindow & window) {
 /**********************************************************************************************/
 
 // Bugs to fix:
-   // Make defeat/victory ANIMATIONS break the combat loop when called and remove other breaks.
    // "Wounded" does not display on retaliation attacks if the inital attack lands.
+   // Retaliation attack animation chain does not happen in the correct order.
    // Character (monster) aim gradually increases for some reason.
 
 // Refactors:

@@ -9,25 +9,25 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
-// #include <SFML/System.hpp>
-// #include <SFML/Network.hpp>
 #include "character.h"
 using namespace std;
 
 
 // g++ -c animations.h
-// g++ -o a.out animations.h -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
+// g++ -o a.out animations.h -lsfml-graphics -lsfml-window -lsfml-audio
 
 
 class Animations {
 public:
 
    Animations                 () {}
+   ~Animations 				  () { cout << "Animations object is destroyed!\n"; }
    Animations                 (short* screenWidth, short* screenHeight); 
 
    void animateBattlescape    (sf::RenderWindow & window, bool & go, bool & go2);
    bool eventListener         (sf::RenderWindow & window);
    void setCharacterPositions ();
+   void deleteCharacterObjects();
 
    vector<Character*> heroParticipants;   
    vector<Character*> monsterParticipants;
@@ -38,42 +38,47 @@ public:
 
    // Order is unimportant since maps auto-sort by key.
    map<string, bool> animationLineup = {
-      {"fatigue",		0}, // 1
-      {"dazed", 		0}, // 2
-      {"heroesTurn",	0}, // 3
-      {"defend",		0}, // 4
-      {"flee",			0}, // 5
-      {"attack",		0}, // 6
-      {"missed1",		0}, // 7
-      {"applyDamage1",	0}, // 8
-      {"charDead1",		0}, // 9
-      {"combatDefeat1",	0}, // 10
-      {"combatVictory1",0}, // 11
-      {"setBleeding1",	0}, // 12
-      {"stun1",			0}, // 13
-      {"slow1",			0}, // 14
-      {"hazardDamage1",	0}, // 15
-      {"charDead2",		0}, // 16
-      {"combatDefeat2",	0}, // 17
-      {"combatVictory2",0}, // 18
-      {"retaliation",	0}, // 19
-      {"missed2",		0}, // 20
-      {"applyDamage2",	0}, // 21
-      {"charDead3",		0}, // 22
-      {"combatDefeat3",	0}, // 23
-      {"combatVictory3",0}, // 24
-      {"setBleeding2",	0}, // 25
-      {"stun2",			0}, // 26
-      {"slow2",			0}, // 27
-      {"hazardDamage2",	0}, // 28
-      {"charDead4",		0}, // 29
-      {"combatDefeat4",	0}, // 30
-      {"combatVictory4",0}, // 31
-      {"applyBleed",	0}, // 32
-      {"charDead5",		0}, // 33
-      {"combatDefeat5",	0}, // 34
-      {"combatVictory5",0}, // 35
-      {"regeneration",	0}, // 36
+      {"fatigue",		0},
+      {"dazed", 		0},
+      {"heroesTurn",	0},
+      {"defend",		0},
+      {"flee",			0},
+      {"attack",		0},
+      {"missed1",		0},
+      {"applyDamage1",	0}, 
+      {"charDead1",		0},
+      {"combatDefeat1",	0},
+      {"combatVictory1",0},
+      {"setBleeding1",	0},
+      {"stun1",			0},
+      {"slow1",			0},
+      {"hazardDamage1",	0},
+      {"charDead2",		0},
+      {"combatDefeat2",	0},
+      {"combatVictory2",0},
+      {"retaliation",	0},
+      {"missed2",		0},
+      {"applyDamage2",	0},
+      {"charDead3",		0},
+      {"combatDefeat3",	0},
+      {"combatVictory3",0},
+      {"setBleeding2",	0},
+      {"stun2",			0},
+      {"slow2",			0},
+      {"hazardDamage2",	0},
+      {"charDead4",		0},
+      {"combatDefeat4",	0},
+      {"combatVictory4",0},
+      {"applyBleed",	0},
+      {"charDead5",		0},
+      {"combatDefeat5",	0},
+      {"combatVictory5",0},
+      {"regeneration",	0},
+      {"stopSprites1",	0},
+      {"stopSprites2",	0},
+      {"stopSprites3",	0},
+      {"stopSprites4",	0},
+      {"stopSprites5",	0}
    };
 
    // Since maps auto-sort by key value, this vector is needed to preserve the
@@ -88,37 +93,42 @@ public:
       "missed1",		// 7
       "applyDamage1",	// 8
       "charDead1",		// 9
-      "combatDefeat1",	// 10
-      "combatVictory1", // 11
-      "setBleeding1",	// 12
-      "stun1",			// 13
-      "slow1",			// 14
-      "hazardDamage1",	// 15
-      "charDead2",		// 16
-      "combatDefeat2",	// 17
-      "combatVictory2", // 18
-      "retaliation",	// 19
-      "missed2",		// 20
-      "applyDamage2",	// 21
-      "charDead3",		// 22
-      "combatDefeat3",	// 23
-      "combatVictory3", // 24
-      "setBleeding2",	// 25
-      "stun2",			// 26
-      "slow2",			// 27
-      "hazardDamage2",	// 28
-      "charDead4",		// 29
-      "combatDefeat4",	// 30
-      "combatVictory4", // 31
-      "applyBleed",		// 32
-      "charDead5",		// 33
-      "combatDefeat5",	// 34
-      "combatVictory5",	// 35
-      "regeneration",	// 36
+      "stopSprites1",	// 10
+      "combatDefeat1",	// 11
+      "combatVictory1", // 12
+      "setBleeding1",	// 13
+      "stun1",			// 14
+      "slow1",			// 15
+      "hazardDamage1",	// 16
+      "charDead2",		// 17
+      "stopSprites2",	// 18     
+      "combatDefeat2",	// 19
+      "combatVictory2", // 20
+      "retaliation",	// 21
+      "missed2",		// 22
+      "applyDamage2",	// 23
+      "charDead3",		// 24
+      "stopSprites3",	// 25     
+      "combatDefeat3",	// 26
+      "combatVictory3", // 27
+      "setBleeding2",	// 28
+      "stun2",			// 29
+      "slow2",			// 30
+      "hazardDamage2",	// 31
+      "charDead4",		// 32
+      "stopSprites4",	// 33     
+      "combatDefeat4",	// 34
+      "combatVictory4", // 35
+      "applyBleed",		// 36
+      "charDead5",		// 37
+      "stopSprites5",	// 38   
+      "combatDefeat5",	// 39
+      "combatVictory5",	// 40
+      "regeneration"	// 41
    };
 
    short 
-      lineupSize = 36,
+      lineupSize = lineupOrder.size(),
       lineupIndex = 88,
       selection = 88;
 
@@ -184,6 +194,7 @@ private:
    void animationMiss(sf::RenderWindow & window, sf::Vector2f pos);
    void animationApplyDamage(sf::RenderWindow & window, sf::Vector2f pos);
    void animationDeath(sf::RenderWindow & window, sf::Vector2f pos);
+   void stopCharacterSprites();
    void animationCombatDefeat(sf::RenderWindow & window);
    void animationCombatVictory(sf::RenderWindow & window);
    void animationWounded(sf::RenderWindow & window, sf::Vector2f pos);
@@ -461,7 +472,33 @@ void Animations::displayInfoInConsole() {
    cout << endl;
 }
 
+/*******************************************************************************
+* void deleteCharacterObjects()
+* Garbage collections. 
+*******************************************************************************/
+void Animations::deleteCharacterObjects() {
+   for(auto i : monsterParticipants) {
+      cout << "All monster objects are being deleted!!!\n";	
+      short x;
+      cin >> x;
+   	  delete i->animatedSprite;
+   	  delete i->weapon;
+   	  delete i->armor;
+      delete i;
+   }
 
+   for(auto i : heroParticipants) {
+   	  if(i->isDead) {
+   	  	 cout << "All hero objects are being deleted!!!\n";
+   	  	 short x;
+   	  	 cin >> x;
+   	     delete i->animatedSprite;
+   	     delete i->weapon;
+   	     delete i->armor;
+   	     delete i;
+   	  }
+   }
+}
 
 
 
@@ -521,84 +558,99 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
          animationDeath(window, targetCharacterPos);
          break;
       case 10:
+         stopCharacterSprites();
+         break;   
+      case 11:
          animationCombatDefeat(window);
          break;
-      case 11:
+      case 12:
          animationCombatVictory(window);
          break;   
-      case 12:
+      case 13:
          animationWounded(window, targetCharacterPos);
          break;  
-      case 13:
+      case 14:
          animationStun(window, targetCharacterPos);
          break; 
-      case 14:
+      case 15:
          animationSlow(window, targetCharacterPos);
          break; 
-      case 15:
+      case 16:
          animationHazardDamage(window, activeCharacterPos);
          break; 
-      case 16:
+      case 17:
          animationDeath(window, activeCharacterPos);
          break; 
-      case 17:
-         animationCombatDefeat(window);
-         break;     
       case 18:
-         animationCombatVictory(window);
+         stopCharacterSprites();
          break;
       case 19:
-         animationRetaliation(window);
-         break;
+         animationCombatDefeat(window);
+         break;     
       case 20:
-         animationMiss(window, activeCharacterPos);
+         animationCombatVictory(window);
          break;
       case 21:
-         animationApplyDamage(window, activeCharacterPos);
+         animationRetaliation(window);
          break;
       case 22:
-         animationDeath(window, activeCharacterPos);
+         animationMiss(window, activeCharacterPos);
          break;
       case 23:
-         animationCombatDefeat(window);
+         animationApplyDamage(window, activeCharacterPos);
          break;
       case 24:
-         animationCombatVictory(window);
+         animationDeath(window, activeCharacterPos);
          break;
       case 25:
-         animationWounded(window, activeCharacterPos);
-         break;
+         stopCharacterSprites();
+         break;         
       case 26:
-         animationStun(window, activeCharacterPos);
+         animationCombatDefeat(window);
          break;
       case 27:
-         animationSlow(window, activeCharacterPos);
+         animationCombatVictory(window);
          break;
       case 28:
+         animationWounded(window, activeCharacterPos);
+         break;
+      case 29:
+         animationStun(window, activeCharacterPos);
+         break;
+      case 30:
+         animationSlow(window, activeCharacterPos);
+         break;
+      case 31:
          animationHazardDamage(window, targetCharacterPos);
          break; 
-      case 29:
+      case 32:
          animationDeath(window, targetCharacterPos);
          break; 
-      case 30:
+      case 33:
+         stopCharacterSprites();
+         break;         
+      case 34:
          animationCombatDefeat(window);
          break; 
-      case 31:
-         animationCombatVictory(window);
-         break; 
-      case 32:
-         animationBleeding(window);
-         break;  
-      case 33:
-         animationDeath(window, activeCharacterPos); // Bleed death- needs Active/Target character
-         break;  
-      case 34:
-         animationCombatDefeat(window); 
-         break;  
       case 35:
          animationCombatVictory(window);
-         break;  
+         break; 
       case 36:
+         animationBleeding(window);
+         break;  
+      case 37:
+         animationDeath(window, activeCharacterPos); // Bleed death- needs Active/Target character
+         break;
+      case 38:
+         stopCharacterSprites();
+         break;           
+      case 39:
+         animationCombatDefeat(window); 
+         break;  
+      case 40:
+         animationCombatVictory(window);
+         break;  
+      case 41:
          animationRegeneration(window);
          break; 
       case 0:
@@ -654,27 +706,32 @@ void Animations::animationApplyDamage(sf::RenderWindow & window, sf::Vector2f po
 void Animations::animationDeath(sf::RenderWindow & window, sf::Vector2f pos) {
    cout << "\t*** This character has died! ***\n";
    displayActionText(window, "D E A D ! ! !", pos);
-   // for(auto i : monsterParticipants) {
-   // 	  if(i->isDead) {
-   // 	     delete i->animatedSprite;
-   // 	     delete i;
-   // 	  }
-   // }
+}
 
-   // for(auto i : heroParticipants) {
-   // 	  if(i->isDead) {
-   // 	     delete i->animatedSprite;
-   // 	     delete i;
-   // 	  }
-   // }
+void Animations::stopCharacterSprites() {
+   for(short i = heroParticipants.size() - 1; i >= 0; i--) {
+      if(heroParticipants[i]->isDead) {
+         heroParticipants[i] = NULL;
+         heroParticipants.erase(heroParticipants.begin() + i);      	
+      }
+   }
+
+   for(short i = monsterParticipants.size() - 1; i >= 0; i--) {
+      if(monsterParticipants[i]->isDead) {
+         monsterParticipants[i] = NULL;
+         monsterParticipants.erase(monsterParticipants.begin() + (i));
+      }
+   }
 }
 
 void Animations::animationCombatDefeat(sf::RenderWindow & window) {
    cout << "\t*** Your party is wiped! You are defeated! ***\n";
+   deleteCharacterObjects();
 }
 
 void Animations::animationCombatVictory(sf::RenderWindow & window) {
    cout << "\t*** All enemies are dead! You are victorious! ***\n";
+   deleteCharacterObjects();
 }
 
 void Animations::animationWounded(sf::RenderWindow & window, sf::Vector2f pos) {

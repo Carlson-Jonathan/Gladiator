@@ -153,7 +153,6 @@ private:
    bool applyCharacterAction (Character* character);
    void getCharacterAction   (Character* character);
    void playBattleMusic      ();
-   // short getLineupIndex      ();
    void resetStuff           ();
    float randomize           (float num);
    void setHeroPositions     ();
@@ -770,7 +769,6 @@ void Battle::getCharacterAction(Character* character) {
                                                       // in setCharacterPositions()
    // Get action for hero character 
    if(character->isHero) {
-      // animations->animationLineup[2] = true;
       animations->lineupIndex = 3;
       go = false;
 
@@ -779,9 +777,10 @@ void Battle::getCharacterAction(Character* character) {
          go = true;	
          go2 = false;
          animations->selection = 88;
+         animations->lineupIndex = 88;
       }
 
-      if (option == 1) { 
+      if(option == 1) { 
          if(listOfMonsters.size() > 1) {
             animations->targetCharacter = monsterParticipants[target - 1];
          }
@@ -818,22 +817,6 @@ void Battle::playBattleMusic() {
    music.setVolume(40.f);
    music.play();
 }
-
-/*******************************************************************************
-* short getLineupIndex() 
-* Returns the index + 1 of the next animation in the list. If there are no true
-* booleans in the lineup, returns 0.
-*******************************************************************************/
-// short Battle::getLineupIndex() {
-//    for(short i = 0; i < sizeof(animations->animationLineup); i++) {
-//       if(animations->animationLineup[i]) {
-//          animations->animationLineup[i] = false;
-//          return i + 1;
-//       }
-//    }
-
-//    return 0;
-// }
 
 /*******************************************************************************
 * void resetStuff()
@@ -940,10 +923,6 @@ void Battle::combat(sf::RenderWindow & window) {
       cout << "go = " << go << " | go2 = " << go2 << endl;
       cout << "option = " << option << " | selection = " << animations->selection << endl;
       string x; 
-      // if(go) {
-      //    cout << "go has been activated. Press enter to confirm..." << endl;
-      //    getline(cin, x);
-      // }
 
       if(go) {
          if(applyCharacterAction(participant)) break;

@@ -187,7 +187,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                keyHasBeenReleased = false;
                selection = menuOption;
                menuOption = 1;
-               wheelRotate = 0.0f;
+               menuSprite.setRotation(0.0f);
                lineupIndex = 88;
                break;
          }
@@ -380,6 +380,7 @@ void Animations::displayInfoInConsole() {
    cout << "animationLineup:\n";
    for(short i = 0; i < lineupSize; i++)
    	  cout << this->animationLineup[i] << ", ";
+   cout << "lineupIndex = " << lineupIndex << endl;
    cout << endl;
    cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
    cout << endl;
@@ -410,6 +411,7 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }
+
 
    // getLineupIndex(1.0f);
 

@@ -78,7 +78,8 @@ private:
       bleedCount = 0,
       stunCount = 0,
       slowCount = 0, 
-      hazardCount = 0;
+      hazardCount = 0,
+      count = 0;
 
    short* screenWidth;
    short* screenHeight;
@@ -154,6 +155,7 @@ private:
    float randomize           (float num);
    void setHeroPositions     ();
    void setMonsterPositions  ();
+   void displayMechanics     ();
 };
 
 
@@ -317,8 +319,8 @@ void Battle::applyRegeneration(Character & character) {
 *******************************************************************************/
 void Battle::focus(Character & character) {
    animations->animationLineup["defend"] = true;
+   if(!character.isDefending) applyDefendBonuses(character);
    character.isDefending = true;
-   applyDefendBonuses(character);
 
    // Potential uses:        
    // Increases damage on next strike (allows for criticals?).
@@ -540,7 +542,7 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
    willMiss = aggressor.precision - victim.evasion + victim.evasionPenalty -
    aggressor.precisionPenalty;
    missed = rand() % 100;
-   if(debugMode) displayAccuracy(aggressor, missed, willMiss);
+   displayAccuracy(aggressor, missed, willMiss);
    return missed >= willMiss;
 }
 
@@ -549,7 +551,6 @@ bool Battle::missedAttack(const Character & aggressor, const Character & victim)
 * Victim attacks aggressor.
 *******************************************************************************/
 void Battle::riposte(Character & aggressor, Character & victim) {
-   riposteMessage(victim, aggressor);
    animations->animationLineup["retaliation"] = true;
    attackCharacter(victim, aggressor);
 }
@@ -853,6 +854,17 @@ void Battle::setMonsterPositions() {
    }
 }
 
+void Battle::displayMechanics() {
+   count++;
+   cout << "\t" << participant->name 
+        << "'s accuracy (left > right = miss): \t" << missed << " | " 
+        << willMiss << endl;
+   cout << "\nBattle in progress... FPS Counter: " << count << endl;
+   cout << "go = " << go << " | go2 = " << go2 << endl;
+   cout << "option = " << option << " | selection = " << animations->selection << endl;
+   displayCharacterStats(monsterParticipants, heroParticipants, round);
+}
+
 
 /*###  ####  ######################################################  ####  #####
 #####  ####  ###################                ###################  ####  #####
@@ -871,17 +883,11 @@ void Battle::combat(sf::RenderWindow & window) {
 
    playBattleMusic();
 
-   short count = 0;
    while(true) {
 
       window.clear(sf::Color(102, 255, 255));
       usleep(16666); // 60 FPS = 16666
       
-      // FPS tester
-      count++;
-      displayCharacterStats(monsterParticipants, heroParticipants, round);
-      cout << "\nBattle in progress... FPS Counter: " << count << endl;
-
       if(animations->eventListener(window)) {
       	 animations->deleteCharacterObjects();
          break; // Exit the game
@@ -894,8 +900,7 @@ void Battle::combat(sf::RenderWindow & window) {
          // Determines who's turn it is based on the lowest running initiative. 
          participant = nextAction();
          animations->activeCharacter = participant;
-         // Used to re-propogate animationLineup
-         resetStuff();
+         resetStuff();  // Used to re-propogate animationLineup
       
          /**********************************************************************
          *                        Turn Ending Action Block
@@ -912,9 +917,6 @@ void Battle::combat(sf::RenderWindow & window) {
          getCharacterAction(participant); 
       }
 
-      cout << "go = " << go << " | go2 = " << go2 << endl;
-      cout << "option = " << option << " | selection = " << animations->selection << endl;
-      string x; 
 
       if(go) {
 
@@ -940,6 +942,8 @@ void Battle::combat(sf::RenderWindow & window) {
       go = false;
 
       animations->animateBattlescape(window, go, go2);
+
+      displayMechanics();
       window.display();
    }   
 
@@ -954,7 +958,7 @@ void Battle::combat(sf::RenderWindow & window) {
 // Bugs to fix:
    // "Wounded" does not display on retaliation attacks if the inital attack lands.
    // Retaliation attack animation chain does not happen in the correct order.
-   // Character (monster) aim gradually increases for some reason.
+   // Seg fault on Combat defeat.
 
 // Refactors:
    // Change "isEndOfTurn" to "isEndOfRound"

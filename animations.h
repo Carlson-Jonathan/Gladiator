@@ -478,9 +478,6 @@ void Animations::displayInfoInConsole() {
 *******************************************************************************/
 void Animations::deleteCharacterObjects() {
    for(auto i : monsterParticipants) {
-      cout << "All monster objects are being deleted!!!\n";	
-      short x;
-      cin >> x;
    	  delete i->animatedSprite;
    	  delete i->weapon;
    	  delete i->armor;
@@ -489,9 +486,6 @@ void Animations::deleteCharacterObjects() {
 
    for(auto i : heroParticipants) {
    	  if(i->isDead) {
-   	  	 cout << "All hero objects are being deleted!!!\n";
-   	  	 short x;
-   	  	 cin >> x;
    	     delete i->animatedSprite;
    	     delete i->weapon;
    	     delete i->armor;
@@ -523,9 +517,6 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
       lineupIndex = getLineupIndex();
       animationClock.restart();
    }
-
-
-   // getLineupIndex(1.0f);
 
    displayInfoInConsole();
 
@@ -709,6 +700,7 @@ void Animations::animationDeath(sf::RenderWindow & window, sf::Vector2f pos) {
 }
 
 void Animations::stopCharacterSprites() {
+   cout << "\t*** Character animation dissapears ***\n";
    for(short i = heroParticipants.size() - 1; i >= 0; i--) {
       if(heroParticipants[i]->isDead) {
          heroParticipants[i] = NULL;

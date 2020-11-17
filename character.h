@@ -24,9 +24,9 @@ public:
 
    Character() {}
    ~Character() { 
-    //   if(!isHero)
-    //      cout << "\tThe "; 
-    //   cout << name << " drops dead.\n";
+      if(!isHero)
+         cout << "\tThe "; 
+      cout << name << " drops dead.\n";
    }
    Character(string newMonster);
    Character(string name, bool hero);

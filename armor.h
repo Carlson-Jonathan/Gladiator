@@ -16,7 +16,7 @@ class Armor {
 public:
 
    Armor() { this->name = "NULL"; }
-   ~Armor() { /*cout << "\tThe armor explodes into bits.\n";*/ }
+   ~Armor() { cout << "\tThe armor explodes into bits.\n"; }
 
    /*****************************************
    * Player armor constructor

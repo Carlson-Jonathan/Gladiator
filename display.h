@@ -203,36 +203,37 @@ void displayCharacterStats(const vector<Character*> & listOfMonsters,
    
    short pEvasion, mEvasion, pPrecision, mPrecision;
 
-   cout << "================================ Combat Turn " << round 
-        << " ===============================\n";
+   cout << "===================================================="
+        << "====================================================\n";
 
    cout << setw(12) << "Name:" << setw(10) << right << "HP:" << setw(10) 
         << right << "BP:" << setw(10) << right << "EP:" << setw(10) << right
-        << "Speed:" << setw(10) << "Aim:" << setw(10) << "Evade" << endl;
+        << "Speed:" << setw(10) << "RSpeed:" << setw(10) << "Aim:" << setw(10) 
+        << "Evade:" << setw(10) << "Bleed:" << endl;
    for(const auto & i : heroes) {      
       pEvasion = i->evasion - i->evasionPenalty;
       pPrecision = i->precision - i->precisionPenalty;
       cout << setw(12) << right << i->name << setw(10) << i->hitPoints
-           << setw(10) << i->bloodPoints << setw(10) << i->essencePoints
-           << setw(10) << i->initiative << setw(10) << pPrecision 
-           << setw(10) << pEvasion << endl;
+           << setw(10) << i->bloodPoints   << setw(10) << i->essencePoints
+           << setw(10) << i->initiative    << setw(10) << i->runningInitiative
+           << setw(10) << pPrecision       << setw(10) << pEvasion
+           << setw(10) << i->isBleeding    << endl;   
    }
    cout << 
-   "       -----------------------------------------------------------------\n";
+   "       --------------------------------------------------------------------------------------------\n";
    for(const auto & i : listOfMonsters) {
       mEvasion = i->evasion - i->evasionPenalty;
       mPrecision = i->precision - i->precisionPenalty;
-      cout << setw(12) << i->name << setw(10) << right << setw(10) << right
-           << i->hitPoints << setw(10) << right << i->bloodPoints << setw(10)
-           << right << i->essencePoints << setw(10) << right 
-           << i->initiative << setw(10) << mPrecision << setw(10)
-           << mEvasion;
+      cout << setw(12) << right << i->name << setw(10) << i->hitPoints
+           << setw(10) << i->bloodPoints   << setw(10) << i->essencePoints
+           << setw(10) << i->initiative    << setw(10) << i->runningInitiative
+           << setw(10) << mPrecision       << setw(10) << mEvasion
+           << setw(10) << i->isBleeding;
       if(i != listOfMonsters.back()) 
          cout << endl;
    }
-
-   cout << "\n=======================================" 
-        << "========================================\n"; 
+   cout << "\n===================================================="
+        << "====================================================\n"; 
 }
 
 /*******************************************************************************

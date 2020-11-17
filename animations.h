@@ -2,31 +2,32 @@
 #define ANIMATIONS_H
 #include <iostream>
 #include <vector>
+#include <map>
 #include <stdio.h>     // rand()
 #include <stdlib.h>    // rand()
 #include <time.h>      // rand()
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Network.hpp>
 #include "character.h"
 using namespace std;
 
 
 // g++ -c animations.h
-// g++ -o a.out animations.h -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
+// g++ -o a.out animations.h -lsfml-graphics -lsfml-window -lsfml-audio
 
 
 class Animations {
 public:
 
    Animations                 () {}
+   ~Animations 				  () { cout << "Animations object is destroyed!\n"; }
    Animations                 (short* screenWidth, short* screenHeight); 
 
-   void animateBattlescape    (sf::RenderWindow & window, bool (&animationLineup)[36], bool & go);
+   void animateBattlescape    (sf::RenderWindow & window, bool & go, bool & go2);
    bool eventListener         (sf::RenderWindow & window);
    void setCharacterPositions ();
+   void deleteCharacterObjects();
 
    vector<Character*> heroParticipants;   
    vector<Character*> monsterParticipants;
@@ -35,9 +36,107 @@ public:
    sf::Vector2f activeCharacterPos;
    sf::Vector2f targetCharacterPos;
 
-private:
+   // Order is unimportant since maps auto-sort by key.
+   map<string, bool> animationLineup = {
+      {"fatigue",		0},
+      {"dazed", 		0},
+      {"heroesTurn",	0},
+      {"defend",		0},
+      {"flee",			0},
+      {"attack",		0},
+      {"missed1",		0},
+      {"applyDamage1",	0}, 
+      {"charDead1",		0},
+      {"combatDefeat1",	0},
+      {"combatVictory1",0},
+      {"setBleeding1",	0},
+      {"stun1",			0},
+      {"slow1",			0},
+      {"hazardDamage1",	0},
+      {"charDead2",		0},
+      {"combatDefeat2",	0},
+      {"combatVictory2",0},
+      {"retaliation",	0},
+      {"missed2",		0},
+      {"applyDamage2",	0},
+      {"charDead3",		0},
+      {"combatDefeat3",	0},
+      {"combatVictory3",0},
+      {"setBleeding2",	0},
+      {"stun2",			0},
+      {"slow2",			0},
+      {"hazardDamage2",	0},
+      {"charDead4",		0},
+      {"combatDefeat4",	0},
+      {"combatVictory4",0},
+      {"applyBleed",	0},
+      {"charDead5",		0},
+      {"combatDefeat5",	0},
+      {"combatVictory5",0},
+      {"regeneration",	0},
+      {"stopSprites1",	0},
+      {"stopSprites2",	0},
+      {"stopSprites3",	0},
+      {"stopSprites4",	0},
+      {"stopSprites5",	0}
+   };
+
+   // Since maps auto-sort by key value, this vector is needed to preserve the
+   // execution order of the animation lineup.
+   vector<string> lineupOrder = {
+      "fatigue", 		// 1
+      "dazed", 			// 2
+      "heroesTurn",		// 3
+      "defend",			// 4
+      "flee",			// 5
+      "attack",			// 6
+      "missed1",		// 7
+      "applyDamage1",	// 8
+      "charDead1",		// 9
+      "stopSprites1",	// 10
+      "combatDefeat1",	// 11
+      "combatVictory1", // 12
+      "setBleeding1",	// 13
+      "stun1",			// 14
+      "slow1",			// 15
+      "hazardDamage1",	// 16
+      "charDead2",		// 17
+      "stopSprites2",	// 18     
+      "combatDefeat2",	// 19
+      "combatVictory2", // 20
+      "retaliation",	// 21
+      "missed2",		// 22
+      "applyDamage2",	// 23
+      "charDead3",		// 24
+      "stopSprites3",	// 25     
+      "combatDefeat3",	// 26
+      "combatVictory3", // 27
+      "setBleeding2",	// 28
+      "stun2",			// 29
+      "slow2",			// 30
+      "hazardDamage2",	// 31
+      "charDead4",		// 32
+      "stopSprites4",	// 33     
+      "combatDefeat4",	// 34
+      "combatVictory4", // 35
+      "applyBleed",		// 36
+      "charDead5",		// 37
+      "stopSprites5",	// 38   
+      "combatDefeat5",	// 39
+      "combatVictory5",	// 40
+      "regeneration"	// 41
+   };
+
+   short 
+      lineupSize = lineupOrder.size(),
+      lineupIndex = 88,
+      selection = 88;
 
    sf::Clock animationClock;
+
+private:
+
+   sf::Event event;
    sf::Font font;
    sf::Music music;
    sf::Text text;
@@ -53,27 +152,41 @@ private:
    sf::IntRect menuRect;
    sf::Sprite menuSprite;
 
+   /************* Battlescape Sounds *************/
+   sf::SoundBuffer menuTick_b;
+   sf::Sound menuTick;
+
+
    /**********************************************/
 
+   // '88' means 'no selection made' and is usually default.
    short 
       count = 0,
-      lineupIndex = 88;
+      wheelRotate = 0,
+      menuOption = 1,
+      rotation[4] = {0, 90, 180, 270};
 
    short* pScreenWidth;
    short* pScreenHeight;
 
+   bool keyHasBeenReleased = true;
+
    // One-time functions (create sprites)
    void createScapeSprite(string fileName, short x, short y, 
       sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite);
+   void createSound(string filename, sf::SoundBuffer & buffer, sf::Sound & sound);
 
    // Looped functions
    void MaintainAspectRatio(sf::RenderWindow & window);
    void drawMenuWheel(sf::RenderWindow & window);
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
+   void getNewLineup(bool & go, bool & go2);
+   void displayInfoInConsole(); 
+   void drawTargetWheel();
 
    // Ordered animations
-   short getLineupIndex(bool animationLineup[], short size);
-   void animationSelect(bool (&animationLineup)[36], bool & go, sf::RenderWindow & window);
+   short getLineupIndex();
+   void animationSelect(bool & go, bool & go2, sf::RenderWindow & window);
    void animationFatigue(sf::RenderWindow & window);
    void animationDazed(sf::RenderWindow & window);
    void animationHerosTurn(sf::RenderWindow & window);
@@ -83,6 +196,7 @@ private:
    void animationMiss(sf::RenderWindow & window, sf::Vector2f pos);
    void animationApplyDamage(sf::RenderWindow & window, sf::Vector2f pos);
    void animationDeath(sf::RenderWindow & window, sf::Vector2f pos);
+   void stopCharacterSprites();
    void animationCombatDefeat(sf::RenderWindow & window);
    void animationCombatVictory(sf::RenderWindow & window);
    void animationWounded(sf::RenderWindow & window, sf::Vector2f pos);
@@ -106,11 +220,19 @@ private:
 Animations::Animations(short* screenWidth, short* screenHeight) {
    pScreenWidth = screenWidth;
    pScreenHeight = screenHeight;
-   createScapeSprite("Images/meadow.png", 1920, 1080, 
-      backgroundTex, backgroundRect, backgroundSpr);
+
+   createScapeSprite("Images/meadow.png", 1920, 1080, backgroundTex, 
+   	                 backgroundRect, backgroundSpr);
+
    createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, menuSprite);
    menuSprite.setOrigin(70.f, 70.f);
-   if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) cout << "Robusta font not found" << endl;
+
+   // Sounds
+   createSound("Sounds/Effects/tick.ogg", menuTick_b, menuTick);
+
+   // Fonts and text
+   if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) 
+   	  cout << "Robusta font not found" << endl;
    this->text.setCharacterSize(20);
    this->text.setFont(font);
    this->text.setFillColor(sf::Color::Yellow);
@@ -123,17 +245,46 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
 * This is the event listener- detects user interaction with the game.
 *******************************************************************************/
 bool Animations::eventListener(sf::RenderWindow & window) {
-   sf::Event event;
 
-   // Closes the window and terminates loops if the 'X' is clicked or alt + F4.
    while (window.pollEvent(event)) {
+
+      // Closes the window/terminates loops if 'X', F4, etc.
       if (event.type == sf::Event::Closed) {
          window.close();
          return 1;
       }
 
-      // Auto adjusts the game resolution when the screen size is dragged.
-      // This will likely need to be fixed- does not work as needed.
+      // Controls
+      if(keyHasBeenReleased) {
+         switch(event.key.code) {
+            case sf::Keyboard::Left:
+      	       keyHasBeenReleased = false;
+               wheelRotate = -6.0f;
+               menuTick.play();
+               menuOption--;
+               if(menuOption < 1) menuOption = 4;
+               break;
+            case sf::Keyboard::Right:
+               keyHasBeenReleased = false;
+               wheelRotate = 6.0f;
+               menuTick.play();
+               menuOption++;
+               if(menuOption > 4) menuOption = 1;
+               break;
+            case sf::Keyboard::Return:
+               keyHasBeenReleased = false;
+               selection = menuOption;
+               menuOption = 1;
+               menuSprite.setRotation(0.0f);
+               lineupIndex = 88;
+               break;
+         }
+      }
+
+      if(event.type == sf::Event::KeyReleased) 
+      	 keyHasBeenReleased = true;
+
+      // Auto adjusts the screen resolution when dragged. (Partially works)
       if (event.type == sf::Event::Resized) {
          *pScreenWidth = event.size.width;
          *pScreenHeight = event.size.height;
@@ -150,34 +301,35 @@ bool Animations::eventListener(sf::RenderWindow & window) {
    return 0;
 }
 
-float randomize(float num) {
-   return (rand() % 100) + (num - 50);
-}
-
 /*******************************************************************************
 * animateBattleScape(window, Character*, Character*)
 * Public function. This is what battle.h calls to create the entire battlescape
 * (background, static characters, misc sprites, etc.) as opposed to the specific
 * animations called when an event is triggered (attack, bleed, die, etc.).
 *******************************************************************************/
-void Animations::animateBattlescape(sf::RenderWindow & window, 
-   bool (&animationLineup)[36], bool & go) {
+void Animations::animateBattlescape(sf::RenderWindow & window, bool & go, bool & go2) {
 
+   // Background
    window.draw(backgroundSpr);
 
+   // Draw Heroes to screen
    for(auto i : heroParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
 
+   // Draw monsters to screen
    for(auto i : monsterParticipants) 
       i->animatedSprite->placeSpriteAnimation(window);
 
-   // This must be last to be called in this function!
-   animationSelect(animationLineup, go, window);
+   // Draw other animated sprites to screen
+   // futureFunction(); 
+
+   // Draw event animations. This must be called LAST in this function!
+   animationSelect(go, go2, window);
 }
 
 /*******************************************************************************
 * void createScapeSprite(texture file, rect dimensions, file, spite obj)
-* Creates a sprite object.
+* Creates a sprite object. Should be called only once per sprite per battle.
 *******************************************************************************/
 void Animations::createScapeSprite(string fileName, short x, short y,
    sf::Texture & texture, sf::IntRect & rectangle, sf::Sprite & sprite) {
@@ -190,9 +342,21 @@ void Animations::createScapeSprite(string fileName, short x, short y,
 }
 
 /*******************************************************************************
+* void createSound(string, Soundbuffer, Sound) 
+* Creates a sound effect. 
+*******************************************************************************/
+void Animations::createSound(string filename, sf::SoundBuffer & buffer, 
+	                         sf::Sound & sound) {
+   if (!buffer.loadFromFile(filename)) 
+   	  cout << "Error loading sound: " << filename << endl;
+   sound.setBuffer(buffer);
+}
+
+/*******************************************************************************
 * void setCharacterPositions()
 * Sets the position of the current active character to a member variable.
 * Origin is automatically adjusted to the center of the sprite.
+* Note: this is a potential source of segmentation faults.
 *******************************************************************************/
 void Animations::setCharacterPositions() {
    this->activeCharacterPos = activeCharacter->animatedSprite->sprite.getPosition();
@@ -202,11 +366,6 @@ void Animations::setCharacterPositions() {
    this->targetCharacterPos.x += targetCharacter->animatedSprite->rectangle.width / 2;
    this->targetCharacterPos.y += targetCharacter->animatedSprite->rectangle.height / 2;
 }
-
-
-/*##############################################################################
-############################## Looped Functions ################################
-##############################################################################*/
 
 /*******************************************************************************
 * MaintainAspectRatio(window)
@@ -222,18 +381,17 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
         float currentAspectHeight = 750;
         float aspectRatio = 1.7777;
 
-        if(newAspectWidth != currentAspectWidth)
-        {
-                //width changed, maintain the aspect ratio and adjust the height
-                currentAspectWidth = newAspectWidth;
-                currentAspectHeight = currentAspectWidth / aspectRatio;
+        if(newAspectWidth != currentAspectWidth) {
+           //width changed, maintain the aspect ratio and adjust the height
+           currentAspectWidth = newAspectWidth;
+           currentAspectHeight = currentAspectWidth / aspectRatio;
         }
-        else if(newAspectHeight != currentAspectHeight)
-        {
-                //height changed, maintain aspect ratio and change the width
-                currentAspectHeight = newAspectHeight;
-                currentAspectWidth = currentAspectHeight * aspectRatio;
+        else if(newAspectHeight != currentAspectHeight) {
+           //height changed, maintain aspect ratio and change the width
+           currentAspectHeight = newAspectHeight;
+           currentAspectWidth = currentAspectHeight * aspectRatio;
         }
+
         window.setSize(sf::Vector2u(currentAspectWidth, currentAspectHeight));
 }
 
@@ -244,28 +402,51 @@ void Animations::MaintainAspectRatio(sf::RenderWindow & window)
 *******************************************************************************/
 void Animations::drawMenuWheel(sf::RenderWindow & window) {
    menuSprite.setPosition(activeCharacterPos);
+
+   if(menuSprite.getRotation() == rotation[menuOption - 1]) 
+      wheelRotate = 0.f;
+
+   menuSprite.rotate(wheelRotate);
    window.draw(menuSprite);
-   menuSprite.rotate(-2.f);
 }
 
-
-/*##############################################################################
-############################## Combat Animations ###############################
-##############################################################################*/
+/*******************************************************************************
+* void drawTargetWheel()
+* Creates an animated menu wheel. If there are more than 1 monster, after making
+* a selection on the menu wheel, the target wheel will appear over a monster,
+* which the character will be able to move and make the target selection.
+*******************************************************************************/
+void Animations::drawTargetWheel() {
+   short highlightTarget;
+   // Create targeting sprite
+   // Create an animation lineup occurence for this function.
+   // draw targeting sprite at monsterParticipants[highlightTarget]->animatedSprite.sprite.getPosition()
+   // Set left/right, up/down arrow keys to increment/decrement higlightedTarget.
+   // Enter key saves highligtedTarget to 'selection' variable.
+   // battle.h checks for a selection variable that != 88 to continue.
+   // battle.h sets target to monsterParticipants[selection - 1].
+}
 
 /*******************************************************************************
 * void getLineupIndex()
-* Iterates through the animation lineup array and returns the index of the frist
+* Iterates through the animation lineup array and returns the index of the first
 * true boolean. The order of the lineup is the order that the animations get
-* displayed, so they must be in the correct order.
+* displayed, so they must be in the correct order. The parameter represents the
+* number of seconds delay before the new index is retrieved.
 *******************************************************************************/
-short Animations::getLineupIndex(bool animationLineup[], short size) {
-   for(short i = 0; i < size; i++) {
-      if(animationLineup[i]) {
-         animationLineup[i] = false;
-         return i + 1;
+short Animations::getLineupIndex() {
+
+   // if(animationClock.getElapsedTime().asSeconds() > seconds && lineupIndex != 3) {
+
+      for(short i = 0; i < lineupSize; i++) {
+         if(animationLineup[lineupOrder[i]]) {
+            animationLineup[lineupOrder[i]] = false;
+            return i + 1;
+         }
       }
-   }
+
+      // animationClock.restart();
+   // }
    return 0;
 }
 
@@ -275,281 +456,64 @@ short Animations::getLineupIndex(bool animationLineup[], short size) {
 *******************************************************************************/
 void Animations::displayActionText(sf::RenderWindow & window, string message, 
    sf::Vector2f pos) {
-   this->text.setString(message);
-   this->text.setOrigin(text.getLocalBounds().left + text.getLocalBounds().width / 2.0f,
+   text.setString(message);
+   text.setOrigin(text.getLocalBounds().left + text.getLocalBounds().width / 2.0f,
                   text.getLocalBounds().top  + text.getLocalBounds().height / 2.0f);
-   this->text.setPosition(pos);
+   text.setPosition(pos);
    window.draw(text);
 }
 
 /*******************************************************************************
-* void animationSelect()
-* Just a switch statement function. Picks which animation to display based on 
-* the lineupIndex. The '0' case resets the combat sequence and starts a new turn
+* void getNewLineup()
+* Sends the signals to battle.h to propogate a new turn animation lineup.
 *******************************************************************************/
-void Animations::animationSelect(bool (&animationLineup)[36], bool & go, 
-                                 sf::RenderWindow & window) {
-
-   // Sets a time delay for all animations across the board. Temporary until
-   // all animations are created and have their own execution time.
-   short size = sizeof(animationLineup);
-   if(animationClock.getElapsedTime().asSeconds() > 1.0f) {
-      lineupIndex = getLineupIndex(animationLineup, size);
-      animationClock.restart();
-   }
-
-   switch(lineupIndex) {
-      case 1:
-         animationFatigue(window);
-         break;
-      case 2:
-         animationDazed(window);
-         break;            
-      case 3:
-         animationHerosTurn(window);
-         break;
-      case 4:
-         animationDefend(window);
-         break;
-      case 5:
-         animationRetreat(window);
-         break;
-      case 6:
-         animationAttack(window);
-         break;
-      case 7:
-         animationMiss(window, targetCharacterPos);
-         break;
-      case 8:
-         animationApplyDamage(window, targetCharacterPos);
-         break;
-      case 9:
-         animationDeath(window, targetCharacterPos);
-         break;
-      case 10:
-         animationCombatDefeat(window);
-         break;
-      case 11:
-         animationCombatVictory(window);
-         break;   
-      case 12:
-         animationWounded(window, targetCharacterPos);
-         break;  
-      case 13:
-         animationStun(window, targetCharacterPos);
-         break; 
-      case 14:
-         animationSlow(window, targetCharacterPos);
-         break; 
-      case 15:
-         animationHazardDamage(window, activeCharacterPos);
-         break; 
-      case 16:
-         animationDeath(window, activeCharacterPos);
-         break; 
-      case 17:
-         animationCombatDefeat(window);
-         break;     
-      case 18:
-         animationCombatVictory(window);
-         break;
-      case 19:
-         animationRetaliation(window);
-         break;
-      case 20:
-         animationMiss(window, activeCharacterPos);
-         break;
-      case 21:
-         animationApplyDamage(window, activeCharacterPos);
-         break;
-      case 22:
-         animationDeath(window, activeCharacterPos);
-         break;
-      case 23:
-         animationCombatDefeat(window);
-         break;
-      case 24:
-         animationCombatVictory(window);
-         break;
-      case 25:
-         animationWounded(window, activeCharacterPos);
-         break;
-      case 26:
-         animationStun(window, activeCharacterPos);
-         break;
-      case 27:
-         animationSlow(window, activeCharacterPos);
-         break;
-      case 28:
-         animationHazardDamage(window, targetCharacterPos);
-         break; 
-      case 29:
-         animationDeath(window, targetCharacterPos);
-         break; 
-      case 30:
-         animationCombatDefeat(window);
-         break; 
-      case 31:
-         animationCombatVictory(window);
-         break; 
-      case 32:
-         animationBleeding(window);
-         break;  
-      case 33:
-         animationDeath(window, activeCharacterPos); // Bleed death- needs Active/Target character
-         break;  
-      case 34:
-         animationCombatDefeat(window); 
-         break;  
-      case 35:
-         animationCombatVictory(window);
-         break;  
-      case 36:
-         animationRegeneration(window);
-        break; 
-      case 0:
-         cout << "************************** New Combat Turn ****************************" << endl;
-         go = true;
-         lineupIndex = 88; // Arbitrary number to prevent '0' skips.
-         for(bool & i : animationLineup) // Reset entire lineup inpreperation
-            i = 0;                       // for next character turn.
-         break;
-      default:;
-   }
+void Animations::getNewLineup(bool & go, bool & go2) {
+   cout << "************************** New Combat Turn ****************************" << endl;
+   go = true;
+   go2 = true;
+   lineupIndex = 88; 
 }
 
 /*******************************************************************************
-* Ordered animation functions.
+* void displayInfoInConsole()
+* Used for debugging. Displays the information in the console that is happening
+* in the animations.
 *******************************************************************************/
-void Animations::animationFatigue(sf::RenderWindow & window) {
-   cout << "\t*** Fatigue Animation ***\n";
-   displayActionText(window, "Fatigued!", activeCharacterPos);
+void Animations::displayInfoInConsole() {
+   // cout << "Active character: " << activeCharacter->name << endl;
+   // cout << "Target character: " << targetCharacter->name << endl;
+   // cout << "animationLineup:\n";
+   // for(short i = 0; i < lineupSize; i++)
+   // 	  cout << this->animationLineup[lineupOrder[i]] << ", ";
+   // cout << "lineupIndex = " << lineupIndex << endl;
+   // cout << endl;
+   // cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
+   // cout << endl;
 }
 
-void Animations::animationDazed(sf::RenderWindow & window) {
-   cout << "\t*** Dazed Animation ***\n";
-   displayActionText(window, "Dazed!", activeCharacterPos);
-}
-
-void Animations::animationHerosTurn(sf::RenderWindow & window) {
-   drawMenuWheel(window);
-   cout << "\t*** Display Hero stats ***\n";
-   cout << "\t*** Who's turn arrow ***\n";
-   cout << "\t*** Listen for user input ***\n";
-   cout << "\t*** Select Monster/menu options ***\n";
-}
-
-void Animations::animationDefend(sf::RenderWindow & window) {
-   cout << "\t*** Character defending animation ***\n";
-   displayActionText(window, "Defending", activeCharacterPos);
-}
-
-void Animations::animationRetreat(sf::RenderWindow & window) {
-   cout << "\t*** Character is running away ***\n";
-   displayActionText(window, "Retreat!", activeCharacterPos);
-}
-
-void Animations::animationAttack(sf::RenderWindow & window) {
-   cout << "\t*** Character executes a primary attack ***\n";
-   displayActionText(window, "Attack Animation", activeCharacterPos);
-}
-
-void Animations::animationMiss(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** Character's attack misses the target ***\n";
-   displayActionText(window, "Missed!", pos);
-}
-
-void Animations::animationApplyDamage(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** Damage numbers appear over victim ***\n";
-   displayActionText(window, "Damage Numbers", pos);
-}
-
-void Animations::animationDeath(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** This character has died! ***\n";
-   displayActionText(window, "D E A D ! ! !", pos);
-}
-
-void Animations::animationCombatDefeat(sf::RenderWindow & window) {
-   cout << "\t*** Your party is wiped! You are defeated! ***\n";
-}
-
-void Animations::animationCombatVictory(sf::RenderWindow & window) {
-   cout << "\t*** All enemies are dead! You are victorious! ***\n";
-}
-
-void Animations::animationWounded(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** This character is wounded and will bleed each turn. ***\n";
-   displayActionText(window, "Wounded!", pos);
-}
-
-void Animations::animationStun(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** This character is stunned (running initiative +) ***\n";
-   displayActionText(window, "Stunned!", pos);
-}
-
-void Animations::animationSlow(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** This character is slowed (initiative -) ***\n";
-   displayActionText(window, "Slowed!", pos);
-}
-
-void Animations::animationHazardDamage(sf::RenderWindow & window, sf::Vector2f pos) {
-   cout << "\t*** Hazard damage taken for kicking a cactus ***\n";
-   displayActionText(window, "Hazard Damage!", pos);
-}
-
-void Animations::animationRetaliation(sf::RenderWindow & window) {
-   cout << "\t*** Character recoils and strikes back ***\n";
-   displayActionText(window, "Retaliation Attack!", targetCharacterPos);
-}
-
-void Animations::animationBleeding(sf::RenderWindow & window) {
-   cout << "\t*** Bleeding damage is applied to this character ***\n";
+/*******************************************************************************
+* void deleteCharacterObjects()
+* Garbage collections. 
+*******************************************************************************/
+void Animations::deleteCharacterObjects() {
    for(auto i : monsterParticipants) {
-      if(i->isBleeding) {
-         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
-         short sprWidth = i->animatedSprite->rectangle.width;
-         short sprHeight = i->animatedSprite->rectangle.height;
-         pos.x += sprWidth / 2;
-         pos.y += sprHeight / 2;
-         displayActionText(window, "Bleed Damage", pos);
-      }
+   	  delete i->animatedSprite;
+   	  delete i->weapon;
+   	  delete i->armor;
+      delete i;
    }
 
    for(auto i : heroParticipants) {
-      if(i->isBleeding) {
-         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
-         short sprWidth = i->animatedSprite->rectangle.width;
-         short sprHeight = i->animatedSprite->rectangle.height;
-         pos.x += sprWidth / 2;
-         pos.y += sprHeight / 2;
-         displayActionText(window, "Bleed Damage", pos);
-      }
+   	  if(i->isDead) {
+   	     delete i->animatedSprite;
+   	     delete i->weapon;
+   	     delete i->armor;
+   	     delete i;
+   	  }
    }
 }
 
-void Animations::animationRegeneration(sf::RenderWindow & window) {
-   cout << "\t*** Character is regenerating blood points ***\n";
-   for(auto i : monsterParticipants) {
-      if(i->regeneration) {
-         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
-         short sprWidth = i->animatedSprite->rectangle.width;
-         short sprHeight = i->animatedSprite->rectangle.height;
-         pos.x += sprWidth / 2;
-         pos.y += sprHeight / 2;
-         displayActionText(window, "Regeneration", pos);
-      }
-   }
 
-   for(auto i : heroParticipants) {
-      if(i->regeneration) {
-         sf::Vector2f pos = i->animatedSprite->sprite.getPosition();
-         short sprWidth = i->animatedSprite->rectangle.width;
-         short sprHeight = i->animatedSprite->rectangle.height;
-         pos.x += sprWidth / 2;
-         pos.y += sprHeight / 2;
-         displayActionText(window, "Regeneration", pos);
-      }
-   }
-}
+#include "combatEventAnimations.cpp"
 
 #endif // ANIMATIONS_H

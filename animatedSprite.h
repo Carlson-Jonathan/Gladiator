@@ -12,7 +12,7 @@ class AnimatedSprite {
 public:
 
    AnimatedSprite() {}
-   ~AnimatedSprite() { cout << "The Sprite animation just died\n\n";}
+   ~AnimatedSprite() { cout << "Character's sprite animation destroyed!\n\n";}
    AnimatedSprite(string textureFile, short x1, short y1, 
    	              short x2, short y2, short frames, float speed) {
       this->textureFile = textureFile;

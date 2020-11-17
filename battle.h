@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <iomanip>
 #include <cstdlib>  // sleep
 #include <unistd.h> // sleep
 #include <SFML/Graphics.hpp>
@@ -773,9 +774,12 @@ void Battle::getCharacterAction(Character* character) {
 
       if(option == 1) { 
          if(listOfMonsters.size() > 1) {
+         	// Move go's here
+
             animations->targetCharacter = monsterParticipants[target - 1];
          }
          else {
+         	// go's here
             target = 1;                 // Auto attack if only 1 monster left 
             animations->targetCharacter = monsterParticipants[target - 1];
          }
@@ -854,16 +858,35 @@ void Battle::setMonsterPositions() {
    }
 }
 
+/*******************************************************************************
+* void displayMechanics() 
+* Used for debugging. Displays things happening on the back end.
+*******************************************************************************/
 void Battle::displayMechanics() {
    count++;
+   cout << "Active Character: " << animations->activeCharacter->name << "\n"
+        << "Target Character: " << animations->targetCharacter->name << endl;
+   cout << "Animation Lineup: " << endl;
+   cout << "\t";
+   for(short i = 0; i < animations->lineupSize; i++)
+   	  cout << i << setw(2) << "|" << setw(2);
+   cout << setw(0) << endl;
+   cout << "\t";
+   for(short i = 0; i < animations->lineupSize; i++)
+      cout << animations->animationLineup[animations->lineupOrder[i]] << " | ";
+   cout << endl;
+   cout << "Current Action: " << animations->lineupIndex << endl;
    cout << "\t" << participant->name 
-        << "'s accuracy (left > right = miss): \t" << missed << " | " 
+        << "'s accuracy (left > right = miss): " << missed << " | " 
         << willMiss << endl;
-   cout << "\nBattle in progress... FPS Counter: " << count << endl;
-   cout << "go = " << go << " | go2 = " << go2 << endl;
-   cout << "option = " << option << " | selection = " << animations->selection << endl;
+   cout << "FPS Counter: " << count << endl;
+   cout << "Animation Clock: " 
+        << animations->animationClock.getElapsedTime().asSeconds() << endl;
+   cout << "go = " << go << " | go2 = " << go2 << "option = " << option 
+        << " | selection = " << animations->selection << endl;
    displayCharacterStats(monsterParticipants, heroParticipants, round);
 }
+
 
 
 /*###  ####  ######################################################  ####  #####
@@ -958,7 +981,10 @@ void Battle::combat(sf::RenderWindow & window) {
 // Bugs to fix:
    // "Wounded" does not display on retaliation attacks if the inital attack lands.
    // Retaliation attack animation chain does not happen in the correct order.
+   // Retaliation occurs randomly from different heros if at least 1 hero has a retal weapon.
    // Seg fault on Combat defeat.
+   // Defend bonuses dont go away, but stack.
+   // Running initiative does not equal base initiative at start of battle.
 
 // Refactors:
    // Change "isEndOfTurn" to "isEndOfRound"

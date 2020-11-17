@@ -132,10 +132,11 @@ public:
       lineupIndex = 88,
       selection = 88;
 
+   sf::Clock animationClock;
+   
 private:
 
    sf::Event event;
-   sf::Clock animationClock;
    sf::Font font;
    sf::Music music;
    sf::Text text;
@@ -181,6 +182,7 @@ private:
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
    void getNewLineup(bool & go, bool & go2);
    void displayInfoInConsole(); 
+   void drawTargetWheel();
 
    // Ordered animations
    short getLineupIndex();
@@ -409,6 +411,23 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
 }
 
 /*******************************************************************************
+* void drawTargetWheel()
+* Creates an animated menu wheel. If there are more than 1 monster, after making
+* a selection on the menu wheel, the target wheel will appear over a monster,
+* which the character will be able to move and make the target selection.
+*******************************************************************************/
+void Animations::drawTargetWheel() {
+   short highlightTarget;
+   // Create targeting sprite
+   // Create an animation lineup occurence for this function.
+   // draw targeting sprite at monsterParticipants[highlightTarget]->animatedSprite.sprite.getPosition()
+   // Set left/right, up/down arrow keys to increment/decrement higlightedTarget.
+   // Enter key saves highligtedTarget to 'selection' variable.
+   // battle.h checks for a selection variable that != 88 to continue.
+   // battle.h sets target to monsterParticipants[selection - 1].
+}
+
+/*******************************************************************************
 * void getLineupIndex()
 * Iterates through the animation lineup array and returns the index of the first
 * true boolean. The order of the lineup is the order that the animations get
@@ -461,15 +480,15 @@ void Animations::getNewLineup(bool & go, bool & go2) {
 * in the animations.
 *******************************************************************************/
 void Animations::displayInfoInConsole() {
-   cout << "Active character: " << activeCharacter->name << endl;
-   cout << "Target character: " << targetCharacter->name << endl;
-   cout << "animationLineup:\n";
-   for(short i = 0; i < lineupSize; i++)
-   	  cout << this->animationLineup[lineupOrder[i]] << ", ";
-   cout << "lineupIndex = " << lineupIndex << endl;
-   cout << endl;
-   cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
-   cout << endl;
+   // cout << "Active character: " << activeCharacter->name << endl;
+   // cout << "Target character: " << targetCharacter->name << endl;
+   // cout << "animationLineup:\n";
+   // for(short i = 0; i < lineupSize; i++)
+   // 	  cout << this->animationLineup[lineupOrder[i]] << ", ";
+   // cout << "lineupIndex = " << lineupIndex << endl;
+   // cout << endl;
+   // cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
+   // cout << endl;
 }
 
 /*******************************************************************************

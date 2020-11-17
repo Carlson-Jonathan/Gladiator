@@ -16,8 +16,6 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
    	  animationClock.restart();
    }
 
-   displayInfoInConsole();
-
    switch(lineupIndex) {
       case 1:
          animationFatigue(window);

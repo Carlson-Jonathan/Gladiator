@@ -43,8 +43,8 @@ int main() {
 
    vector<Character> heroes = createCharacters(3);
 
-       // heroes, monster type, debug mode, num monsters, animations, screenW, screenH
-   Battle battle(heroes, "Cactopus", 0, 4, pAnimations, pScreenWidth, pScreenHeight);
+       // heroes, monster type, num monsters, animations, screenW, screenH
+   Battle battle(heroes, "Cactopus", 4, pAnimations, pScreenWidth, pScreenHeight);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");

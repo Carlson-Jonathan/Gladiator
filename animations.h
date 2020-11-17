@@ -156,6 +156,9 @@ private:
    sf::SoundBuffer menuTick_b;
    sf::Sound menuTick;
 
+   sf::SoundBuffer menuSelect_b;
+   sf::Sound menuSelect;
+
 
    /**********************************************/
 
@@ -181,7 +184,6 @@ private:
    void drawMenuWheel(sf::RenderWindow & window);
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
    void getNewLineup(bool & go, bool & go2);
-   void displayInfoInConsole(); 
    void drawTargetWheel();
 
    // Ordered animations
@@ -228,7 +230,8 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
    menuSprite.setOrigin(70.f, 70.f);
 
    // Sounds
-   createSound("Sounds/Effects/tick.ogg", menuTick_b, menuTick);
+   createSound("Sounds/Effects/pop.ogg", menuTick_b, menuTick);
+   createSound("Sounds/Effects/tClick.ogg", menuSelect_b, menuSelect);
 
    // Fonts and text
    if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) 
@@ -274,6 +277,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
             case sf::Keyboard::Return:
                keyHasBeenReleased = false;
                selection = menuOption;
+               menuSelect.play();
                menuOption = 1;
                menuSprite.setRotation(0.0f);
                lineupIndex = 88;
@@ -435,18 +439,12 @@ void Animations::drawTargetWheel() {
 * number of seconds delay before the new index is retrieved.
 *******************************************************************************/
 short Animations::getLineupIndex() {
-
-   // if(animationClock.getElapsedTime().asSeconds() > seconds && lineupIndex != 3) {
-
       for(short i = 0; i < lineupSize; i++) {
          if(animationLineup[lineupOrder[i]]) {
             animationLineup[lineupOrder[i]] = false;
             return i + 1;
          }
       }
-
-      // animationClock.restart();
-   // }
    return 0;
 }
 
@@ -472,23 +470,6 @@ void Animations::getNewLineup(bool & go, bool & go2) {
    go = true;
    go2 = true;
    lineupIndex = 88; 
-}
-
-/*******************************************************************************
-* void displayInfoInConsole()
-* Used for debugging. Displays the information in the console that is happening
-* in the animations.
-*******************************************************************************/
-void Animations::displayInfoInConsole() {
-   // cout << "Active character: " << activeCharacter->name << endl;
-   // cout << "Target character: " << targetCharacter->name << endl;
-   // cout << "animationLineup:\n";
-   // for(short i = 0; i < lineupSize; i++)
-   // 	  cout << this->animationLineup[lineupOrder[i]] << ", ";
-   // cout << "lineupIndex = " << lineupIndex << endl;
-   // cout << endl;
-   // cout << "Clock: " << animationClock.getElapsedTime().asSeconds() << endl;
-   // cout << endl;
 }
 
 /*******************************************************************************

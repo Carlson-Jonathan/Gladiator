@@ -868,21 +868,21 @@ void Battle::displayMechanics() {
         << "Target Character: " << animations->targetCharacter->name << endl;
    cout << "Animation Lineup: " << endl;
    cout << "\t";
-   for(short i = 0; i < animations->lineupSize; i++)
+   for(short i = 1; i < animations->lineupSize; i++)
    	  cout << i << setw(2) << "|" << setw(2);
    cout << setw(0) << endl;
    cout << "\t";
    for(short i = 0; i < animations->lineupSize; i++)
       cout << animations->animationLineup[animations->lineupOrder[i]] << " | ";
    cout << endl;
-   cout << "Current Action: " << animations->lineupIndex << endl;
+   cout << "Lineup Index: " << animations->lineupIndex << endl;
    cout << "\t" << participant->name 
         << "'s accuracy (left > right = miss): " << missed << " | " 
         << willMiss << endl;
    cout << "FPS Counter: " << count << endl;
    cout << "Animation Clock: " 
         << animations->animationClock.getElapsedTime().asSeconds() << endl;
-   cout << "go = " << go << " | go2 = " << go2 << "option = " << option 
+   cout << "go = " << go << " | go2 = " << go2 << " | option = " << option 
         << " | selection = " << animations->selection << endl;
    displayCharacterStats(monsterParticipants, heroParticipants, round);
 }

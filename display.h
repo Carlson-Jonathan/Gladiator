@@ -83,7 +83,7 @@ string writeMessage(const string message) {
 	for(char i : message) {
 		cout << i;
 		cout.flush();
-		usleep(1000);
+		usleep(10000);
 	}
 	return "\t";
 }
@@ -105,7 +105,7 @@ void writeMessageScroll(const string message) {
       while(getline(ss,to,'\n')) {
          cout << to << endl;
          cout.flush();
-         usleep(5000);
+         usleep(50000);
       }
    
    usleep(70000);

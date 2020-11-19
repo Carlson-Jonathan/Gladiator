@@ -252,7 +252,7 @@ void Battle::applyRegeneration(Character & character) {
 void Battle::focus(Character & character) {
    defendingMessage(character);
    character.isDefending = true;
-   applyDefendBonuses(character);
+   if(!character->isDefending) applyDefendBonuses(character);
 
    // Potential uses:        
    // Increases damage on next strike (allows for criticals?).

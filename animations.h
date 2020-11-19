@@ -159,6 +159,8 @@ private:
    sf::SoundBuffer menuSelect_b;
    sf::Sound menuSelect;
 
+   sf::SoundBuffer getsHit_b;
+   sf::Sound getsHit;
 
    /**********************************************/
 
@@ -232,6 +234,7 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
    // Sounds
    createSound("Sounds/Effects/pop.ogg", menuTick_b, menuTick);
    createSound("Sounds/Effects/tClick.ogg", menuSelect_b, menuSelect);
+   createSound("Sounds/Effects/wesleyPop.ogg", getsHit_b, getsHit);
 
    // Fonts and text
    if(!font.loadFromFile("Fonts/Robusta-Regular.ttf")) 

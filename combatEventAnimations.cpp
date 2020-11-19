@@ -5,12 +5,6 @@
 *******************************************************************************/
 void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & window) {
 
-   // Sets a time delay for all animations across the board. Temporary until
-   // all animations are created and have their own execution time.
-   // if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
-   //    lineupIndex = getLineupIndex();
-   //    animationClock.restart();
-   // }
    if(lineupIndex == 88) { 
    	  lineupIndex = getLineupIndex();
    	  animationClock.restart();
@@ -351,6 +345,7 @@ void Animations::animationMiss(sf::RenderWindow & window, sf::Vector2f pos) {
 
 void Animations::animationApplyDamage(sf::RenderWindow & window, sf::Vector2f pos) {
    cout << "\t*** Damage numbers appear over victim ***\n";
+   getsHit.play();
    displayActionText(window, "Damage Numbers", pos);
 }
 

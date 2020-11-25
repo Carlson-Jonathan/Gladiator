@@ -33,272 +33,265 @@ void Animations::animationSelect(bool & go, bool & go2, sf::RenderWindow & windo
          }         
          break;
       case 4:
-         drawTargetWheel(window);
-         if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
-            lineupIndex = getLineupIndex();
-            animationClock.restart();
-         }         
-         break;
-      case 5:
          animationDefend(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 6:
+      case 5:
          animationRetreat(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 7:
+      case 6:
          animationAttack(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 8:
+      case 7:
          animationMiss(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 9:
+      case 8:
          animationApplyDamage(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 10:
+      case 9:
          animationDeath(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 11:
+      case 10:
          stopCharacterSprites();
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;   
-      case 12:
+      case 11:
          animationCombatDefeat(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 13:
+      case 12:
          animationCombatVictory(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;   
-      case 14:
+      case 13:
          animationWounded(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;  
-      case 15:
+      case 14:
          animationStun(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 16:
+      case 15:
          animationSlow(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 17:
+      case 16:
          animationHazardDamage(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 18:
+      case 17:
          animationDeath(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 19:
+      case 18:
          stopCharacterSprites();
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 20:
+      case 19:
          animationCombatDefeat(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;     
-      case 21:
+      case 20:
          animationCombatVictory(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 22:
+      case 21:
          animationRetaliation(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 23:
+      case 22:
          animationMiss(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 24:
+      case 23:
          animationApplyDamage(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 25:
+      case 24:
          animationDeath(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 26:
+      case 25:
          stopCharacterSprites();
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;         
-      case 27:
+      case 26:
          animationCombatDefeat(window);
+         if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
+            lineupIndex = getLineupIndex();
+            animationClock.restart();
+         }         
+         break;
+      case 27:
+         animationCombatVictory(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
       case 28:
-         animationCombatVictory(window);
-         if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
-            lineupIndex = getLineupIndex();
-            animationClock.restart();
-         }         
-         break;
-      case 29:
          animationWounded(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 30:
+      case 29:
          animationStun(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 31:
+      case 30:
          animationSlow(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;
-      case 32:
+      case 31:
          animationHazardDamage(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 33:
+      case 32:
          animationDeath(window, targetCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
-      case 34:
+      case 33:
          stopCharacterSprites();
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;         
-      case 35:
+      case 34:
          animationCombatDefeat(window);
+         if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
+            lineupIndex = getLineupIndex();
+            animationClock.restart();
+         }         
+         break; 
+      case 35:
+         animationCombatVictory(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break; 
       case 36:
-         animationCombatVictory(window);
-         if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
-            lineupIndex = getLineupIndex();
-            animationClock.restart();
-         }         
-         break; 
-      case 37:
          animationBleeding(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;  
-      case 38:
+      case 37:
          animationDeath(window, activeCharacterPos);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }          
          break;
-      case 39:
+      case 38:
          stopCharacterSprites();
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;           
-      case 40:
+      case 39:
          animationCombatDefeat(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }          
          break;  
-      case 41:
+      case 40:
          animationCombatVictory(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
             animationClock.restart();
          }         
          break;  
-      case 42:
+      case 41:
          animationRegeneration(window);
          if(animationClock.getElapsedTime().asSeconds() > 1.0f && lineupIndex != 3) {
             lineupIndex = getLineupIndex();
@@ -327,7 +320,6 @@ void Animations::animationDazed(sf::RenderWindow & window) {
 
 void Animations::animationHerosTurn(sf::RenderWindow & window) {
    drawMenuWheel(window);
-   drawTargetWheel(window);
    cout << "\t*** Select Monster/menu options ***\n";
 }
 
@@ -353,6 +345,7 @@ void Animations::animationMiss(sf::RenderWindow & window, sf::Vector2f pos) {
 
 void Animations::animationApplyDamage(sf::RenderWindow & window, sf::Vector2f pos) {
    cout << "\t*** Damage numbers appear over victim ***\n";
+   getsHit.play();
    displayActionText(window, "Damage Numbers", pos);
 }
 

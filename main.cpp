@@ -41,10 +41,10 @@ int main() {
    music.setLoop(true);
    music.play();
 
-   vector<Character> heroes = createCharacters(3);
+   vector<Character> heroes = createCharacters(2);
 
        // heroes, monster type, num monsters, animations, screenW, screenH
-   Battle battle(heroes, "Cactopus", 4, pAnimations, pScreenWidth, pScreenHeight);
+   Battle battle(heroes, "Cactopus", 2, pAnimations, pScreenWidth, pScreenHeight);
 
    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), 
       "Gladiator by Jonathan Carlson");

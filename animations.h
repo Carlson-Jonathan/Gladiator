@@ -21,7 +21,7 @@ class Animations {
 public:
 
    Animations                 () {}
-   ~Animations 				  () { cout << "Animations object is destroyed!\n"; }
+   ~Animations 				   () { cout << "Animations object is destroyed!\n"; }
    Animations                 (short* screenWidth, short* screenHeight); 
 
    void animateBattlescape    (sf::RenderWindow & window, bool & go, bool & go2);
@@ -38,13 +38,14 @@ public:
 
    // Order is unimportant since maps auto-sort by key.
    map<string, bool> animationLineup = {
-      {"fatigue",		0},
-      {"dazed", 		0},
-      {"heroesTurn",	0},
-      {"defend",		0},
-      {"flee",			0},
-      {"attack",		0},
-      {"missed1",		0},
+      {"fatigue",	      0},
+      {"dazed", 	   	0},
+      {"heroesTurn",   	0},
+      {"selectTarget",  0},
+      {"defend",		   0},
+      {"flee",			   0},
+      {"attack",	   	0},
+      {"missed1",		   0},
       {"applyDamage1",	0}, 
       {"charDead1",		0},
       {"combatDefeat1",	0},
@@ -57,7 +58,7 @@ public:
       {"combatDefeat2",	0},
       {"combatVictory2",0},
       {"retaliation",	0},
-      {"missed2",		0},
+      {"missed2",		   0},
       {"applyDamage2",	0},
       {"charDead3",		0},
       {"combatDefeat3",	0},
@@ -69,7 +70,7 @@ public:
       {"charDead4",		0},
       {"combatDefeat4",	0},
       {"combatVictory4",0},
-      {"applyBleed",	0},
+      {"applyBleed",	   0},
       {"charDead5",		0},
       {"combatDefeat5",	0},
       {"combatVictory5",0},
@@ -84,53 +85,58 @@ public:
    // Since maps auto-sort by key value, this vector is needed to preserve the
    // execution order of the animation lineup.
    vector<string> lineupOrder = {
-      "fatigue", 		// 1
+      "fatigue", 		   // 1
       "dazed", 			// 2
       "heroesTurn",		// 3
-      "defend",			// 4
-      "flee",			// 5
-      "attack",			// 6
-      "missed1",		// 7
-      "applyDamage1",	// 8
-      "charDead1",		// 9
-      "stopSprites1",	// 10
-      "combatDefeat1",	// 11
-      "combatVictory1", // 12
-      "setBleeding1",	// 13
-      "stun1",			// 14
-      "slow1",			// 15
-      "hazardDamage1",	// 16
-      "charDead2",		// 17
-      "stopSprites2",	// 18     
-      "combatDefeat2",	// 19
-      "combatVictory2", // 20
-      "retaliation",	// 21
-      "missed2",		// 22
-      "applyDamage2",	// 23
-      "charDead3",		// 24
-      "stopSprites3",	// 25     
-      "combatDefeat3",	// 26
-      "combatVictory3", // 27
-      "setBleeding2",	// 28
-      "stun2",			// 29
-      "slow2",			// 30
-      "hazardDamage2",	// 31
-      "charDead4",		// 32
-      "stopSprites4",	// 33     
-      "combatDefeat4",	// 34
-      "combatVictory4", // 35
-      "applyBleed",		// 36
-      "charDead5",		// 37
-      "stopSprites5",	// 38   
-      "combatDefeat5",	// 39
-      "combatVictory5",	// 40
-      "regeneration"	// 41
+      "selectTarget",   // 4
+      "defend",			// 5
+      "flee",			   // 6
+      "attack",			// 7
+      "missed1",		   // 8
+      "applyDamage1",	// 9
+      "charDead1",		// 10
+      "stopSprites1",	// 11
+      "combatDefeat1",	// 12
+      "combatVictory1", // 13
+      "setBleeding1",	// 14
+      "stun1",			   // 15
+      "slow1",			   // 16
+      "hazardDamage1",	// 17
+      "charDead2",		// 18
+      "stopSprites2",	// 19     
+      "combatDefeat2",	// 20
+      "combatVictory2", // 21
+      "retaliation",	   // 22
+      "missed2",		   // 23
+      "applyDamage2",	// 24
+      "charDead3",		// 25
+      "stopSprites3",	// 26     
+      "combatDefeat3",	// 27
+      "combatVictory3", // 28
+      "setBleeding2",	// 29
+      "stun2",			   // 30
+      "slow2",			   // 31
+      "hazardDamage2",	// 32
+      "charDead4",		// 33
+      "stopSprites4",	// 34     
+      "combatDefeat4",	// 35
+      "combatVictory4", // 36
+      "applyBleed",		// 37
+      "charDead5",		// 38
+      "stopSprites5",	// 39   
+      "combatDefeat5",	// 40
+      "combatVictory5",	// 41
+      "regeneration"	   // 42
    };
 
    short 
       lineupSize = lineupOrder.size(),
       lineupIndex = 88,
       selection = 88;
+
+   bool 
+      menuSelectionMade = false,
+      targetSelectionMade = false;
 
    sf::Clock animationClock;
 
@@ -151,6 +157,10 @@ private:
    sf::Texture mWheel;
    sf::IntRect menuRect;
    sf::Sprite menuSprite;
+
+   sf::Texture targetBox;
+   sf::IntRect targetRect;
+   sf::Sprite targetingSprite;
 
    /************* Battlescape Sounds *************/
    sf::SoundBuffer menuTick_b;
@@ -186,7 +196,7 @@ private:
    void drawMenuWheel(sf::RenderWindow & window);
    void displayActionText(sf::RenderWindow & window, string message, sf::Vector2f);
    void getNewLineup(bool & go, bool & go2);
-   void drawTargetWheel();
+   void drawTargetWheel(sf::RenderWindow & window);
 
    // Ordered animations
    short getLineupIndex();
@@ -226,10 +236,14 @@ Animations::Animations(short* screenWidth, short* screenHeight) {
    pScreenHeight = screenHeight;
 
    createScapeSprite("Images/meadow.png", 1920, 1080, backgroundTex, 
-   	                 backgroundRect, backgroundSpr);
+   	               backgroundRect, backgroundSpr);
+   createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, 
+                     menuSprite);
+   createScapeSprite("Images/Targeter.png", 100, 100, targetBox, targetRect, 
+                     targetingSprite);
 
-   createScapeSprite("Images/MenuWheel.png", 140, 140, mWheel, menuRect, menuSprite);
    menuSprite.setOrigin(70.f, 70.f);
+   targetingSprite.setOrigin(50.0f, 50.0f);
 
    // Sounds
    createSound("Sounds/Effects/pop.ogg", menuTick_b, menuTick);
@@ -264,7 +278,7 @@ bool Animations::eventListener(sf::RenderWindow & window) {
       if(keyHasBeenReleased) {
          switch(event.key.code) {
             case sf::Keyboard::Left:
-      	       keyHasBeenReleased = false;
+               keyHasBeenReleased = false;
                wheelRotate = -6.0f;
                menuTick.play();
                menuOption--;
@@ -279,6 +293,8 @@ bool Animations::eventListener(sf::RenderWindow & window) {
                break;
             case sf::Keyboard::Return:
                keyHasBeenReleased = false;
+               menuSelectionMade = true;
+               targetSelectionMade = true;
                selection = menuOption;
                menuSelect.play();
                menuOption = 1;
@@ -423,9 +439,13 @@ void Animations::drawMenuWheel(sf::RenderWindow & window) {
 * a selection on the menu wheel, the target wheel will appear over a monster,
 * which the character will be able to move and make the target selection.
 *******************************************************************************/
-void Animations::drawTargetWheel() {
+void Animations::drawTargetWheel(sf::RenderWindow & window) {
    short highlightTarget;
    // Create targeting sprite
+   targetingSprite.setPosition(targetCharacterPos);
+   window.draw(targetingSprite);
+
+
    // Create an animation lineup occurence for this function.
    // draw targeting sprite at monsterParticipants[highlightTarget]->animatedSprite.sprite.getPosition()
    // Set left/right, up/down arrow keys to increment/decrement higlightedTarget.

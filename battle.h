@@ -55,12 +55,14 @@ private:
 
    bool 
       battleOver = false, 
+      selectionMade = false,
       go = true,
       go2 = true;
 
    short 
       died = 0,
       option = 88,
+      option2 = 88,
       target = 1,
       round = 1,
       damageHpBpEp[3],
@@ -747,32 +749,55 @@ bool Battle::applyCharacterAction(Character* character) {
 *******************************************************************************/
 void Battle::getCharacterAction(Character* character) {
 
+   // Current issues:
+   // The event listener should not be in charge of resetting the menuOption if
+   // it is greater or less than a value, because the arrow keys are used elsewhere.
+   // 
+   // Need to implement monsterParticipants[target] increment/decrement with arrows.
+   //
+   // 
+
    animations->targetCharacter = heroParticipants[0]; // Prevents a seg fault
                                                       // in setCharacterPositions()
    // Get action for hero character 
    if(character->isHero) {
-      animations->lineupIndex = 3;
-      go = false;
+      animations->lineupIndex = 3;                    // Set menuWheel animation
+      go = false;                                     // Prevent battle from advancing
 
-      option = animations->selection;
-      if(option != 88) {
-         go = true;	
-         go2 = false;
+      if(animations->menuSelectionMade) {
+         option = animations->selection;                 // Grab character selection from animations
          animations->selection = 88;
-         animations->lineupIndex = 88;
+         animations->menuSelectionMade = false;
+         animations->targetSelectionMade = false;
       }
 
-      if(option == 1) { 
+      if(option == 1) {   
          if(listOfMonsters.size() > 1) {
-         	// Move go's here
+            animations->lineupIndex = 4; // Enables select target sprite
+            target = animations->selection;
 
+            // Activate combat
+            if(animations->targetSelectionMade) {
+               animations->menuSelectionMade = false;
+               animations->targetSelectionMade = false;
+               animations->selection = 88;
+               animations->lineupIndex = 88;
+               go = true;  
+               go2 = false;
+            }
+
+            if(target > listOfMonsters.size() || target < 1) target = 1;
             animations->targetCharacter = monsterParticipants[target - 1];
          }
-         else {
+         else 
+            animations->targetCharacter = monsterParticipants[0];
+      } 
+      else { // All other options
          	// go's here
+            go = true;  
+            go2 = false;
             target = 1;                 // Auto attack if only 1 monster left 
             animations->targetCharacter = monsterParticipants[target - 1];
-         }
       }
    }
 
